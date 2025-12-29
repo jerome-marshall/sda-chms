@@ -1,4 +1,4 @@
-import { env } from "@sda-church/env/server";
+import { env } from "@sda-chms/env/server";
 import { drizzle } from "drizzle-orm/node-postgres";
 
 // biome-ignore lint/performance/noNamespaceImport: <import schema>

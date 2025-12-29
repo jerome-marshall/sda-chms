@@ -1,5 +1,5 @@
 {
-  "name": "@sda-church/db",
+  "name": "@sda-chms/db",
   "type": "module",
   "exports": {
     ".": {
@@ -19,13 +19,13 @@
     "drizzle-kit": "^0.31.8",
     "@types/pg": "^8.15.6",
     "typescript": "catalog:",
-    "@sda-church/config": "workspace:*"
+    "@sda-chms/config": "workspace:*"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",
     "pg": "^8.16.3",
     "dotenv": "catalog:",
     "zod": "catalog:",
-    "@sda-church/env": "workspace:*"
+    "@sda-chms/env": "workspace:*"
   }
 }

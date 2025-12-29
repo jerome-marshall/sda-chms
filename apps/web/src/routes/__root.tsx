@@ -16,11 +16,11 @@ export const Route = createRootRouteWithContext()({
   head: () => ({
     meta: [
       {
-        title: "sda-church",
+        title: "sda-chms",
       },
       {
         name: "description",
-        content: "sda-church is a web application",
+        content: "sda-chms is a web application",
       },
     ],
     links: [

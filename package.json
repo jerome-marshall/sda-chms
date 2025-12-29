@@ -1,5 +1,5 @@
 {
-  "name": "sda-church",
+  "name": "sda-chms",
   "private": true,
   "workspaces": {
     "packages": [
@@ -22,15 +22,15 @@
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F server dev",
-    "db:push": "turbo -F @sda-church/db db:push",
-    "db:studio": "turbo -F @sda-church/db db:studio",
-    "db:generate": "turbo -F @sda-church/db db:generate",
-    "db:migrate": "turbo -F @sda-church/db db:migrate"
+    "db:push": "turbo -F @sda-chms/db db:push",
+    "db:studio": "turbo -F @sda-chms/db db:studio",
+    "db:generate": "turbo -F @sda-chms/db db:generate",
+    "db:migrate": "turbo -F @sda-chms/db db:migrate"
   },
   "dependencies": {
     "dotenv": "catalog:",
     "zod": "catalog:",
-    "@sda-church/env": "workspace:*"
+    "@sda-chms/env": "workspace:*"
   },
   "devDependencies": {
     "turbo": "^2.6.3",
@@ -38,7 +38,7 @@
     "ultracite": "6.5.0",
     "typescript": "catalog:",
     "@types/bun": "catalog:",
-    "@sda-church/config": "workspace:*"
+    "@sda-chms/config": "workspace:*"
   },
   "packageManager": "bun@1.3.0"
 }

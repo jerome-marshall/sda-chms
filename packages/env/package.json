@@ -1,5 +1,5 @@
 {
-  "name": "@sda-church/env",
+  "name": "@sda-chms/env",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,6 +15,6 @@
   "devDependencies": {
     "typescript": "catalog:",
     "@types/bun": "catalog:",
-    "@sda-church/config": "workspace:*"
+    "@sda-chms/config": "workspace:*"
   }
 }

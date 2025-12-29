@@ -1,5 +1,5 @@
 {
-  "extends": "@sda-church/config/tsconfig.base.json",
+  "extends": "@sda-chms/config/tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",

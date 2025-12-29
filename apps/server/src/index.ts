@@ -1,4 +1,4 @@
-import { env } from "@sda-church/env/server";
+import { env } from "@sda-chms/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";

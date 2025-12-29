@@ -13,13 +13,13 @@
     "hono": "^4.8.2",
     "dotenv": "catalog:",
     "zod": "catalog:",
-    "@sda-church/env": "workspace:*",
-    "@sda-church/db": "workspace:*"
+    "@sda-chms/env": "workspace:*",
+    "@sda-chms/db": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "typescript": "catalog:",
     "tsdown": "^0.16.5",
-    "@sda-church/config": "workspace:*"
+    "@sda-chms/config": "workspace:*"
   }
 }
