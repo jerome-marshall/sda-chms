@@ -1,0 +1,6 @@
+{
+  "extends": "@sda-church/config/tsconfig.base.json",
+  "compilerOptions": {
+    "strictNullChecks": true
+  }
+}
