@@ -1,6 +1,4 @@
 /** biome-ignore-all lint/a11y/noLabelWithoutControl: <label component> */
-"use client";
-
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";

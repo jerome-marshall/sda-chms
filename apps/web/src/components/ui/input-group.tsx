@@ -1,6 +1,4 @@
 /** biome-ignore-all lint/a11y/noNoninteractiveElementInteractions: <we need to use a div here> */
-"use client";
-
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 import { Button } from "@/components/ui/button";
