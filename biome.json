@@ -6,7 +6,7 @@
         "useSortedClasses": "error"
       },
       "correctness": {
-        "useImageSize": "info"
+        "useImageSize": "off"
       },
       "a11y": {
         "useKeyWithClickEvents": "off"
