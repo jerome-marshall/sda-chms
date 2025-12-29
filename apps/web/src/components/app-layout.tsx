@@ -13,7 +13,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "19rem",
+          "--sidebar-width": "17rem",
         } as React.CSSProperties
       }
     >

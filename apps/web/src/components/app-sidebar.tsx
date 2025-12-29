@@ -1,4 +1,12 @@
-import { GalleryVerticalEnd } from "lucide-react";
+import {
+  BarChart,
+  Calendar,
+  Church,
+  CreditCard,
+  type LucideIcon,
+  Settings,
+  Users2,
+} from "lucide-react";
 import type * as React from "react";
 
 import {
@@ -9,148 +17,46 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
-// This is sample data.
-const data = {
+// Church Management System navigation data
+interface NavItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  items?: Array<{
+    title: string;
+    url: string;
+    isActive?: boolean;
+  }>;
+}
+
+const data: { navMain: NavItem[] } = {
   navMain: [
     {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
+      title: "Members",
+      url: "/members",
+      icon: Users2,
     },
     {
-      title: "Building Your Application",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
+      title: "Events",
+      url: "/events",
+      icon: Calendar,
     },
     {
-      title: "API Reference",
-      url: "#",
-      items: [
-        {
-          title: "Components",
-          url: "#",
-        },
-        {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
-        },
-      ],
+      title: "Giving",
+      url: "/giving",
+      icon: CreditCard,
     },
     {
-      title: "Architecture",
-      url: "#",
-      items: [
-        {
-          title: "Accessibility",
-          url: "#",
-        },
-        {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
-        },
-      ],
+      title: "Reports",
+      url: "/reports",
+      icon: BarChart,
     },
     {
-      title: "Community",
-      url: "#",
-      items: [
-        {
-          title: "Contribution Guide",
-          url: "#",
-        },
-      ],
+      title: "Settings",
+      url: "/settings",
+      icon: Settings,
     },
   ],
 };
@@ -165,11 +71,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               render={(props) => (
                 <a href="/" {...props}>
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <GalleryVerticalEnd className="size-4" />
+                    <Church className="size-4" />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-medium">Documentation</span>
-                    <span className="">v1.0.0</span>
+                    <span className="font-semibold">SDA</span>
+                    <span className="">Church Management</span>
                   </div>
                 </a>
               )}
@@ -179,33 +85,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu className="gap-2">
+        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+          <SidebarMenu>
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   render={(props) => (
-                    <a className="font-medium" href={item.url} {...props}>
-                      {item.title}
+                    <a href={item.url} {...props}>
+                      <item.icon />
+                      <span>{item.title}</span>
                     </a>
                   )}
                 />
-                {item.items?.length ? (
-                  <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton
-                          isActive={item.isActive}
-                          render={(props) => (
-                            <a href={item.url} {...props}>
-                              {item.title}
-                            </a>
-                          )}
-                        />
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
