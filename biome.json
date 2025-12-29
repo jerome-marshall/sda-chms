@@ -4,6 +4,12 @@
     "rules": {
       "nursery": {
         "useSortedClasses": "error"
+      },
+      "correctness": {
+        "useImageSize": "info"
+      },
+      "a11y": {
+        "useKeyWithClickEvents": "off"
       }
     }
   },
