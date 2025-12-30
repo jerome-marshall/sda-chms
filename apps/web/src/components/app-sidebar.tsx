@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
   BarChart,
   Calendar,
@@ -8,7 +9,6 @@ import {
   Users2,
 } from "lucide-react";
 import type * as React from "react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -18,15 +18,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import type { TRoutes } from "@/types/route";
+import { Separator } from "./ui/separator";
 
 // Church Management System navigation data
 interface NavItem {
   title: string;
-  url: string;
+  url: TRoutes;
   icon: LucideIcon;
   items?: Array<{
     title: string;
-    url: string;
+    url: TRoutes;
     isActive?: boolean;
   }>;
 }
@@ -34,28 +36,28 @@ interface NavItem {
 const data: { navMain: NavItem[] } = {
   navMain: [
     {
-      title: "Members",
-      url: "/members",
+      title: "People",
+      url: "/people",
       icon: Users2,
     },
     {
       title: "Events",
-      url: "/events",
+      url: "/example",
       icon: Calendar,
     },
     {
       title: "Giving",
-      url: "/giving",
+      url: "/",
       icon: CreditCard,
     },
     {
       title: "Reports",
-      url: "/reports",
+      url: "/example",
       icon: BarChart,
     },
     {
       title: "Settings",
-      url: "/settings",
+      url: "/example",
       icon: Settings,
     },
   ],
@@ -84,6 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+      <Separator className={"px-3"} />
       <SidebarContent>
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarMenu>
@@ -91,10 +94,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   render={(props) => (
-                    <a href={item.url} {...props}>
+                    <Link to={item.url} {...props}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   )}
                 />
               </SidebarMenuItem>
