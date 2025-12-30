@@ -1,3 +1,5 @@
+import { zValidator } from "@hono/zod-validator";
+import { personInsertSchema } from "@sda-chms/shared/schema/people";
 import { Hono } from "hono";
 import { getAllPeople } from "@/data-access/people";
 
@@ -8,7 +10,7 @@ app.get("/", async (c) => {
   return c.json(people);
 });
 
-app.post("/", (c) => {
+app.post("/", zValidator("json", personInsertSchema), (c) => {
   return c.json("create a person", 201);
 });
 

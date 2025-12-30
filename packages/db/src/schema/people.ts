@@ -9,6 +9,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 // ============================================================================
 // ENUMS
@@ -54,7 +55,7 @@ export const relationshipTypeEnum = pgEnum("relationship_type", [
 // CORE TABLES
 // ============================================================================
 
-export const people = pgTable("people", {
+export const peopleTable = pgTable("people", {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
@@ -113,7 +114,7 @@ export const people = pgTable("people", {
 // HOUSEHOLDS
 // ============================================================================
 
-export const households = pgTable("households", {
+export const householdsTable = pgTable("households", {
   id: uuid().primaryKey().defaultRandom(),
   name: varchar({ length: 255 }).notNull(),
   addressLine1: varchar("address_line_1", { length: 255 }),
@@ -133,14 +134,14 @@ export const households = pgTable("households", {
 // RELATIONSHIPS
 // ============================================================================
 
-export const relationships = pgTable("relationships", {
+export const relationshipsTable = pgTable("relationships", {
   id: uuid().primaryKey().defaultRandom(),
   personId: uuid("person_id")
     .notNull()
-    .references(() => people.id, { onDelete: "cascade" }),
+    .references(() => peopleTable.id, { onDelete: "cascade" }),
   relatedPersonId: uuid("related_person_id")
     .notNull()
-    .references(() => people.id, { onDelete: "cascade" }),
+    .references(() => peopleTable.id, { onDelete: "cascade" }),
   relationshipType: relationshipTypeEnum("relationship_type").notNull(),
   notes: text(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -150,7 +151,7 @@ export const relationships = pgTable("relationships", {
 // DEPARTMENTS & GROUPS
 // ============================================================================
 
-export const departments = pgTable("departments", {
+export const departmentsTable = pgTable("departments", {
   id: uuid().primaryKey().defaultRandom(),
   name: varchar({ length: 255 }).notNull().unique(),
   description: text(),
@@ -162,14 +163,14 @@ export const departments = pgTable("departments", {
     .$onUpdate(() => new Date()),
 });
 
-export const peopleDepartments = pgTable("people_departments", {
+export const peopleDepartmentsTable = pgTable("people_departments", {
   id: uuid().primaryKey().defaultRandom(),
   personId: uuid("person_id")
     .notNull()
-    .references(() => people.id, { onDelete: "cascade" }),
+    .references(() => peopleTable.id, { onDelete: "cascade" }),
   departmentId: uuid("department_id")
     .notNull()
-    .references(() => departments.id, { onDelete: "cascade" }),
+    .references(() => departmentsTable.id, { onDelete: "cascade" }),
   role: varchar({ length: 100 }),
   joinedAt: date("joined_at"),
   leftAt: date("left_at"),
@@ -177,7 +178,7 @@ export const peopleDepartments = pgTable("people_departments", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const groups = pgTable("groups", {
+export const groupsTable = pgTable("groups", {
   id: uuid().primaryKey().defaultRandom(),
   name: varchar({ length: 255 }).notNull().unique(),
   description: text(),
@@ -189,14 +190,14 @@ export const groups = pgTable("groups", {
     .$onUpdate(() => new Date()),
 });
 
-export const peopleGroups = pgTable("people_groups", {
+export const peopleGroupsTable = pgTable("people_groups", {
   id: uuid().primaryKey().defaultRandom(),
   personId: uuid("person_id")
     .notNull()
-    .references(() => people.id, { onDelete: "cascade" }),
+    .references(() => peopleTable.id, { onDelete: "cascade" }),
   groupId: uuid("group_id")
     .notNull()
-    .references(() => groups.id, { onDelete: "cascade" }),
+    .references(() => groupsTable.id, { onDelete: "cascade" }),
   joinedAt: date("joined_at"),
   leftAt: date("left_at"),
   isActive: boolean("is_active").notNull().default(true),
@@ -207,25 +208,25 @@ export const peopleGroups = pgTable("people_groups", {
 // POSITIONS & ROLES
 // ============================================================================
 
-export const positions = pgTable("positions", {
+export const positionsTable = pgTable("positions", {
   id: uuid().primaryKey().defaultRandom(),
   name: varchar({ length: 255 }).notNull().unique(),
   description: text(),
-  departmentId: uuid("department_id").references(() => departments.id, {
+  departmentId: uuid("department_id").references(() => departmentsTable.id, {
     onDelete: "set null",
   }),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const positionHistory = pgTable("position_history", {
+export const positionHistoryTable = pgTable("position_history", {
   id: uuid().primaryKey().defaultRandom(),
   personId: uuid("person_id")
     .notNull()
-    .references(() => people.id, { onDelete: "cascade" }),
+    .references(() => peopleTable.id, { onDelete: "cascade" }),
   positionId: uuid("position_id")
     .notNull()
-    .references(() => positions.id, { onDelete: "cascade" }),
+    .references(() => positionsTable.id, { onDelete: "cascade" }),
   termStart: date("term_start").notNull(),
   termEnd: date("term_end"),
   notes: text(),
@@ -240,7 +241,7 @@ export const positionHistory = pgTable("position_history", {
 // SABBATH SCHOOL CLASSES
 // ============================================================================
 
-export const sabbathSchoolClasses = pgTable("sabbath_school_classes", {
+export const sabbathSchoolClassesTable = pgTable("sabbath_school_classes", {
   id: uuid().primaryKey().defaultRandom(),
   name: varchar({ length: 255 }).notNull(),
   description: text(),
@@ -253,16 +254,16 @@ export const sabbathSchoolClasses = pgTable("sabbath_school_classes", {
     .$onUpdate(() => new Date()),
 });
 
-export const peopleSabbathSchoolClasses = pgTable(
+export const peopleSabbathSchoolClassesTable = pgTable(
   "people_sabbath_school_classes",
   {
     id: uuid().primaryKey().defaultRandom(),
     personId: uuid("person_id")
       .notNull()
-      .references(() => people.id, { onDelete: "cascade" }),
+      .references(() => peopleTable.id, { onDelete: "cascade" }),
     sabbathSchoolClassId: uuid("sabbath_school_class_id")
       .notNull()
-      .references(() => sabbathSchoolClasses.id, { onDelete: "cascade" }),
+      .references(() => sabbathSchoolClassesTable.id, { onDelete: "cascade" }),
     role: varchar({ length: 100 }),
     joinedAt: date("joined_at"),
     leftAt: date("left_at"),
@@ -274,109 +275,125 @@ export const peopleSabbathSchoolClasses = pgTable(
 // RELATIONS
 // ============================================================================
 
-export const peopleRelations = relations(people, ({ one, many }) => ({
-  household: one(households, {
-    fields: [people.householdId],
-    references: [households.id],
+export const peopleRelations = relations(peopleTable, ({ one, many }) => ({
+  household: one(householdsTable, {
+    fields: [peopleTable.householdId],
+    references: [householdsTable.id],
   }),
-  departments: many(peopleDepartments),
-  groups: many(peopleGroups),
-  sabbathSchoolClasses: many(peopleSabbathSchoolClasses),
-  positionHistory: many(positionHistory),
-  relationshipsAsSubject: many(relationships, { relationName: "subject" }),
-  relationshipsAsRelated: many(relationships, { relationName: "related" }),
+  departments: many(peopleDepartmentsTable),
+  groups: many(peopleGroupsTable),
+  sabbathSchoolClasses: many(peopleSabbathSchoolClassesTable),
+  positionHistory: many(positionHistoryTable),
+  relationshipsAsSubject: many(relationshipsTable, { relationName: "subject" }),
+  relationshipsAsRelated: many(relationshipsTable, { relationName: "related" }),
 }));
 
-export const householdsRelations = relations(households, ({ many }) => ({
-  members: many(people),
+export const householdsRelations = relations(householdsTable, ({ many }) => ({
+  members: many(peopleTable),
 }));
 
-export const departmentsRelations = relations(departments, ({ many }) => ({
-  members: many(peopleDepartments),
-  positions: many(positions),
+export const departmentsRelations = relations(departmentsTable, ({ many }) => ({
+  members: many(peopleDepartmentsTable),
+  positions: many(positionsTable),
 }));
 
 export const peopleDepartmentsRelations = relations(
-  peopleDepartments,
+  peopleDepartmentsTable,
   ({ one }) => ({
-    person: one(people, {
-      fields: [peopleDepartments.personId],
-      references: [people.id],
+    person: one(peopleTable, {
+      fields: [peopleDepartmentsTable.personId],
+      references: [peopleTable.id],
     }),
-    department: one(departments, {
-      fields: [peopleDepartments.departmentId],
-      references: [departments.id],
+    department: one(departmentsTable, {
+      fields: [peopleDepartmentsTable.departmentId],
+      references: [departmentsTable.id],
     }),
   })
 );
 
-export const groupsRelations = relations(groups, ({ many }) => ({
-  members: many(peopleGroups),
+export const groupsRelations = relations(groupsTable, ({ many }) => ({
+  members: many(peopleGroupsTable),
 }));
 
-export const peopleGroupsRelations = relations(peopleGroups, ({ one }) => ({
-  person: one(people, {
-    fields: [peopleGroups.personId],
-    references: [people.id],
-  }),
-  group: one(groups, {
-    fields: [peopleGroups.groupId],
-    references: [groups.id],
-  }),
-}));
+export const peopleGroupsRelations = relations(
+  peopleGroupsTable,
+  ({ one }) => ({
+    person: one(peopleTable, {
+      fields: [peopleGroupsTable.personId],
+      references: [peopleTable.id],
+    }),
+    group: one(groupsTable, {
+      fields: [peopleGroupsTable.groupId],
+      references: [groupsTable.id],
+    }),
+  })
+);
 
-export const positionsRelations = relations(positions, ({ one, many }) => ({
-  department: one(departments, {
-    fields: [positions.departmentId],
-    references: [departments.id],
-  }),
-  history: many(positionHistory),
-}));
+export const positionsRelations = relations(
+  positionsTable,
+  ({ one, many }) => ({
+    department: one(departmentsTable, {
+      fields: [positionsTable.departmentId],
+      references: [departmentsTable.id],
+    }),
+    history: many(positionHistoryTable),
+  })
+);
 
 export const positionHistoryRelations = relations(
-  positionHistory,
+  positionHistoryTable,
   ({ one }) => ({
-    person: one(people, {
-      fields: [positionHistory.personId],
-      references: [people.id],
+    person: one(peopleTable, {
+      fields: [positionHistoryTable.personId],
+      references: [peopleTable.id],
     }),
-    position: one(positions, {
-      fields: [positionHistory.positionId],
-      references: [positions.id],
+    position: one(positionsTable, {
+      fields: [positionHistoryTable.positionId],
+      references: [positionsTable.id],
     }),
   })
 );
 
 export const sabbathSchoolClassesRelations = relations(
-  sabbathSchoolClasses,
+  sabbathSchoolClassesTable,
   ({ many }) => ({
-    members: many(peopleSabbathSchoolClasses),
+    members: many(peopleSabbathSchoolClassesTable),
   })
 );
 
 export const peopleSabbathSchoolClassesRelations = relations(
-  peopleSabbathSchoolClasses,
+  peopleSabbathSchoolClassesTable,
   ({ one }) => ({
-    person: one(people, {
-      fields: [peopleSabbathSchoolClasses.personId],
-      references: [people.id],
+    person: one(peopleTable, {
+      fields: [peopleSabbathSchoolClassesTable.personId],
+      references: [peopleTable.id],
     }),
-    sabbathSchoolClass: one(sabbathSchoolClasses, {
-      fields: [peopleSabbathSchoolClasses.sabbathSchoolClassId],
-      references: [sabbathSchoolClasses.id],
+    sabbathSchoolClass: one(sabbathSchoolClassesTable, {
+      fields: [peopleSabbathSchoolClassesTable.sabbathSchoolClassId],
+      references: [sabbathSchoolClassesTable.id],
     }),
   })
 );
 
-export const relationshipsRelations = relations(relationships, ({ one }) => ({
-  person: one(people, {
-    fields: [relationships.personId],
-    references: [people.id],
-    relationName: "subject",
-  }),
-  relatedPerson: one(people, {
-    fields: [relationships.relatedPersonId],
-    references: [people.id],
-    relationName: "related",
-  }),
-}));
+export const relationshipsRelations = relations(
+  relationshipsTable,
+  ({ one }) => ({
+    person: one(peopleTable, {
+      fields: [relationshipsTable.personId],
+      references: [peopleTable.id],
+      relationName: "subject",
+    }),
+    relatedPerson: one(peopleTable, {
+      fields: [relationshipsTable.relatedPersonId],
+      references: [peopleTable.id],
+      relationName: "related",
+    }),
+  })
+);
+
+// ============================================================================
+// ZOD SCHEMAS
+// ============================================================================
+
+export const peopleSelectSchemaDb = createSelectSchema(peopleTable);
+export const peopleInsertSchemaDb = createInsertSchema(peopleTable);

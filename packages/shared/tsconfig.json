@@ -1,0 +1,3 @@
+{
+  "extends": "@sda-chms/config/tsconfig.base.json"
+}
