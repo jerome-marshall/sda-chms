@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/people")({
+export const Route = createFileRoute("/people/")({
   component: RouteComponent,
 });
 
@@ -12,9 +13,9 @@ function RouteComponent() {
     <div>
       <ButtonGroup>
         <ButtonGroup>
-          <Button>
+          <Link className={cn(buttonVariants())} to="/people/add">
             <PlusIcon /> Add Person
-          </Button>
+          </Link>
           {/* <Button variant="outline">Report</Button> */}
         </ButtonGroup>
         <ButtonGroup>
