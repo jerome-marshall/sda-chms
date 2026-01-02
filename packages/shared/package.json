@@ -15,7 +15,6 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@sda-chms/db": "workspace:*",
     "zod": "catalog:"
   }
 }

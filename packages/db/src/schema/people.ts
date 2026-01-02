@@ -1,3 +1,10 @@
+import {
+  GENDER_VALUES,
+  HOUSEHOLD_ROLE_VALUES,
+  MARITAL_STATUS_VALUES,
+  MEMBERSHIP_STATUS_VALUES,
+  RELATIONSHIP_TYPE_VALUES,
+} from "@sda-chms/shared/constants/people";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -10,46 +17,33 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import type z from "zod";
 
 // ============================================================================
 // ENUMS
 // ============================================================================
 
-export const genderEnum = pgEnum("gender", ["male", "female"]);
+export const genderEnum = pgEnum("gender", GENDER_VALUES);
 
-export const membershipStatusEnum = pgEnum("membership_status", [
-  "member",
-  "regular_attendee",
-  "visitor",
-  "inactive",
-  "moved",
-  "deceased",
-]);
+export const membershipStatusEnum = pgEnum(
+  "membership_status",
+  MEMBERSHIP_STATUS_VALUES
+);
 
-export const maritalStatusEnum = pgEnum("marital_status", [
-  "single",
-  "married",
-  "divorced",
-  "widowed",
-  "separated",
-]);
+export const maritalStatusEnum = pgEnum(
+  "marital_status",
+  MARITAL_STATUS_VALUES
+);
 
-export const householdRoleEnum = pgEnum("household_role", [
-  "head",
-  "spouse",
-  "child",
-  "other",
-]);
+export const householdRoleEnum = pgEnum(
+  "household_role",
+  HOUSEHOLD_ROLE_VALUES
+);
 
-export const relationshipTypeEnum = pgEnum("relationship_type", [
-  "parent",
-  "child",
-  "spouse",
-  "sibling",
-  "grandparent",
-  "grandchild",
-  "other",
-]);
+export const relationshipTypeEnum = pgEnum(
+  "relationship_type",
+  RELATIONSHIP_TYPE_VALUES
+);
 
 // ============================================================================
 // CORE TABLES
@@ -84,7 +78,6 @@ export const peopleTable = pgTable("people", {
 
   // Personal Details
   occupation: varchar({ length: 255 }).notNull(),
-  skills: text("skills"),
   maritalStatus: maritalStatusEnum("marital_status").notNull(),
   weddingDate: date("wedding_date"),
   memorialDay: date("memorial_day"),
@@ -96,7 +89,7 @@ export const peopleTable = pgTable("people", {
   dateJoinedChurch: date("date_joined_church"),
 
   // Preferences
-  dietaryPreferences: text("dietary_preferences"),
+  dietaryPreference: text("dietary_preference"),
 
   // Private Notes
   visitationNotes: text("visitation_notes"),
@@ -397,3 +390,8 @@ export const relationshipsRelations = relations(
 
 export const peopleSelectSchemaDb = createSelectSchema(peopleTable);
 export const peopleInsertSchemaDb = createInsertSchema(peopleTable);
+
+// ============================================================================
+// Types
+// ============================================================================
+export type PeopleInsertDb = z.infer<typeof peopleInsertSchemaDb>;

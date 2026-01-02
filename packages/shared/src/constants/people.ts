@@ -1,0 +1,88 @@
+export const GENDER = {
+  MALE: "male",
+  FEMALE: "female",
+} as const;
+export const GENDER_VALUES = [GENDER.MALE, GENDER.FEMALE] as const;
+
+export const MARITAL_STATUS = {
+  SINGLE: "single",
+  MARRIED: "married",
+  DIVORCED: "divorced",
+  WIDOWED: "widowed",
+  SEPARATED: "separated",
+} as const;
+export const MARITAL_STATUS_VALUES = [
+  MARITAL_STATUS.SINGLE,
+  MARITAL_STATUS.MARRIED,
+  MARITAL_STATUS.DIVORCED,
+  MARITAL_STATUS.WIDOWED,
+  MARITAL_STATUS.SEPARATED,
+] as const;
+
+export const MEMBERSHIP_STATUS = {
+  MEMBER: "member",
+  REGULAR_ATTENDEE: "regular_attendee",
+  VISITOR: "visitor",
+  INACTIVE: "inactive",
+  MOVED: "moved",
+  DECEASED: "deceased",
+} as const;
+export const MEMBERSHIP_STATUS_VALUES = [
+  MEMBERSHIP_STATUS.MEMBER,
+  MEMBERSHIP_STATUS.REGULAR_ATTENDEE,
+  MEMBERSHIP_STATUS.VISITOR,
+  MEMBERSHIP_STATUS.INACTIVE,
+  MEMBERSHIP_STATUS.MOVED,
+  MEMBERSHIP_STATUS.DECEASED,
+] as const;
+
+export const HOUSEHOLD_ROLE = {
+  HEAD: "head",
+  SPOUSE: "spouse",
+  CHILD: "child",
+  OTHER: "other",
+} as const;
+export const HOUSEHOLD_ROLE_VALUES = [
+  HOUSEHOLD_ROLE.HEAD,
+  HOUSEHOLD_ROLE.SPOUSE,
+  HOUSEHOLD_ROLE.CHILD,
+  HOUSEHOLD_ROLE.OTHER,
+] as const;
+
+export const RELATIONSHIP_TYPE = {
+  PARENT: "parent",
+  CHILD: "child",
+  SPOUSE: "spouse",
+  SIBLING: "sibling",
+  GRANDPARENT: "grandparent",
+  GRANDCHILD: "grandchild",
+  OTHER: "other",
+} as const;
+export const RELATIONSHIP_TYPE_VALUES = [
+  RELATIONSHIP_TYPE.PARENT,
+  RELATIONSHIP_TYPE.CHILD,
+  RELATIONSHIP_TYPE.SPOUSE,
+  RELATIONSHIP_TYPE.SIBLING,
+  RELATIONSHIP_TYPE.GRANDPARENT,
+  RELATIONSHIP_TYPE.GRANDCHILD,
+  RELATIONSHIP_TYPE.OTHER,
+] as const;
+
+export const DIETARY_PREFERENCES = {
+  VEGAN: "vegan",
+  VEGETARIAN: "vegetarian",
+  GLUTEN_FREE: "gluten_free",
+  LACTOSE_FREE: "lactose_free",
+  NUT_FREE: "nut_free",
+  OTHER: "other",
+  NONE: "none",
+} as const;
+export const DIETARY_PREFERENCES_VALUES = [
+  DIETARY_PREFERENCES.VEGAN,
+  DIETARY_PREFERENCES.VEGETARIAN,
+  DIETARY_PREFERENCES.GLUTEN_FREE,
+  DIETARY_PREFERENCES.LACTOSE_FREE,
+  DIETARY_PREFERENCES.NUT_FREE,
+  DIETARY_PREFERENCES.OTHER,
+  DIETARY_PREFERENCES.NONE,
+] as const;

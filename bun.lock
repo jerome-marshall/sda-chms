@@ -85,6 +85,7 @@
       "name": "@sda-chms/db",
       "dependencies": {
         "@sda-chms/env": "workspace:*",
+        "@sda-chms/shared": "workspace:*",
         "dotenv": "catalog:",
         "drizzle-orm": "catalog:",
         "drizzle-zod": "^0.8.3",
