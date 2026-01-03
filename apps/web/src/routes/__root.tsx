@@ -1,3 +1,5 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
@@ -32,21 +34,26 @@ export const Route = createRootRouteWithContext()({
   }),
 });
 
+const queryClient = new QueryClient();
+
 function RootComponent() {
   return (
     <>
       <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
-      >
-        <AppLayout>
-          <Outlet />
-        </AppLayout>
-        <Toaster richColors />
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          disableTransitionOnChange
+          storageKey="vite-ui-theme"
+        >
+          <AppLayout>
+            <Outlet />
+          </AppLayout>
+          <Toaster richColors />
+        </ThemeProvider>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
       <TanStackRouterDevtools position="bottom-left" />
     </>
   );

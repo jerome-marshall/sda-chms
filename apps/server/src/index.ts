@@ -2,6 +2,7 @@ import { env } from "@sda-chms/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import groupsRoutes from "./routes/groups";
 import peopleRoutes from "./routes/people";
 
 const app = new Hono();
@@ -15,11 +16,12 @@ app.use(
   })
 );
 
-app.get("/", (c) => {
-  return c.text("OK");
-});
-
-app.route("/people", peopleRoutes);
+const routes = app
+  .get("/", (c) => {
+    return c.text("OK");
+  })
+  .route("/people", peopleRoutes)
+  .route("/groups", groupsRoutes);
 
 export default app;
-export type THonoApp = typeof app;
+export type THonoApp = typeof routes;

@@ -1,12 +1,12 @@
 import { zValidator } from "@hono/zod-validator";
 import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import { Hono } from "hono";
-import { getAllPeople } from "@/data-access/people";
+import { getAllGroupsUseCase } from "../use-case/groups";
 
 const app = new Hono()
   .get("/", async (c) => {
-    const people = await getAllPeople();
-    return c.json(people, 200);
+    const groups = await getAllGroupsUseCase();
+    return c.json({ groups }, 200);
   })
   .post("/", zValidator("json", personInsertFormSchema), (c) => {
     return c.json("create a person", 201);
