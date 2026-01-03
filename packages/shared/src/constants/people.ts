@@ -1,8 +1,18 @@
 export const GENDER = {
   MALE: "male",
   FEMALE: "female",
+  OTHER: "other",
 } as const;
-export const GENDER_VALUES = [GENDER.MALE, GENDER.FEMALE] as const;
+export const GENDER_VALUES = [
+  GENDER.MALE,
+  GENDER.FEMALE,
+  GENDER.OTHER,
+] as const;
+export const GENDER_OPTIONS = [
+  { value: GENDER.MALE, label: "Male" },
+  { value: GENDER.FEMALE, label: "Female" },
+  { value: GENDER.OTHER, label: "Other" },
+];
 
 export const MARITAL_STATUS = {
   SINGLE: "single",
