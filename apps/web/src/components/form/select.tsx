@@ -19,6 +19,7 @@ interface FormSelectProps<T extends FieldValues> {
   label: string;
   options: { value: string; label: string }[];
   placeholder?: string;
+  multiple?: boolean;
 }
 
 const FormSelect = <T extends FieldValues>({
@@ -27,6 +28,7 @@ const FormSelect = <T extends FieldValues>({
   label,
   options,
   placeholder,
+  multiple = false,
 }: FormSelectProps<T>) => {
   return (
     <Controller
@@ -36,6 +38,7 @@ const FormSelect = <T extends FieldValues>({
         <Field orientation="vertical">
           <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
           <Select
+            multiple={multiple}
             name={field.name}
             onValueChange={field.onChange}
             value={field.value}

@@ -11,7 +11,7 @@ import {
 export const personInsertFormSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string(),
-  preferredName: z.string(),
+  preferredName: z.string().optional(),
   gender: z.enum(GENDER_VALUES),
   dateOfBirth: z.date(),
   photoUrl: z.url().optional(),
@@ -19,10 +19,10 @@ export const personInsertFormSchema = z.object({
   email: z.email().optional(),
   addressLine1: z.string(),
   addressLine2: z.string().optional(),
-  city: z.string(),
-  state: z.string(),
-  country: z.string(),
-  occupation: z.string(),
+  city: z.string().min(1),
+  state: z.string().min(1),
+  country: z.string().min(1),
+  occupation: z.string().min(1),
   maritalStatus: z.enum(MARITAL_STATUS_VALUES),
   weddingDate: z.date().optional(),
   memorialDay: z.date().optional(),
@@ -42,7 +42,7 @@ export const personInsertFormSchema = z.object({
     )
     .optional(),
   groupIds: z.string().array().optional(),
-  sabbathSchoolClassId: z.string(),
+  sabbathSchoolClassId: z.string().min(1),
   visitationNotes: z.string().optional(),
   pastoralNotes: z.string().optional(),
 });

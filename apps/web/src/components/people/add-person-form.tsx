@@ -175,7 +175,7 @@ const AddPersonForm = () => {
             <FormInput form={form} label="Baptism place" name="baptismPlace" />
             <FormInput
               form={form}
-              label="Sabbath School Class ID"
+              label="Sabbath School"
               name="sabbathSchoolClassId"
             />
           </FieldGroup>
@@ -197,11 +197,15 @@ const AddPersonForm = () => {
               options={MARITAL_STATUS_OPTIONS}
               placeholder="Select marital status"
             />
-            <FormDatePicker
-              form={form}
-              label="Wedding date"
-              name="weddingDate"
-            />
+            {form.watch("maritalStatus") === "married" && (
+              <FormDatePicker
+                form={form}
+                label="Wedding date"
+                name="weddingDate"
+              />
+            )}
+          </FieldGroup>
+          <FieldGroup className="grid grid-cols-2 gap-4">
             <FormSelect
               form={form}
               label="Household role"
