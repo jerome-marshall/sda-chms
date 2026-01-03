@@ -28,6 +28,13 @@ export const MARITAL_STATUS_VALUES = [
   MARITAL_STATUS.WIDOWED,
   MARITAL_STATUS.SEPARATED,
 ] as const;
+export const MARITAL_STATUS_OPTIONS = [
+  { value: MARITAL_STATUS.SINGLE, label: "Single" },
+  { value: MARITAL_STATUS.MARRIED, label: "Married" },
+  { value: MARITAL_STATUS.DIVORCED, label: "Divorced" },
+  { value: MARITAL_STATUS.WIDOWED, label: "Widowed" },
+  { value: MARITAL_STATUS.SEPARATED, label: "Separated" },
+];
 
 export const MEMBERSHIP_STATUS = {
   MEMBER: "member",
@@ -45,6 +52,14 @@ export const MEMBERSHIP_STATUS_VALUES = [
   MEMBERSHIP_STATUS.MOVED,
   MEMBERSHIP_STATUS.DECEASED,
 ] as const;
+export const MEMBERSHIP_STATUS_OPTIONS = [
+  { value: MEMBERSHIP_STATUS.MEMBER, label: "Member" },
+  { value: MEMBERSHIP_STATUS.REGULAR_ATTENDEE, label: "Regular Attendee" },
+  { value: MEMBERSHIP_STATUS.VISITOR, label: "Visitor" },
+  { value: MEMBERSHIP_STATUS.INACTIVE, label: "Inactive" },
+  { value: MEMBERSHIP_STATUS.MOVED, label: "Moved" },
+  { value: MEMBERSHIP_STATUS.DECEASED, label: "Deceased" },
+];
 
 export const HOUSEHOLD_ROLE = {
   HEAD: "head",
@@ -58,6 +73,12 @@ export const HOUSEHOLD_ROLE_VALUES = [
   HOUSEHOLD_ROLE.CHILD,
   HOUSEHOLD_ROLE.OTHER,
 ] as const;
+export const HOUSEHOLD_ROLE_OPTIONS = [
+  { value: HOUSEHOLD_ROLE.HEAD, label: "Head" },
+  { value: HOUSEHOLD_ROLE.SPOUSE, label: "Spouse" },
+  { value: HOUSEHOLD_ROLE.CHILD, label: "Child" },
+  { value: HOUSEHOLD_ROLE.OTHER, label: "Other" },
+];
 
 export const RELATIONSHIP_TYPE = {
   PARENT: "parent",
@@ -96,3 +117,12 @@ export const DIETARY_PREFERENCES_VALUES = [
   DIETARY_PREFERENCES.OTHER,
   DIETARY_PREFERENCES.NONE,
 ] as const;
+export const DIETARY_PREFERENCES_OPTIONS = [
+  { value: DIETARY_PREFERENCES.VEGAN, label: "Vegan" },
+  { value: DIETARY_PREFERENCES.VEGETARIAN, label: "Vegetarian" },
+  { value: DIETARY_PREFERENCES.GLUTEN_FREE, label: "Gluten Free" },
+  { value: DIETARY_PREFERENCES.LACTOSE_FREE, label: "Lactose Free" },
+  { value: DIETARY_PREFERENCES.NUT_FREE, label: "Nut Free" },
+  { value: DIETARY_PREFERENCES.OTHER, label: "Other" },
+  { value: DIETARY_PREFERENCES.NONE, label: "None" },
+];

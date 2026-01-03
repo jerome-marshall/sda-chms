@@ -18,6 +18,7 @@ interface FormSelectProps<T extends FieldValues> {
   name: Path<T>;
   label: string;
   options: { value: string; label: string }[];
+  placeholder?: string;
 }
 
 const FormSelect = <T extends FieldValues>({
@@ -25,15 +26,15 @@ const FormSelect = <T extends FieldValues>({
   name,
   label,
   options,
+  placeholder,
 }: FormSelectProps<T>) => {
   return (
     <Controller
       control={form.control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid} orientation="vertical">
+        <Field orientation="vertical">
           <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           <Select
             name={field.name}
             onValueChange={field.onChange}
@@ -41,7 +42,7 @@ const FormSelect = <T extends FieldValues>({
           >
             <SelectTrigger aria-invalid={fieldState.invalid} id={field.name}>
               {options.find((option) => option.value === field.value)
-                ?.label || <SelectValue />}
+                ?.label || <SelectValue>{placeholder}</SelectValue>}
             </SelectTrigger>
             <SelectContent>
               {options.map((option) => (
@@ -51,6 +52,7 @@ const FormSelect = <T extends FieldValues>({
               ))}
             </SelectContent>
           </Select>
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}
     />

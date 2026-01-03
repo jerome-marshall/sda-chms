@@ -38,7 +38,11 @@ const FormDatePicker = <T extends FieldValues>({
                 className="inline-flex h-9 shrink-0 select-none items-center justify-between whitespace-nowrap rounded-4xl border border-input bg-input/30 px-3 font-normal text-sm outline-none transition-all hover:bg-input/50 hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40"
                 id={field.name}
               >
-                {date ? date.toLocaleDateString() : "Select date"}
+                {date ? (
+                  date.toLocaleDateString()
+                ) : (
+                  <p className="text-muted-foreground">Select date</p>
+                )}
                 <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
               </PopoverTrigger>
               <PopoverContent
