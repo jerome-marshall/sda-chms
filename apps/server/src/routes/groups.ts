@@ -6,7 +6,7 @@ import { getAllGroupsUseCase } from "../use-case/groups";
 const app = new Hono()
   .get("/", async (c) => {
     const groups = await getAllGroupsUseCase();
-    return c.json({ groups }, 200);
+    return c.json(groups, 200);
   })
   .post("/", zValidator("json", personInsertFormSchema), (c) => {
     return c.json("create a person", 201);

@@ -1,4 +1,4 @@
-import { getAllGroups } from "@/data-access/groups";
+import { getAllGroups } from "../data-access/groups";
 
 export const getAllGroupsUseCase = async () => {
   const groups = await getAllGroups();

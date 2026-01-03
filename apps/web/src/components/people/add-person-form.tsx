@@ -15,6 +15,7 @@ import {
   personInsertFormSchema,
 } from "@sda-chms/shared/schema/people";
 import { useForm } from "react-hook-form";
+import { useGroups } from "@/hooks/use-groups";
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
 import FormSelect from "../form/select";
@@ -29,6 +30,8 @@ import {
 import { Separator } from "../ui/separator";
 
 const AddPersonForm = () => {
+  const { data: groups } = useGroups();
+
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
     defaultValues: {
@@ -177,6 +180,17 @@ const AddPersonForm = () => {
               form={form}
               label="Sabbath School"
               name="sabbathSchoolClassId"
+            />
+            <FormSelect
+              form={form}
+              label="Groups"
+              multiple
+              name="groupIds"
+              options={(groups || []).map((group) => ({
+                value: group.id,
+                label: group.name,
+              }))}
+              placeholder="Select membership status"
             />
           </FieldGroup>
         </FieldSet>

@@ -34,30 +34,41 @@ const FormSelect = <T extends FieldValues>({
     <Controller
       control={form.control}
       name={name}
-      render={({ field, fieldState }) => (
-        <Field orientation="vertical">
-          <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-          <Select
-            multiple={multiple}
-            name={field.name}
-            onValueChange={field.onChange}
-            value={field.value}
-          >
-            <SelectTrigger aria-invalid={fieldState.invalid} id={field.name}>
-              {options.find((option) => option.value === field.value)
-                ?.label || <SelectValue>{placeholder}</SelectValue>}
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </Field>
-      )}
+      render={({ field, fieldState }) => {
+        const selectedOptions = options.filter((option) =>
+          Array.isArray(field.value)
+            ? field.value.includes(option.value)
+            : field.value === option.value
+        );
+
+        return (
+          <Field orientation="vertical">
+            <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+            <Select
+              multiple={multiple}
+              name={field.name}
+              onValueChange={field.onChange}
+              value={field.value}
+            >
+              <SelectTrigger aria-invalid={fieldState.invalid} id={field.name}>
+                {selectedOptions.length > 0 ? (
+                  selectedOptions.map((option) => option.label).join(", ")
+                ) : (
+                  <SelectValue>{placeholder}</SelectValue>
+                )}
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        );
+      }}
     />
   );
 };
