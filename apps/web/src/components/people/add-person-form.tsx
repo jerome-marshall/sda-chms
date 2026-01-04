@@ -7,7 +7,6 @@ import {
   HOUSEHOLD_ROLE_OPTIONS,
   MARITAL_STATUS,
   MARITAL_STATUS_OPTIONS,
-  MEMBERSHIP_STATUS,
   MEMBERSHIP_STATUS_OPTIONS,
   SABBATH_SCHOOL_CLASS_OPTIONS,
 } from "@sda-chms/shared/constants/people";
@@ -33,30 +32,9 @@ const AddPersonForm = () => {
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      preferredName: "",
-      dateOfBirth: undefined,
-      photoUrl: undefined,
-      phone: "",
-      email: undefined,
-      addressLine1: "",
-      addressLine2: undefined,
-      city: "",
-      state: "",
-      country: "",
-      occupation: "",
       maritalStatus: MARITAL_STATUS.SINGLE,
-      weddingDate: undefined,
-      memorialDay: undefined,
-      baptismDate: undefined,
-      baptismPlace: undefined,
-      membershipStatus: MEMBERSHIP_STATUS.VISITOR,
-      dateJoinedChurch: undefined,
       dietaryPreference: DIETARY_PREFERENCES.NONE,
       householdRole: HOUSEHOLD_ROLE.OTHER,
-      visitationNotes: undefined,
-      pastoralNotes: undefined,
     },
   });
   console.log("🚀 ~ AddPersonForm ~ form errors:", form.formState.errors);

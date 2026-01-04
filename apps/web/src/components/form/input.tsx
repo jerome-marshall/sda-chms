@@ -36,6 +36,7 @@ const FormInput = <T extends FieldValues>({
             id={field.name}
             placeholder={placeholder}
             type={type}
+            value={field.value ?? ""}
           />
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
