@@ -126,3 +126,51 @@ export const DIETARY_PREFERENCES_OPTIONS = [
   { value: DIETARY_PREFERENCES.OTHER, label: "Other" },
   { value: DIETARY_PREFERENCES.NONE, label: "None" },
 ];
+
+export const SABBATH_SCHOOL_CLASS = {
+  BEGINNER: "beginner",
+  KINDERGARTEN: "kindergarten",
+  PRIMARY: "primary",
+  JUNIOR: "junior",
+  EARLITEEN: "earliteen",
+  YOUTH: "youth",
+  ADULT: "adult",
+} as const;
+export const SABBATH_SCHOOL_CLASS_VALUES = [
+  SABBATH_SCHOOL_CLASS.BEGINNER,
+  SABBATH_SCHOOL_CLASS.KINDERGARTEN,
+  SABBATH_SCHOOL_CLASS.PRIMARY,
+  SABBATH_SCHOOL_CLASS.JUNIOR,
+  SABBATH_SCHOOL_CLASS.EARLITEEN,
+  SABBATH_SCHOOL_CLASS.YOUTH,
+  SABBATH_SCHOOL_CLASS.ADULT,
+] as const;
+export const SABBATH_SCHOOL_CLASS_OPTIONS = [
+  {
+    value: SABBATH_SCHOOL_CLASS.BEGINNER,
+    label: "Beginner",
+    ageGroup: "Birth-2",
+  },
+  {
+    value: SABBATH_SCHOOL_CLASS.KINDERGARTEN,
+    label: "Kindergarten",
+    ageGroup: "3-5",
+  },
+  {
+    value: SABBATH_SCHOOL_CLASS.PRIMARY,
+    label: "Primary",
+    ageGroup: "6-9",
+  },
+  {
+    value: SABBATH_SCHOOL_CLASS.JUNIOR,
+    label: "Junior",
+    ageGroup: "10-12",
+  },
+  {
+    value: SABBATH_SCHOOL_CLASS.EARLITEEN,
+    label: "Earliteen",
+    ageGroup: "13-14",
+  },
+  { value: SABBATH_SCHOOL_CLASS.YOUTH, label: "Youth", ageGroup: "15-18" },
+  { value: SABBATH_SCHOOL_CLASS.ADULT, label: "Adult", ageGroup: "18+" },
+];

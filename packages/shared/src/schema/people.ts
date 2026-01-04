@@ -6,6 +6,7 @@ import {
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS_VALUES,
   RELATIONSHIP_TYPE_VALUES,
+  SABBATH_SCHOOL_CLASS_VALUES,
 } from "../constants/people";
 
 export const personInsertFormSchema = z.object({
@@ -41,8 +42,8 @@ export const personInsertFormSchema = z.object({
       })
     )
     .optional(),
-  groupIds: z.string().array().optional(),
-  sabbathSchoolClassId: z.string().min(1),
+  // groupIds: z.string().array().optional(),
+  sabbathSchoolClass: z.enum(SABBATH_SCHOOL_CLASS_VALUES),
   visitationNotes: z.string().optional(),
   pastoralNotes: z.string().optional(),
 });

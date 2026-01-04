@@ -9,16 +9,15 @@ import {
   MARITAL_STATUS_OPTIONS,
   MEMBERSHIP_STATUS,
   MEMBERSHIP_STATUS_OPTIONS,
+  SABBATH_SCHOOL_CLASS_OPTIONS,
 } from "@sda-chms/shared/constants/people";
 import {
   type PersonInsertForm,
   personInsertFormSchema,
 } from "@sda-chms/shared/schema/people";
 import { useForm } from "react-hook-form";
-import { useGroups } from "@/hooks/use-groups";
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
-import FormMultiSelect from "../form/multi-select";
 import FormSelect from "../form/select";
 import FormTextarea from "../form/textarea";
 import { Button } from "../ui/button";
@@ -31,15 +30,12 @@ import {
 import { Separator } from "../ui/separator";
 
 const AddPersonForm = () => {
-  const { data: groups } = useGroups();
-
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
       preferredName: "",
-      gender: "male",
       dateOfBirth: undefined,
       photoUrl: undefined,
       phone: "",
@@ -59,7 +55,6 @@ const AddPersonForm = () => {
       dateJoinedChurch: undefined,
       dietaryPreference: DIETARY_PREFERENCES.NONE,
       householdRole: HOUSEHOLD_ROLE.OTHER,
-      sabbathSchoolClassId: "",
       visitationNotes: undefined,
       pastoralNotes: undefined,
     },
@@ -82,9 +77,7 @@ const AddPersonForm = () => {
         {/* Section 1: Personal Information */}
         <FieldSet>
           <FieldLegend>Personal Information</FieldLegend>
-          <FieldDescription>
-            Basic information to identify the person.
-          </FieldDescription>
+          <FieldDescription>Who they are at a glance.</FieldDescription>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormInput form={form} label="First name" name="firstName" />
             <FormInput form={form} label="Last name" name="lastName" />
@@ -120,9 +113,7 @@ const AddPersonForm = () => {
         {/* Section 2: Contact Details */}
         <FieldSet>
           <FieldLegend>Contact Details</FieldLegend>
-          <FieldDescription>
-            Phone and email information for contacting the person.
-          </FieldDescription>
+          <FieldDescription>Best ways to reach them.</FieldDescription>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormInput form={form} label="Phone" name="phone" />
             <FormInput
@@ -140,7 +131,7 @@ const AddPersonForm = () => {
         {/* Section 3: Address */}
         <FieldSet>
           <FieldLegend>Address</FieldLegend>
-          <FieldDescription>Physical address information.</FieldDescription>
+          <FieldDescription>For visits and mailings.</FieldDescription>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormInput form={form} label="Address line 1" name="addressLine1" />
             <FormInput form={form} label="Address line 2" name="addressLine2" />
@@ -155,9 +146,7 @@ const AddPersonForm = () => {
         {/* Section 4: Church Membership */}
         <FieldSet>
           <FieldLegend>Church Membership</FieldLegend>
-          <FieldDescription>
-            Membership status and church-related information.
-          </FieldDescription>
+          <FieldDescription>Their journey and involvement.</FieldDescription>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormSelect
               form={form}
@@ -177,12 +166,14 @@ const AddPersonForm = () => {
               name="baptismDate"
             />
             <FormInput form={form} label="Baptism place" name="baptismPlace" />
-            <FormInput
+            <FormSelect
               form={form}
-              label="Sabbath School"
-              name="sabbathSchoolClassId"
+              label="Sabbath School class"
+              name="sabbathSchoolClass"
+              options={SABBATH_SCHOOL_CLASS_OPTIONS}
+              placeholder="Select Sabbath School class"
             />
-            <FormMultiSelect
+            {/* <FormMultiSelect
               form={form}
               label="Groups"
               name="groupIds"
@@ -192,7 +183,7 @@ const AddPersonForm = () => {
               }))}
               placeholder="Select groups"
               search={false}
-            />
+            /> */}
           </FieldGroup>
         </FieldSet>
 
@@ -201,9 +192,7 @@ const AddPersonForm = () => {
         {/* Section 5: Marital and Family */}
         <FieldSet>
           <FieldLegend>Marital and Family</FieldLegend>
-          <FieldDescription>
-            Marital status, family role, and occupation information.
-          </FieldDescription>
+          <FieldDescription>Family and household details.</FieldDescription>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormSelect
               form={form}
@@ -238,9 +227,7 @@ const AddPersonForm = () => {
         {/* Section 6: Dietary Preferences */}
         <FieldSet>
           <FieldLegend>Dietary Preferences</FieldLegend>
-          <FieldDescription>
-            Dietary restrictions or preferences for events and meals.
-          </FieldDescription>
+          <FieldDescription>For meal planning at events.</FieldDescription>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormSelect
               form={form}
@@ -257,9 +244,7 @@ const AddPersonForm = () => {
         {/* Section 7: Notes */}
         <FieldSet>
           <FieldLegend>Additional Notes</FieldLegend>
-          <FieldDescription>
-            Optional notes and memorial information.
-          </FieldDescription>
+          <FieldDescription>Any extra details worth noting.</FieldDescription>
           <FieldGroup className="grid grid-cols-1 gap-4">
             <FormDatePicker
               form={form}
