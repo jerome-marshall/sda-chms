@@ -1,0 +1,31 @@
+meta {
+  name: Add Person
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{server_url}}/people
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+        "firstName": "Jerome",
+        "lastName": "Marshall",
+        "gender": "male",
+        "dateOfBirth": "1998-11-14T18:30:00.000Z",
+        "phone": "9159115328",
+        "addressLine1": "No. 23, Abirami Garden",
+        "city": "HOSUR",
+        "state": "Tamil Nadu",
+        "country": "India",
+        "occupation": "IT Professional",
+        "maritalStatus": "single",
+        "membershipStatus": "member",
+        "dietaryPreference": "none",
+        "householdRole": "other",
+        "sabbathSchoolClass": "youth",
+      }
+}

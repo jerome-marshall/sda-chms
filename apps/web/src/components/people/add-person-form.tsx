@@ -28,28 +28,28 @@ import { Separator } from "../ui/separator";
 const AddPersonForm = () => {
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
-    // defaultValues: {
-    //   firstName: "Jerome",
-    //   lastName: "Marshall",
-    //   gender: "male",
-    //   dateOfBirth: new Date("1998-11-14T18:30:00.000Z"),
-    //   phone: "9159115328",
-    //   addressLine1: "No. 23, Abirami Garden",
-    //   city: "HOSUR",
-    //   state: "Tamil Nadu",
-    //   country: "India",
-    //   occupation: "IT Professional",
-    //   maritalStatus: "single",
-    //   membershipStatus: "member",
-    //   dietaryPreference: "none",
-    //   householdRole: "other",
-    //   sabbathSchoolClass: "youth",
-    // },
     defaultValues: {
+      firstName: "Jerome",
+      lastName: "Marshall",
+      gender: "male",
+      dateOfBirth: "1998-11-14T18:30:00.000Z",
+      phone: "9159115328",
+      addressLine1: "No. 23, Abirami Garden",
+      city: "HOSUR",
+      state: "Tamil Nadu",
+      country: "India",
+      occupation: "IT Professional",
       maritalStatus: "single",
+      membershipStatus: "member",
       dietaryPreference: "none",
-      householdRole: "head",
+      householdRole: "other",
+      sabbathSchoolClass: "youth",
     },
+    // defaultValues: {
+    //   maritalStatus: "single",
+    //   dietaryPreference: "none",
+    //   householdRole: "head",
+    // },
   });
   console.log("🚀 ~ AddPersonForm ~ form errors:", form.formState.errors);
   console.log("🚀 ~ AddPersonForm ~ form:", form.watch());

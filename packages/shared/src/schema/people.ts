@@ -40,7 +40,7 @@ export const personInsertFormSchema = z.object({
     .min(1, { error: errorMessages.lastName }),
   preferredName: z.string().optional(),
   gender: z.enum(GENDER_VALUES, { error: errorMessages.gender }),
-  dateOfBirth: z.date({ message: errorMessages.dateOfBirth }),
+  dateOfBirth: z.string({ message: errorMessages.dateOfBirth }),
   photoUrl: z.url().optional(),
   phone: z
     .string({ error: errorMessages.phone })
@@ -65,14 +65,14 @@ export const personInsertFormSchema = z.object({
   maritalStatus: z.enum(MARITAL_STATUS_VALUES, {
     error: errorMessages.maritalStatus,
   }),
-  weddingDate: z.date().optional(),
-  memorialDay: z.date().optional(),
-  baptismDate: z.date().optional(),
+  weddingDate: z.string().optional(),
+  memorialDay: z.string().optional(),
+  baptismDate: z.string().optional(),
   baptismPlace: z.string().optional(),
   membershipStatus: z.enum(MEMBERSHIP_STATUS_VALUES, {
     error: errorMessages.membershipStatus,
   }),
-  dateJoinedChurch: z.date().optional(),
+  dateJoinedChurch: z.string().optional(),
   dietaryPreference: z.enum(DIETARY_PREFERENCES_VALUES, {
     error: errorMessages.dietaryPreference,
   }),

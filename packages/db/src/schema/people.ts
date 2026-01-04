@@ -68,7 +68,7 @@ export const peopleTable = pgTable("people", {
   lastName: varchar("last_name", { length: 100 }).notNull(),
   preferredName: varchar("preferred_name", { length: 100 }),
   gender: genderEnum(),
-  dateOfBirth: date("date_of_birth", { mode: "date" }),
+  dateOfBirth: date("date_of_birth"),
   photoUrl: text("photo_url"),
 
   // Contact Info
@@ -85,14 +85,14 @@ export const peopleTable = pgTable("people", {
   // Personal Details
   occupation: varchar({ length: 255 }).notNull(),
   maritalStatus: maritalStatusEnum("marital_status").notNull(),
-  weddingDate: date("wedding_date", { mode: "date" }),
-  memorialDay: date("memorial_day", { mode: "date" }),
+  weddingDate: date("wedding_date"),
+  memorialDay: date("memorial_day"),
 
   // Church Membership
   membershipStatus: membershipStatusEnum("membership_status").notNull(),
-  baptismDate: date("baptism_date", { mode: "date" }),
+  baptismDate: date("baptism_date"),
   baptismPlace: varchar("baptism_place", { length: 255 }),
-  dateJoinedChurch: date("date_joined_church", { mode: "date" }),
+  dateJoinedChurch: date("date_joined_church"),
   sabbathSchoolClass: sabbathSchoolClassEnum("sabbath_school_class").notNull(),
 
   // Preferences

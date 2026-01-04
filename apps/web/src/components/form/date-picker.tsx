@@ -1,3 +1,4 @@
+import { toDate } from "@sda-chms/shared/utils/helpers";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import {
@@ -28,7 +29,7 @@ const FormDatePicker = <T extends FieldValues>({
       control={form.control}
       name={name}
       render={({ field, fieldState }) => {
-        const date = field.value;
+        const date = toDate(field.value);
         return (
           <Field orientation="vertical">
             <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
@@ -53,7 +54,7 @@ const FormDatePicker = <T extends FieldValues>({
                   captionLayout="dropdown"
                   mode="single"
                   onSelect={(selectedDate) => {
-                    field.onChange(selectedDate);
+                    field.onChange(toDate(selectedDate)?.toISOString());
                     setOpen(false);
                   }}
                   selected={date}
