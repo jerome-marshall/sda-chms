@@ -4,6 +4,7 @@ import {
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS_VALUES,
   RELATIONSHIP_TYPE_VALUES,
+  SABBATH_SCHOOL_CLASS_VALUES,
 } from "@sda-chms/shared/constants/people";
 import { relations } from "drizzle-orm";
 import {
@@ -45,6 +46,11 @@ export const relationshipTypeEnum = pgEnum(
   RELATIONSHIP_TYPE_VALUES
 );
 
+export const sabbathSchoolClassEnum = pgEnum(
+  "sabbath_school_class",
+  SABBATH_SCHOOL_CLASS_VALUES
+);
+
 // ============================================================================
 // CORE TABLES
 // ============================================================================
@@ -62,7 +68,7 @@ export const peopleTable = pgTable("people", {
   lastName: varchar("last_name", { length: 100 }).notNull(),
   preferredName: varchar("preferred_name", { length: 100 }),
   gender: genderEnum(),
-  dateOfBirth: date("date_of_birth"),
+  dateOfBirth: date("date_of_birth", { mode: "date" }),
   photoUrl: text("photo_url"),
 
   // Contact Info
@@ -79,14 +85,15 @@ export const peopleTable = pgTable("people", {
   // Personal Details
   occupation: varchar({ length: 255 }).notNull(),
   maritalStatus: maritalStatusEnum("marital_status").notNull(),
-  weddingDate: date("wedding_date"),
-  memorialDay: date("memorial_day"),
+  weddingDate: date("wedding_date", { mode: "date" }),
+  memorialDay: date("memorial_day", { mode: "date" }),
 
   // Church Membership
   membershipStatus: membershipStatusEnum("membership_status").notNull(),
-  baptismDate: date("baptism_date"),
+  baptismDate: date("baptism_date", { mode: "date" }),
   baptismPlace: varchar("baptism_place", { length: 255 }),
-  dateJoinedChurch: date("date_joined_church"),
+  dateJoinedChurch: date("date_joined_church", { mode: "date" }),
+  sabbathSchoolClass: sabbathSchoolClassEnum("sabbath_school_class").notNull(),
 
   // Preferences
   dietaryPreference: text("dietary_preference"),
@@ -231,40 +238,6 @@ export const positionHistoryTable = pgTable("position_history", {
 });
 
 // ============================================================================
-// SABBATH SCHOOL CLASSES
-// ============================================================================
-
-export const sabbathSchoolClassesTable = pgTable("sabbath_school_classes", {
-  id: uuid().primaryKey().defaultRandom(),
-  name: varchar({ length: 255 }).notNull(),
-  description: text(),
-  ageGroup: varchar("age_group", { length: 100 }),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-});
-
-export const peopleSabbathSchoolClassesTable = pgTable(
-  "people_sabbath_school_classes",
-  {
-    id: uuid().primaryKey().defaultRandom(),
-    personId: uuid("person_id")
-      .notNull()
-      .references(() => peopleTable.id, { onDelete: "cascade" }),
-    sabbathSchoolClassId: uuid("sabbath_school_class_id")
-      .notNull()
-      .references(() => sabbathSchoolClassesTable.id, { onDelete: "cascade" }),
-    role: varchar({ length: 100 }),
-    joinedAt: date("joined_at"),
-    leftAt: date("left_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-  }
-);
-
-// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -275,7 +248,6 @@ export const peopleRelations = relations(peopleTable, ({ one, many }) => ({
   }),
   departments: many(peopleDepartmentsTable),
   groups: many(peopleGroupsTable),
-  sabbathSchoolClasses: many(peopleSabbathSchoolClassesTable),
   positionHistory: many(positionHistoryTable),
   relationshipsAsSubject: many(relationshipsTable, { relationName: "subject" }),
   relationshipsAsRelated: many(relationshipsTable, { relationName: "related" }),
@@ -343,27 +315,6 @@ export const positionHistoryRelations = relations(
     position: one(positionsTable, {
       fields: [positionHistoryTable.positionId],
       references: [positionsTable.id],
-    }),
-  })
-);
-
-export const sabbathSchoolClassesRelations = relations(
-  sabbathSchoolClassesTable,
-  ({ many }) => ({
-    members: many(peopleSabbathSchoolClassesTable),
-  })
-);
-
-export const peopleSabbathSchoolClassesRelations = relations(
-  peopleSabbathSchoolClassesTable,
-  ({ one }) => ({
-    person: one(peopleTable, {
-      fields: [peopleSabbathSchoolClassesTable.personId],
-      references: [peopleTable.id],
-    }),
-    sabbathSchoolClass: one(sabbathSchoolClassesTable, {
-      fields: [peopleSabbathSchoolClassesTable.sabbathSchoolClassId],
-      references: [sabbathSchoolClassesTable.id],
     }),
   })
 );
