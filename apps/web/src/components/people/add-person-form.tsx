@@ -1,11 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  DIETARY_PREFERENCES,
   DIETARY_PREFERENCES_OPTIONS,
   GENDER_OPTIONS,
-  HOUSEHOLD_ROLE,
   HOUSEHOLD_ROLE_OPTIONS,
-  MARITAL_STATUS,
   MARITAL_STATUS_OPTIONS,
   MEMBERSHIP_STATUS_OPTIONS,
   SABBATH_SCHOOL_CLASS_OPTIONS,
@@ -31,10 +28,27 @@ import { Separator } from "../ui/separator";
 const AddPersonForm = () => {
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
+    // defaultValues: {
+    //   firstName: "Jerome",
+    //   lastName: "Marshall",
+    //   gender: "male",
+    //   dateOfBirth: new Date("1998-11-14T18:30:00.000Z"),
+    //   phone: "9159115328",
+    //   addressLine1: "No. 23, Abirami Garden",
+    //   city: "HOSUR",
+    //   state: "Tamil Nadu",
+    //   country: "India",
+    //   occupation: "IT Professional",
+    //   maritalStatus: "single",
+    //   membershipStatus: "member",
+    //   dietaryPreference: "none",
+    //   householdRole: "other",
+    //   sabbathSchoolClass: "youth",
+    // },
     defaultValues: {
-      maritalStatus: MARITAL_STATUS.SINGLE,
-      dietaryPreference: DIETARY_PREFERENCES.NONE,
-      householdRole: HOUSEHOLD_ROLE.OTHER,
+      maritalStatus: "single",
+      dietaryPreference: "none",
+      householdRole: "head",
     },
   });
   console.log("🚀 ~ AddPersonForm ~ form errors:", form.formState.errors);
