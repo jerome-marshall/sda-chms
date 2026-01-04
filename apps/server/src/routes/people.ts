@@ -1,8 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
 import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import { Hono } from "hono";
-import { addPersonUseCase } from "src/use-case/people";
 import { getAllPeople } from "../data-access/people";
+import { addPersonUseCase } from "../use-case/people";
 
 const app = new Hono()
   .get("/", async (c) => {
