@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { useGroups } from "@/hooks/use-groups";
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
+import FormMultiSelect from "../form/multi-select";
 import FormSelect from "../form/select";
 import FormTextarea from "../form/textarea";
 import { Button } from "../ui/button";
@@ -181,16 +182,16 @@ const AddPersonForm = () => {
               label="Sabbath School"
               name="sabbathSchoolClassId"
             />
-            <FormSelect
+            <FormMultiSelect
               form={form}
               label="Groups"
-              multiple
               name="groupIds"
               options={(groups || []).map((group) => ({
                 value: group.id,
                 label: group.name,
               }))}
-              placeholder="Select membership status"
+              placeholder="Select groups"
+              search={false}
             />
           </FieldGroup>
         </FieldSet>
@@ -211,7 +212,8 @@ const AddPersonForm = () => {
               options={MARITAL_STATUS_OPTIONS}
               placeholder="Select marital status"
             />
-            {form.watch("maritalStatus") === "married" && (
+            {(form.watch("maritalStatus") === "married" ||
+              form.watch("maritalStatus") === "widowed") && (
               <FormDatePicker
                 form={form}
                 label="Wedding date"
