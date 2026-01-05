@@ -32,7 +32,8 @@ const AddPersonForm = () => {
     onSuccess: () => {
       toast.success("Person added successfully");
     },
-    onError: () => {
+    onError: (error) => {
+      console.log("🚀 ~ AddPersonForm ~ error:", error);
       toast.error("Failed to add person");
     },
   });

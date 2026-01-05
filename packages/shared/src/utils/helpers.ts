@@ -12,3 +12,14 @@ export const toDate = (value: string | Date | undefined | null) => {
   }
   return undefined;
 };
+
+/**
+ * Converts a string to Title Case (first letter uppercase, rest lowercase)
+ * Handles multi-word names like "Mary Jane" or hyphenated names like "Jean-Pierre"
+ */
+export const toTitleCase = (str: string) => {
+  return str
+    .trim()
+    .toLowerCase()
+    .replace(/(?:^|[\s-])\w/g, (match) => match.toUpperCase());
+};

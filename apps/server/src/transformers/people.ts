@@ -1,10 +1,11 @@
 import type { PeopleInsertDb } from "@sda-chms/db/schema/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
+import { toTitleCase } from "@sda-chms/shared/utils/helpers";
 
 export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
   return {
-    firstName: data.firstName,
-    lastName: data.lastName,
+    firstName: toTitleCase(data.firstName),
+    lastName: toTitleCase(data.lastName),
     phone: data.phone,
     occupation: data.occupation,
     maritalStatus: data.maritalStatus,

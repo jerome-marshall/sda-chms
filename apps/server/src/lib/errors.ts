@@ -1,6 +1,8 @@
+import { getDbErrorMessage } from "@sda-chms/db/schema/lib/db-errors";
 import type { ApiErrorBody } from "@sda-chms/shared/types/errors";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import z from "zod";
 
 export const errorHandler = (err: Error, c: Context): Response => {
@@ -34,4 +36,23 @@ export const errorHandler = (err: Error, c: Context): Response => {
     },
     500
   );
+};
+
+export const withDbErrorHandling = async <T>(
+  operation: () => Promise<T>,
+  context?: string
+): Promise<T> => {
+  try {
+    return await operation();
+  } catch (error) {
+    const { message, constraint, httpCode } = getDbErrorMessage(error);
+
+    console.error("🔴 Database operation failed:", {
+      context,
+      message,
+      constraint,
+    });
+
+    throw new HTTPException(httpCode as ContentfulStatusCode, { message });
+  }
 };
