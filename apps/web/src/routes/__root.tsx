@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
@@ -12,6 +12,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 import "../index.css";
+import { queryClient } from "@/lib/query";
 
 export const Route = createRootRouteWithContext()({
   component: RootComponent,
@@ -33,8 +34,6 @@ export const Route = createRootRouteWithContext()({
     ],
   }),
 });
-
-const queryClient = new QueryClient();
 
 function RootComponent() {
   return (

@@ -12,6 +12,7 @@ import {
   personInsertFormSchema,
 } from "@sda-chms/shared/schema/people";
 import { useForm } from "react-hook-form";
+import { useAddPerson } from "@/hooks/use-people";
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
 import FormSelect from "../form/select";
@@ -26,6 +27,12 @@ import {
 import { Separator } from "../ui/separator";
 
 const AddPersonForm = () => {
+  const { mutate: addPerson } = useAddPerson({
+    onSuccess: () => {
+      console.log("🚀 ~ AddPersonForm ~ onSuccess:");
+    },
+  });
+
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
     defaultValues: {
@@ -56,6 +63,7 @@ const AddPersonForm = () => {
 
   function onSubmit(data: PersonInsertForm) {
     console.log("🚀 ~ onSubmit ~ data:", data);
+    addPerson(data);
     // Do something with the form values.
   }
 

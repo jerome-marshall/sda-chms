@@ -1,12 +1,11 @@
 import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import { Hono } from "hono";
-import { getAllPeople } from "../data-access/people";
 import { jsonValidator } from "../lib/validator";
-import { addPersonUseCase } from "../use-case/people";
+import { addPersonUseCase, getAllPeopleUseCase } from "../use-case/people";
 
 const app = new Hono()
   .get("/", async (c) => {
-    const people = await getAllPeople();
+    const people = await getAllPeopleUseCase();
     return c.json(people, 200);
   })
   .post("/", jsonValidator(personInsertFormSchema), async (c) => {
