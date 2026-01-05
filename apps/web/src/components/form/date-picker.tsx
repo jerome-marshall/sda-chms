@@ -52,6 +52,7 @@ const FormDatePicker = <T extends FieldValues>({
               >
                 <Calendar
                   captionLayout="dropdown"
+                  defaultMonth={date}
                   mode="single"
                   onSelect={(selectedDate) => {
                     field.onChange(toDate(selectedDate)?.toISOString());
