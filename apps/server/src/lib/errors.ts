@@ -1,40 +1,46 @@
 import { getDbErrorMessage } from "@sda-chms/db/schema/lib/db-errors";
 import type { ApiErrorBody } from "@sda-chms/shared/types/errors";
+import { DbError } from "@sda-chms/shared/utils/errors";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import z from "zod";
 
 export const errorHandler = (err: Error, c: Context): Response => {
-  console.error("[Error]", err.message);
+  let message = err.message;
+  let code: ApiErrorBody["code"] = "HTTP_ERROR";
+  let details: ApiErrorBody["details"] = err;
+  let status: ContentfulStatusCode = 500;
 
   if (err instanceof HTTPException) {
-    return c.json<ApiErrorBody>(
-      {
-        code: "HTTP_ERROR",
-        message: err.message,
-      },
-      err.status
-    );
+    status = err.status;
   }
 
   if (err instanceof z.ZodError) {
-    return c.json<ApiErrorBody>(
-      {
-        code: "VALIDATION_ERROR",
-        message: z.prettifyError(err),
-        details: err,
-      },
-      400
-    );
+    message = z.prettifyError(err);
+    code = "VALIDATION_ERROR";
+    details = err;
+    status = 400;
   }
+
+  if (err instanceof DbError) {
+    message = err.constraint
+      ? `${err.constraint} - ${err.message}`
+      : err.message;
+    code = "DB_ERROR";
+    details = err;
+    status = err.httpCode as ContentfulStatusCode;
+  }
+
+  console.error("🔴 [Error]", message);
 
   return c.json<ApiErrorBody>(
     {
-      code: "INTERNAL_ERROR",
-      message: "Something went wrong",
+      code,
+      message,
+      details,
     },
-    500
+    status
   );
 };
 
@@ -53,6 +59,6 @@ export const withDbErrorHandling = async <T>(
       constraint,
     });
 
-    throw new HTTPException(httpCode as ContentfulStatusCode, { message });
+    throw new DbError(message, constraint, httpCode);
   }
 };

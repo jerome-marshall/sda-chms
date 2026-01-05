@@ -33,8 +33,15 @@ const AddPersonForm = () => {
       toast.success("Person added successfully");
     },
     onError: (error) => {
-      console.log("🚀 ~ AddPersonForm ~ error:", error);
-      toast.error("Failed to add person");
+      if (error instanceof Error) {
+        let errMessage = "Failed to add person";
+
+        if (error.message.includes("unique_person_identity")) {
+          errMessage =
+            "A person with the same name and date of birth already exists";
+        }
+        toast.error(errMessage);
+      }
     },
   });
 

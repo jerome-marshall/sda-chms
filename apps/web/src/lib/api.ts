@@ -31,7 +31,7 @@ export const fetchApi = async <T>(
   const data = await response.json();
 
   if (!response.ok) {
-    const body = (await response.json()) as ApiErrorBody;
+    const body = data as ApiErrorBody;
     throw new ApiError(body.message, body.code, response.status, body.details);
   }
   return data;
