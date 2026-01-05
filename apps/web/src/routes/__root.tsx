@@ -49,7 +49,7 @@ function RootComponent() {
           <AppLayout>
             <Outlet />
           </AppLayout>
-          <Toaster richColors />
+          <Toaster position="top-right" richColors />
         </ThemeProvider>
         <ReactQueryDevtools />
       </QueryClientProvider>

@@ -12,6 +12,7 @@ import {
   personInsertFormSchema,
 } from "@sda-chms/shared/schema/people";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useAddPerson } from "@/hooks/use-people";
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
@@ -29,7 +30,10 @@ import { Separator } from "../ui/separator";
 const AddPersonForm = () => {
   const { mutate: addPerson } = useAddPerson({
     onSuccess: () => {
-      console.log("🚀 ~ AddPersonForm ~ onSuccess:");
+      toast.success("Person added successfully");
+    },
+    onError: () => {
+      toast.error("Failed to add person");
     },
   });
 
