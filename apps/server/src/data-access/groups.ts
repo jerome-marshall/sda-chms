@@ -1,5 +1,5 @@
 import { db } from "@sda-chms/db";
-import { withDbErrorHandling } from "src/lib/errors";
+import { withDbErrorHandling } from "../lib/errors";
 
 export const getAllGroups = () =>
   withDbErrorHandling(async () => {

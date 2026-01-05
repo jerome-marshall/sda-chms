@@ -1,6 +1,6 @@
 import { db } from "@sda-chms/db";
 import { type PeopleInsertDb, peopleTable } from "@sda-chms/db/schema/people";
-import { withDbErrorHandling } from "src/lib/errors";
+import { withDbErrorHandling } from "../lib/errors";
 
 export const getAllPeople = () =>
   withDbErrorHandling(async () => {
