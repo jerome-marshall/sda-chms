@@ -18,6 +18,8 @@
   "type": "module",
   "scripts": {
     "check": "biome check --write .",
+    "db:start": "docker compose up -d",
+    "db:stop": "docker compose down",
     "dev": "turbo dev",
     "build": "turbo build",
     "check-types": "turbo check-types",
