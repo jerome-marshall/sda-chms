@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
+import PeopleList from "@/components/people/people-list";
 import { buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { cn } from "@/lib/utils";
@@ -85,6 +86,7 @@ function RouteComponent() {
           </DropdownMenu> */}
         </ButtonGroup>
       </ButtonGroup>
+      <PeopleList />
     </div>
   );
 }
