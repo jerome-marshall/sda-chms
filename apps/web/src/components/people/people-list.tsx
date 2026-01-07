@@ -1,154 +1,33 @@
 import { MEMBERSHIP_STATUS_OPTIONS } from "@sda-chms/shared/constants/people";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Mail, Phone, Shield, User } from "lucide-react";
+import { MapPin, Phone, Shield, User } from "lucide-react";
 import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import { useDataTable } from "@/hooks/use-data-table";
-
-// Simple Person type for the table
-interface Person {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email?: string;
-  phone: string;
-  membershipStatus: string;
-}
-
-// Dummy data - 10 people
-const dummyPeople: Person[] = [
-  {
-    id: "1",
-    firstName: "John",
-    lastName: "Smith",
-    email: "john.smith@example.com",
-    phone: "(555) 123-4567",
-    membershipStatus: "member",
-  },
-  {
-    id: "2",
-    firstName: "Sarah",
-    lastName: "Johnson",
-    email: "sarah.johnson@example.com",
-    phone: "(555) 234-5678",
-    membershipStatus: "member",
-  },
-  {
-    id: "3",
-    firstName: "Michael",
-    lastName: "Williams",
-    email: "michael.williams@example.com",
-    phone: "(555) 345-6789",
-    membershipStatus: "regular_attendee",
-  },
-  {
-    id: "4",
-    firstName: "Emily",
-    lastName: "Brown",
-    email: "emily.brown@example.com",
-    phone: "(555) 456-7890",
-    membershipStatus: "visitor",
-  },
-  {
-    id: "5",
-    firstName: "David",
-    lastName: "Jones",
-    email: "david.jones@example.com",
-    phone: "(555) 567-8901",
-    membershipStatus: "member",
-  },
-  {
-    id: "6",
-    firstName: "Jessica",
-    lastName: "Garcia",
-    email: "jessica.garcia@example.com",
-    phone: "(555) 678-9012",
-    membershipStatus: "regular_attendee",
-  },
-  {
-    id: "7",
-    firstName: "Christopher",
-    lastName: "Miller",
-    email: "chris.miller@example.com",
-    phone: "(555) 789-0123",
-    membershipStatus: "member",
-  },
-  {
-    id: "8",
-    firstName: "Amanda",
-    lastName: "Davis",
-    email: "amanda.davis@example.com",
-    phone: "(555) 890-1234",
-    membershipStatus: "visitor",
-  },
-  {
-    id: "9",
-    firstName: "James",
-    lastName: "Rodriguez",
-    email: "james.rodriguez@example.com",
-    phone: "(555) 901-2345",
-    membershipStatus: "member",
-  },
-  {
-    id: "10",
-    firstName: "Lisa",
-    lastName: "Martinez",
-    email: "lisa.martinez@example.com",
-    phone: "(555) 012-3456",
-    membershipStatus: "regular_attendee",
-  },
-];
+import { useClientDataTable } from "@/hooks/use-client-data-table";
+import { usePeople } from "@/hooks/use-people";
+import type { Person } from "@/types/api";
 
 export const PeopleList = () => {
+  // Fetch data from API
+  const { data: people, isLoading, isError } = usePeople();
   const columns = useMemo<ColumnDef<Person>[]>(
     () => [
       {
-        id: "firstName",
-        accessorKey: "firstName",
+        id: "fullName",
+        accessorKey: "fullName",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="First Name" />
+          <DataTableColumnHeader column={column} label="Full Name" />
         ),
-        cell: ({ row }) => <div>{row.getValue("firstName")}</div>,
+        cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
         enableSorting: true,
         meta: {
-          label: "First Name",
-          placeholder: "Search first names...",
+          label: "Full Name",
+          placeholder: "Search names...",
           variant: "text",
           icon: User,
-        },
-        enableColumnFilter: true,
-      },
-      {
-        id: "lastName",
-        accessorKey: "lastName",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="Last Name" />
-        ),
-        cell: ({ row }) => <div>{row.getValue("lastName")}</div>,
-        enableSorting: true,
-        meta: {
-          label: "Last Name",
-          placeholder: "Search last names...",
-          variant: "text",
-          icon: User,
-        },
-        enableColumnFilter: true,
-      },
-      {
-        id: "email",
-        accessorKey: "email",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="Email" />
-        ),
-        cell: ({ row }) => <div>{row.getValue("email") || "—"}</div>,
-        enableSorting: true,
-        meta: {
-          label: "Email",
-          placeholder: "Search emails...",
-          variant: "text",
-          icon: Mail,
         },
         enableColumnFilter: true,
       },
@@ -165,6 +44,24 @@ export const PeopleList = () => {
           placeholder: "Search phone numbers...",
           variant: "text",
           icon: Phone,
+        },
+      },
+      {
+        id: "city",
+        accessorKey: "city",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="City" />
+        ),
+        cell: ({ row }) => {
+          const city = row.getValue("city") as string | null | undefined;
+          return <div>{city || "-"}</div>;
+        },
+        enableSorting: true,
+        meta: {
+          label: "City",
+          placeholder: "Search cities...",
+          variant: "text",
+          icon: MapPin,
         },
         enableColumnFilter: true,
       },
@@ -184,7 +81,7 @@ export const PeopleList = () => {
         enableSorting: true,
         meta: {
           label: "Membership Status",
-          variant: "select",
+          variant: "multiSelect",
           options: MEMBERSHIP_STATUS_OPTIONS,
           icon: Shield,
         },
@@ -194,15 +91,26 @@ export const PeopleList = () => {
     []
   );
 
-  const { table } = useDataTable<Person>({
-    data: dummyPeople,
+  const { table } = useClientDataTable<Person>({
+    data: people || [],
     columns,
     initialState: {
       pagination: { pageIndex: 0, pageSize: 10 },
     },
-    getRowId: (row) => row.id,
-    pageCount: -1,
+    getRowId: (row: Person) => row.id,
   });
+
+  if (isLoading) {
+    return <DataTableSkeleton columnCount={5} rowCount={10} />;
+  }
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <p className="text-muted-foreground">Error loading people</p>
+      </div>
+    );
+  }
 
   return (
     <DataTable table={table}>

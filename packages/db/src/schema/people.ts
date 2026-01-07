@@ -360,3 +360,4 @@ export const peopleInsertSchemaDb = createInsertSchema(peopleTable);
 // Types
 // ============================================================================
 export type PeopleInsertDb = z.infer<typeof peopleInsertSchemaDb>;
+export type PeopleSelectDb = z.infer<typeof peopleSelectSchemaDb>;

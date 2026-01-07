@@ -1,6 +1,9 @@
-import type { PeopleInsertDb } from "@sda-chms/db/schema/people";
+import type {
+  PeopleInsertDb,
+  PeopleSelectDb,
+} from "@sda-chms/db/schema/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
-import { toTitleCase } from "@sda-chms/shared/utils/helpers";
+import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
 
 export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
   return {
@@ -33,4 +36,16 @@ export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
     sabbathSchoolClass: data.sabbathSchoolClass,
     pastoralNotes: data.pastoralNotes,
   };
+};
+
+export const personDbToApi = (data: PeopleSelectDb) => {
+  return {
+    ...data,
+    fullName: `${data.firstName} ${data.lastName}`,
+    age: calculateAge(data.dateOfBirth),
+  };
+};
+
+export const peopleDbToApi = (data: PeopleSelectDb[]) => {
+  return data.map(personDbToApi);
 };

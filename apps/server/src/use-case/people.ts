@@ -1,10 +1,10 @@
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { getAllPeople, insertPerson } from "../data-access/people";
-import { personApiToDb } from "../transformers/people";
+import { peopleDbToApi, personApiToDb } from "../transformers/people";
 
 export const getAllPeopleUseCase = async () => {
   const people = await getAllPeople();
-  return people;
+  return peopleDbToApi(people);
 };
 
 export const addPersonUseCase = async (data: PersonInsertForm) => {
