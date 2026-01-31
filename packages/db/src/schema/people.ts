@@ -102,6 +102,7 @@ export const peopleTable = pgTable(
 
     // Preferences
     dietaryPreference: text("dietary_preference"),
+    preferredVisitingTime: text("preferred_visiting_time"),
 
     // Private Notes
     visitationNotes: text("visitation_notes"),

@@ -135,6 +135,12 @@ const AddPersonForm = () => {
               placeholder="example@email.com"
               type="email"
             />
+            <FormInput
+              form={form}
+              label="Preferred visiting time"
+              name="preferredVisitingTime"
+              placeholder="e.g., Morning, Afternoon, or specific times"
+            />
           </FieldGroup>
         </FieldSet>
 

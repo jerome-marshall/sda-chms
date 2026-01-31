@@ -14,6 +14,7 @@ export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
     maritalStatus: data.maritalStatus,
     membershipStatus: data.membershipStatus,
     dietaryPreference: data.dietaryPreference,
+    preferredVisitingTime: data.preferredVisitingTime,
     addressLine1: data.addressLine1,
     addressLine2: data.addressLine2,
     city: data.city,

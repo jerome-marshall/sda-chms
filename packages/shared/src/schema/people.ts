@@ -76,6 +76,7 @@ export const personInsertFormSchema = z.object({
   dietaryPreference: z.enum(DIETARY_PREFERENCES_VALUES, {
     error: errorMessages.dietaryPreference,
   }),
+  preferredVisitingTime: z.string().optional(),
   householdRole: z.enum(HOUSEHOLD_ROLE_VALUES, {
     error: errorMessages.householdRole,
   }),
