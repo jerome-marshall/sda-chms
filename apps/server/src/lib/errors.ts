@@ -32,7 +32,7 @@ export const errorHandler = (err: Error, c: Context): Response => {
     status = err.httpCode as ContentfulStatusCode;
   }
 
-  console.error("🔴 [Error]", message);
+  console.error(`🔴 ${code} ${message}`);
 
   return c.json<ApiErrorBody>(
     {

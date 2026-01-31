@@ -286,8 +286,10 @@ const AddPersonForm = () => {
           </FieldGroup>
         </FieldSet>
 
-        <div className="flex justify-end">
-          <Button type="submit">Add Person</Button>
+        <div className="sticky bottom-0 -mb-4 flex justify-center border-t bg-background py-4">
+          <Button className={"w-[180px]"} type="submit">
+            Add Person
+          </Button>
         </div>
       </form>
     </div>
