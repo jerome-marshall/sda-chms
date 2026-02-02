@@ -316,9 +316,11 @@ export const positionHistoryRelations = relations(
 
 export const peopleSelectSchemaDb = createSelectSchema(peopleTable);
 export const peopleInsertSchemaDb = createInsertSchema(peopleTable);
+export const householdsInsertSchemaDb = createInsertSchema(householdsTable);
 
 // ============================================================================
 // Types
 // ============================================================================
 export type PeopleInsertDb = z.infer<typeof peopleInsertSchemaDb>;
 export type PeopleSelectDb = z.infer<typeof peopleSelectSchemaDb>;
+export type HouseholdsInsertDb = z.infer<typeof householdsInsertSchemaDb>;

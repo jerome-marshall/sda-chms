@@ -39,11 +39,11 @@ export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
   };
 };
 
-export const personDbToApi = (data: PeopleSelectDb) => {
+export const personDbToApi = (personData: PeopleSelectDb) => {
   return {
-    ...data,
-    fullName: `${data.firstName} ${data.lastName}`,
-    age: calculateAge(data.dateOfBirth),
+    ...personData,
+    fullName: `${personData.firstName} ${personData.lastName}`,
+    age: calculateAge(personData.dateOfBirth),
   };
 };
 

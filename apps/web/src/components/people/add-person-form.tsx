@@ -61,7 +61,6 @@ const AddPersonForm = () => {
       maritalStatus: "single",
       membershipStatus: "member",
       dietaryPreference: "none",
-      householdRole: "other",
       sabbathSchoolClass: "youth",
     },
     // defaultValues: {

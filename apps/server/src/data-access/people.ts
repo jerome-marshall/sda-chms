@@ -1,5 +1,10 @@
-import { db } from "@sda-chms/db";
-import { type PeopleInsertDb, peopleTable } from "@sda-chms/db/schema/people";
+import { type DbTransaction, db } from "@sda-chms/db";
+import {
+  type HouseholdsInsertDb,
+  householdsTable,
+  type PeopleInsertDb,
+  peopleTable,
+} from "@sda-chms/db/schema/people";
 import { withDbErrorHandling } from "../lib/errors";
 
 export const getAllPeople = () =>
@@ -8,8 +13,20 @@ export const getAllPeople = () =>
     return people;
   }, "getAllPeople");
 
-export const insertPerson = (data: PeopleInsertDb) =>
+export const insertPerson = (data: PeopleInsertDb, trx: DbTransaction = db) =>
   withDbErrorHandling(async () => {
-    const person = await db.insert(peopleTable).values(data).returning();
+    const person = await trx.insert(peopleTable).values(data).returning();
     return person[0];
   }, "insertPerson");
+
+export const insertHousehold = (
+  data: HouseholdsInsertDb,
+  trx: DbTransaction = db
+) =>
+  withDbErrorHandling(async () => {
+    const household = await trx
+      .insert(householdsTable)
+      .values(data)
+      .returning();
+    return household[0];
+  }, "insertHousehold");
