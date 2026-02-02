@@ -3,7 +3,6 @@ import {
   HOUSEHOLD_ROLE_VALUES,
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS_VALUES,
-  RELATIONSHIP_TYPE_VALUES,
   SABBATH_SCHOOL_CLASS_VALUES,
 } from "@sda-chms/shared/constants/people";
 import { relations } from "drizzle-orm";
@@ -40,11 +39,6 @@ export const maritalStatusEnum = pgEnum(
 export const householdRoleEnum = pgEnum(
   "household_role",
   HOUSEHOLD_ROLE_VALUES
-);
-
-export const relationshipTypeEnum = pgEnum(
-  "relationship_type",
-  RELATIONSHIP_TYPE_VALUES
 );
 
 export const sabbathSchoolClassEnum = pgEnum(
@@ -109,7 +103,9 @@ export const peopleTable = pgTable(
     pastoralNotes: text("pastoral_notes"),
 
     // Household
-    householdId: uuid("household_id"),
+    householdId: uuid("household_id").references(() => householdsTable.id, {
+      onDelete: "set null",
+    }),
     householdRole: householdRoleEnum("household_role"),
 
     // Soft delete
@@ -146,23 +142,6 @@ export const householdsTable = pgTable("households", {
 });
 
 // ============================================================================
-// RELATIONSHIPS
-// ============================================================================
-
-export const relationshipsTable = pgTable("relationships", {
-  id: uuid().primaryKey().defaultRandom(),
-  personId: uuid("person_id")
-    .notNull()
-    .references(() => peopleTable.id, { onDelete: "cascade" }),
-  relatedPersonId: uuid("related_person_id")
-    .notNull()
-    .references(() => peopleTable.id, { onDelete: "cascade" }),
-  relationshipType: relationshipTypeEnum("relationship_type").notNull(),
-  notes: text(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-// ============================================================================
 // DEPARTMENTS & GROUPS
 // ============================================================================
 
@@ -186,7 +165,6 @@ export const peopleDepartmentsTable = pgTable("people_departments", {
   departmentId: uuid("department_id")
     .notNull()
     .references(() => departmentsTable.id, { onDelete: "cascade" }),
-  role: varchar({ length: 100 }),
   joinedAt: date("joined_at"),
   leftAt: date("left_at"),
   isActive: boolean("is_active").notNull().default(true),
@@ -264,8 +242,6 @@ export const peopleRelations = relations(peopleTable, ({ one, many }) => ({
   departments: many(peopleDepartmentsTable),
   groups: many(peopleGroupsTable),
   positionHistory: many(positionHistoryTable),
-  relationshipsAsSubject: many(relationshipsTable, { relationName: "subject" }),
-  relationshipsAsRelated: many(relationshipsTable, { relationName: "related" }),
 }));
 
 export const householdsRelations = relations(householdsTable, ({ many }) => ({
@@ -330,22 +306,6 @@ export const positionHistoryRelations = relations(
     position: one(positionsTable, {
       fields: [positionHistoryTable.positionId],
       references: [positionsTable.id],
-    }),
-  })
-);
-
-export const relationshipsRelations = relations(
-  relationshipsTable,
-  ({ one }) => ({
-    person: one(peopleTable, {
-      fields: [relationshipsTable.personId],
-      references: [peopleTable.id],
-      relationName: "subject",
-    }),
-    relatedPerson: one(peopleTable, {
-      fields: [relationshipsTable.relatedPersonId],
-      references: [peopleTable.id],
-      relationName: "related",
     }),
   })
 );
