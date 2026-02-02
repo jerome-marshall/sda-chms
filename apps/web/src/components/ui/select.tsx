@@ -25,14 +25,17 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   );
 }
 
+type SelectTriggerProps = SelectPrimitive.Trigger.Props & {
+  size?: "sm" | "default";
+};
+
 function SelectTrigger({
   className,
   size = "default",
   children,
+  ref,
   ...props
-}: SelectPrimitive.Trigger.Props & {
-  size?: "sm" | "default";
-}) {
+}: SelectTriggerProps & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
     <SelectPrimitive.Trigger
       className={cn(
@@ -41,6 +44,7 @@ function SelectTrigger({
       )}
       data-size={size}
       data-slot="select-trigger"
+      ref={ref}
       {...props}
     >
       {children}

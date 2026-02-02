@@ -40,7 +40,11 @@ const FormSelect = <T extends FieldValues>({
             onValueChange={field.onChange}
             value={field.value ?? ""}
           >
-            <SelectTrigger aria-invalid={fieldState.invalid} id={field.name}>
+            <SelectTrigger
+              aria-invalid={fieldState.invalid}
+              id={field.name}
+              ref={field.ref}
+            >
               {options.find((option) => option.value === field.value)
                 ?.label || <SelectValue>{placeholder}</SelectValue>}
             </SelectTrigger>

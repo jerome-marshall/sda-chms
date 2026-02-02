@@ -49,6 +49,7 @@ const FormMultiSelect = <T extends FieldValues>({
               aria-invalid={fieldState.invalid}
               className="w-full"
               id={field.name}
+              ref={field.ref}
             >
               <MultiSelectValue
                 overflowBehavior={"cutoff"}
