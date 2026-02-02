@@ -51,7 +51,7 @@ const AddPersonForm = () => {
       firstName: "Jerome",
       lastName: "Marshall",
       gender: "male",
-      dateOfBirth: "1998-11-14T18:30:00.000Z",
+      dateOfBirth: "1998-11-15",
       phone: "9159115328",
       addressLine1: "No. 23, Abirami Garden",
       city: "HOSUR",

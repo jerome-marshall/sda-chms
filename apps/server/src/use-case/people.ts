@@ -24,18 +24,7 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
       // If no household ID, check if the person is a head of household
       if (data.householdRole === "head") {
         // If the person is a head of household, create a household
-        const household = await insertHousehold(
-          {
-            name: `${data.firstName} ${data.lastName}`,
-            addressLine1: data.addressLine1,
-            addressLine2: data.addressLine2,
-            city: data.city,
-            state: data.state,
-            country: data.country,
-            phone: data.phone,
-          },
-          trx
-        );
+        const household = await insertHousehold(trx);
 
         if (!household) {
           throw new Error("Failed to create household");

@@ -1,4 +1,4 @@
-import { toDate } from "@sda-chms/shared/utils/helpers";
+import { toDate, toDateString } from "@sda-chms/shared/utils/helpers";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import {
@@ -56,7 +56,7 @@ const FormDatePicker = <T extends FieldValues>({
                   defaultMonth={date}
                   mode="single"
                   onSelect={(selectedDate) => {
-                    field.onChange(toDate(selectedDate)?.toISOString());
+                    field.onChange(toDateString(selectedDate));
                     setOpen(false);
                   }}
                   selected={date}

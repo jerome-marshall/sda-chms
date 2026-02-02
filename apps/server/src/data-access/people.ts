@@ -1,6 +1,5 @@
 import { type DbTransaction, db } from "@sda-chms/db";
 import {
-  type HouseholdsInsertDb,
   householdsTable,
   type PeopleInsertDb,
   peopleTable,
@@ -19,14 +18,8 @@ export const insertPerson = (data: PeopleInsertDb, trx: DbTransaction = db) =>
     return person[0];
   }, "insertPerson");
 
-export const insertHousehold = (
-  data: HouseholdsInsertDb,
-  trx: DbTransaction = db
-) =>
+export const insertHousehold = (trx: DbTransaction = db) =>
   withDbErrorHandling(async () => {
-    const household = await trx
-      .insert(householdsTable)
-      .values(data)
-      .returning();
+    const household = await trx.insert(householdsTable).values({}).returning();
     return household[0];
   }, "insertHousehold");

@@ -127,13 +127,6 @@ export const peopleTable = pgTable(
 
 export const householdsTable = pgTable("households", {
   id: uuid().primaryKey().defaultRandom(),
-  name: varchar({ length: 255 }).notNull(),
-  addressLine1: varchar("address_line_1", { length: 255 }),
-  addressLine2: varchar("address_line_2", { length: 255 }),
-  city: varchar({ length: 100 }),
-  state: varchar({ length: 100 }),
-  country: varchar({ length: 100 }),
-  phone: varchar({ length: 50 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -316,6 +309,7 @@ export const positionHistoryRelations = relations(
 
 export const peopleSelectSchemaDb = createSelectSchema(peopleTable);
 export const peopleInsertSchemaDb = createInsertSchema(peopleTable);
+export const householdsSelectSchemaDb = createSelectSchema(householdsTable);
 export const householdsInsertSchemaDb = createInsertSchema(householdsTable);
 
 // ============================================================================
@@ -323,4 +317,5 @@ export const householdsInsertSchemaDb = createInsertSchema(householdsTable);
 // ============================================================================
 export type PeopleInsertDb = z.infer<typeof peopleInsertSchemaDb>;
 export type PeopleSelectDb = z.infer<typeof peopleSelectSchemaDb>;
+export type HouseholdsSelectDb = z.infer<typeof householdsSelectSchemaDb>;
 export type HouseholdsInsertDb = z.infer<typeof householdsInsertSchemaDb>;
