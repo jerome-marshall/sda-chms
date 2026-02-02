@@ -1,8 +1,13 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
+// import { scan } from "react-scan"; // must be imported before React and React DOM
 
 import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
+
+// scan({
+//   enabled: true,
+// });
 
 const router = createRouter({
   routeTree,
