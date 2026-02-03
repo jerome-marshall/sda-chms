@@ -1,6 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { PlusIcon } from "lucide-react";
-import { Fragment } from "react";
+import { Fragment, type ReactElement } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,7 +15,7 @@ import { cn } from "@/lib/utils";
 import type { TRoutes } from "@/types/route";
 
 export default function Header() {
-  const breadcrumbs = useBreadcrumbs();
+  const { breadcrumbs, headerActions } = useHeaderData();
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 px-4">
@@ -47,15 +46,11 @@ export default function Header() {
           })}
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="ml-auto">
-        <ButtonGroup>
-          <ButtonGroup>
-            <Link className={cn(buttonVariants())} to="/people/add">
-              <PlusIcon /> Add Person
-            </Link>
-          </ButtonGroup>
-        </ButtonGroup>
-      </div>
+      {headerActions.length > 0 && (
+        <div className="ml-auto">
+          <ButtonGroup>{headerActions}</ButtonGroup>
+        </div>
+      )}
     </header>
   );
 }
@@ -67,7 +62,18 @@ const BREADCRUMBS_CONFIG: Record<TRoutes, string> = {
   "/example": "Example",
 };
 
-const useBreadcrumbs = () => {
+const HEADER_ACTIONS_CONFIG: Record<TRoutes, ReactElement[]> = {
+  "/": [],
+  "/people": [
+    <Link className={cn(buttonVariants())} key="add-person" to="/people/add">
+      Add Person
+    </Link>,
+  ],
+  "/people/add": [],
+  "/example": [],
+};
+
+const useHeaderData = () => {
   const { pathname } = useLocation();
 
   // Build breadcrumbs from path segments
@@ -86,5 +92,7 @@ const useBreadcrumbs = () => {
     breadcrumbs.push({ label, path: currentPath });
   }
 
-  return breadcrumbs;
+  const headerActions = HEADER_ACTIONS_CONFIG[pathname as TRoutes] || [];
+
+  return { breadcrumbs, headerActions };
 };
