@@ -40,4 +40,5 @@ export const fetchApi = async <T>(
 export const queryKeys = {
   people: () => [apiClient.people.$url().pathname],
   groups: () => [apiClient.groups.$url().pathname],
+  households: () => [apiClient.households.$url().pathname],
 };

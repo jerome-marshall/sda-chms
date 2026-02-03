@@ -32,7 +32,7 @@ export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
     photoUrl: data.photoUrl,
     gender: data.gender,
     preferredName: data.preferredName,
-    // householdId: data.householdId,
+    householdId: data.householdId,
     householdRole: data.householdRole,
     sabbathSchoolClass: data.sabbathSchoolClass,
     pastoralNotes: data.pastoralNotes,

@@ -13,7 +13,8 @@ import {
 } from "@sda-chms/shared/schema/people";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAddPerson } from "@/hooks/use-people";
+import { useHouseholds } from "@/hooks/data/use-households";
+import { useAddPerson } from "@/hooks/data/use-people";
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
 import FormSelect from "../form/select";
@@ -28,6 +29,8 @@ import {
 import { Separator } from "../ui/separator";
 
 const AddPersonForm = () => {
+  const { data: households } = useHouseholds();
+
   const { mutate: addPerson } = useAddPerson({
     onSuccess: () => {
       toast.success("Person added successfully");
@@ -215,26 +218,48 @@ const AddPersonForm = () => {
               form={form}
               label="Marital status"
               name="maritalStatus"
+              onChange={(value) => {
+                if (value === "single") {
+                  form.setValue("weddingDate", undefined);
+                }
+              }}
               options={MARITAL_STATUS_OPTIONS}
               placeholder="Select marital status"
             />
-            {(form.watch("maritalStatus") === "married" ||
-              form.watch("maritalStatus") === "widowed") && (
-              <FormDatePicker
-                form={form}
-                label="Wedding date"
-                name="weddingDate"
-              />
-            )}
+            <FormDatePicker
+              disabled={form.watch("maritalStatus") === "single"}
+              form={form}
+              label="Wedding date"
+              name="weddingDate"
+            />
           </FieldGroup>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormSelect
               form={form}
               label="Household role"
               name="householdRole"
+              onChange={(value) => {
+                if (value === "head") {
+                  form.setValue("householdId", undefined);
+                  form.clearErrors("householdId");
+                }
+              }}
               options={HOUSEHOLD_ROLE_OPTIONS}
               placeholder="Select household role"
             />
+            <FormSelect
+              disabled={form.watch("householdRole") === "head"}
+              form={form}
+              label="Household"
+              name="householdId"
+              options={(households || []).map((household) => ({
+                value: household.id,
+                label: household.name,
+              }))}
+              placeholder="Select household"
+            />
+          </FieldGroup>
+          <FieldGroup className="grid grid-cols-2 gap-4">
             <FormInput form={form} label="Occupation" name="occupation" />
           </FieldGroup>
         </FieldSet>

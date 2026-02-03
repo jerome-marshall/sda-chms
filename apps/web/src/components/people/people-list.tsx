@@ -6,8 +6,8 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
+import { usePeople } from "@/hooks/data/use-people";
 import { useClientDataTable } from "@/hooks/use-client-data-table";
-import { usePeople } from "@/hooks/use-people";
 import type { Person } from "@/types/api";
 
 export const PeopleList = () => {

@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { errorHandler } from "./lib/errors";
 import groupsRoutes from "./routes/groups";
+import householdRoutes from "./routes/household";
 import peopleRoutes from "./routes/people";
 
 const app = new Hono();
@@ -24,7 +25,8 @@ const routes = app
     return c.text("OK");
   })
   .route("/people", peopleRoutes)
-  .route("/groups", groupsRoutes);
+  .route("/groups", groupsRoutes)
+  .route("/households", householdRoutes);
 
 export default app;
 export type THonoApp = typeof routes;

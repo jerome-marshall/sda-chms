@@ -23,3 +23,27 @@ export const insertHousehold = (trx: DbTransaction = db) =>
     const household = await trx.insert(householdsTable).values({}).returning();
     return household[0];
   }, "insertHousehold");
+
+export const getAllHouseholds = () =>
+  withDbErrorHandling(async () => {
+    const households = await db.query.householdsTable.findMany({
+      with: {
+        members: {
+          columns: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            photoUrl: true,
+            phone: true,
+            addressLine1: true,
+            addressLine2: true,
+            city: true,
+            state: true,
+            country: true,
+            householdRole: true,
+          },
+        },
+      },
+    });
+    return households;
+  }, "getAllHouseholds");

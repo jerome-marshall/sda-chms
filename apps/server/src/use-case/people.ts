@@ -1,6 +1,8 @@
 import { createTransaction } from "@sda-chms/db";
+import { HOUSEHOLD_ROLE } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import {
+  getAllHouseholds,
   getAllPeople,
   insertHousehold,
   insertPerson,
@@ -53,4 +55,25 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
   }
 
   return personDbToApi(personFinal);
+};
+
+export const getAllHouseholdUseCase = async () => {
+  const householdsData = await getAllHouseholds();
+  const households = householdsData.map((household) => {
+    const head = household.members.find(
+      (member) => member.householdRole === HOUSEHOLD_ROLE.HEAD
+    );
+    const members = household.members.filter(
+      (member) => member.householdRole !== HOUSEHOLD_ROLE.HEAD
+    );
+
+    return {
+      ...household,
+      head,
+      members,
+      name: `${head?.firstName} ${head?.lastName || ""} Family`,
+    };
+  });
+
+  return households;
 };
