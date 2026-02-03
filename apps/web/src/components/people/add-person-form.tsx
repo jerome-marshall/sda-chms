@@ -50,27 +50,27 @@ const AddPersonForm = () => {
 
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
-    defaultValues: {
-      firstName: "Jerome",
-      lastName: "Marshall",
-      gender: "male",
-      dateOfBirth: "1998-11-15",
-      phone: "9159115328",
-      addressLine1: "No. 23, Abirami Garden",
-      city: "HOSUR",
-      state: "Tamil Nadu",
-      country: "India",
-      occupation: "IT Professional",
-      maritalStatus: "single",
-      membershipStatus: "member",
-      dietaryPreference: "none",
-      sabbathSchoolClass: "youth",
-    },
     // defaultValues: {
+    //   firstName: "Jerome",
+    //   lastName: "Marshall",
+    //   gender: "male",
+    //   dateOfBirth: "1998-11-15",
+    //   phone: "9159115328",
+    //   addressLine1: "No. 23, Abirami Garden",
+    //   city: "HOSUR",
+    //   state: "Tamil Nadu",
+    //   country: "India",
+    //   occupation: "IT Professional",
     //   maritalStatus: "single",
+    //   membershipStatus: "member",
     //   dietaryPreference: "none",
-    //   householdRole: "head",
+    //   sabbathSchoolClass: "youth",
     // },
+    defaultValues: {
+      maritalStatus: "single",
+      dietaryPreference: "none",
+      membershipStatus: "member",
+    },
   });
   console.log("🚀 ~ AddPersonForm ~ form errors:", form.formState.errors);
   console.log("🚀 ~ AddPersonForm ~ form:", form.watch());
