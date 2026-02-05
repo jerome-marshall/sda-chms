@@ -54,7 +54,7 @@ function RootComponent() {
             <Toaster position="top-right" richColors />
           </ThemeProvider>
         </NuqsAdapter>
-        <ReactQueryDevtools />
+        <ReactQueryDevtools buttonPosition="bottom-left" />
       </QueryClientProvider>
       <TanStackRouterDevtools position="bottom-left" />
     </>

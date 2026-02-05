@@ -63,7 +63,6 @@ export const PeopleList = () => {
           variant: "text",
           icon: MapPin,
         },
-        enableColumnFilter: true,
       },
       {
         id: "membershipStatus",

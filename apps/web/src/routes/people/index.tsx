@@ -7,7 +7,7 @@ export const Route = createFileRoute("/people/")({
 
 function RouteComponent() {
   return (
-    <div>
+    <div className="h-full">
       <PeopleList />
     </div>
   );
