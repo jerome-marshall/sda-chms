@@ -1,4 +1,5 @@
 import { MEMBERSHIP_STATUS_OPTIONS } from "@sda-chms/shared/constants/people";
+import { Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MapPin, Phone, Shield, User } from "lucide-react";
 import { useMemo } from "react";
@@ -21,7 +22,15 @@ export const PeopleList = () => {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label="Full Name" />
         ),
-        cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
+        cell: ({ row }) => (
+          <Link
+            className="underline hover:no-underline"
+            params={{ peopleId: row.original.id }}
+            to="/people/$peopleId"
+          >
+            {row.getValue("fullName")}
+          </Link>
+        ),
         enableSorting: true,
         meta: {
           label: "Full Name",

@@ -47,3 +47,11 @@ export const getAllHouseholds = () =>
     });
     return households;
   }, "getAllHouseholds");
+
+export const getPersonById = (id: string) =>
+  withDbErrorHandling(async () => {
+    const person = await db.query.peopleTable.findFirst({
+      where: (table, { eq }) => eq(table.id, id),
+    });
+    return person;
+  }, "getPersonById");

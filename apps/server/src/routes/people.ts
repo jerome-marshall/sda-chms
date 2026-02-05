@@ -1,7 +1,11 @@
 import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import { Hono } from "hono";
 import { jsonValidator } from "../lib/validator";
-import { addPersonUseCase, getAllPeopleUseCase } from "../use-case/people";
+import {
+  addPersonUseCase,
+  getAllPeopleUseCase,
+  getPersonByIdUseCase,
+} from "../use-case/people";
 
 const app = new Hono()
   .get("/", async (c) => {
@@ -13,6 +17,11 @@ const app = new Hono()
     console.log("🚀 ~ data:", data);
     const person = await addPersonUseCase(data);
     return c.json(person, 201);
+  })
+  .get("/:id", async (c) => {
+    const id = c.req.param("id");
+    const person = await getPersonByIdUseCase(id);
+    return c.json(person, 200);
   });
 
 export default app;

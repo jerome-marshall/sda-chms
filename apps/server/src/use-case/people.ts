@@ -4,6 +4,7 @@ import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import {
   getAllHouseholds,
   getAllPeople,
+  getPersonById,
   insertHousehold,
   insertPerson,
 } from "../data-access/people";
@@ -16,6 +17,15 @@ import {
 export const getAllPeopleUseCase = async () => {
   const people = await getAllPeople();
   return peopleDbToApi(people);
+};
+
+export const getPersonByIdUseCase = async (id: string) => {
+  const person = await getPersonById(id);
+  if (!person) {
+    throw new Error("Person not found");
+  }
+
+  return personDbToApi(person);
 };
 
 export const addPersonUseCase = async (data: PersonInsertForm) => {
