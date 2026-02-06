@@ -1,12 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { apiClient, fetchApi } from "@/lib/api";
+import { fetchApi, queryKeys } from "@/lib/api";
 
 export const Route = createFileRoute("/people/$peopleId")({
   component: RouteComponent,
-  loader: async ({ params }) => {
-    const person = await fetchApi(
-      apiClient.people[":id"].$get({ param: { id: params.peopleId } })
-    );
+  loader: async ({ params, context: { queryClient, apiClient } }) => {
+    const person = await queryClient.ensureQueryData({
+      queryKey: queryKeys.person(params.peopleId),
+      queryFn: () =>
+        fetchApi(
+          apiClient.people[":id"].$get({ param: { id: params.peopleId } })
+        ),
+    });
+
     return person;
   },
 });

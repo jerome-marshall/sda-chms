@@ -1,3 +1,4 @@
+import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
@@ -13,9 +14,15 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 import "../index.css";
+import type { apiClient } from "@/lib/api";
 import { queryClient } from "@/lib/query";
 
-export const Route = createRootRouteWithContext()({
+export interface MyRouterContext {
+  queryClient: QueryClient;
+  apiClient: typeof apiClient;
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: RootComponent,
   head: () => ({
     meta: [
