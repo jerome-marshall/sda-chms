@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useMatches } from "@tanstack/react-router";
 import { Fragment, type ReactElement } from "react";
 import {
   Breadcrumb,
@@ -55,41 +55,70 @@ export default function Header() {
   );
 }
 
-const BREADCRUMBS_CONFIG: Record<TRoutes, string> = {
-  "/": "Home",
-  "/people": "People",
-  "/people/add": "Add Person",
-  "/example": "Example",
-};
-
-const HEADER_ACTIONS_CONFIG: Record<TRoutes, ReactElement[]> = {
-  "/": [],
+const HEADER_ACTIONS_CONFIG: Partial<Record<TRoutes, ReactElement[]>> = {
   "/people": [
     <Link className={cn(buttonVariants())} key="add-person" to="/people/add">
       Add Person
     </Link>,
   ],
-  "/people/add": [],
-  "/example": [],
+};
+
+// Static labels for known path segments
+const SEGMENT_LABELS: Record<string, string> = {
+  people: "People",
+  add: "Add Person",
+  example: "Example",
+};
+
+// Maps a route ID to a function that extracts a display name from its loaderData
+const DYNAMIC_BREADCRUMB_LABELS: Record<
+  TRoutes,
+  (loaderData: Record<string, unknown>) => string
+> = {
+  "/": () => "Home",
+  "/example": () => "Example",
+  "/people": () => "People",
+  "/people/add": () => "Add Person",
+  "/people/$peopleId": (data) => (data.fullName as string) ?? "Person",
 };
 
 const useHeaderData = () => {
-  const { pathname } = useLocation();
+  const matches = useMatches();
+  console.log("🚀 ~ useHeaderData ~ matches:", matches);
 
-  // Build breadcrumbs from path segments
+  // Use the deepest match's pathname to build breadcrumbs
+  const currentMatch = matches.at(-1);
+  const pathname = currentMatch?.pathname ?? "/";
+
+  // Check if the current route has a dynamic breadcrumb label
+  const dynamicLabelFn =
+    currentMatch && currentMatch.routeId in DYNAMIC_BREADCRUMB_LABELS
+      ? DYNAMIC_BREADCRUMB_LABELS[currentMatch.routeId as TRoutes]
+      : undefined;
+
+  // Build breadcrumbs from URL segments for the full hierarchy
   const segments = pathname.split("/").filter(Boolean);
-
   const breadcrumbs = [{ label: "Home", path: "/" }];
 
   let currentPath = "";
-  for (const segment of segments) {
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
     currentPath += `/${segment}`;
-    // Try to find a matching route config (with or without trailing slash)
-    const label =
-      BREADCRUMBS_CONFIG[currentPath as TRoutes] ||
-      segment.charAt(0).toUpperCase() + segment.slice(1); // Fallback: capitalize segment
+    const isLastSegment = i === segments.length - 1;
 
-    breadcrumbs.push({ label, path: currentPath });
+    // For the last segment, use the dynamic label from loaderData if available
+    if (isLastSegment && dynamicLabelFn && currentMatch?.loaderData) {
+      breadcrumbs.push({
+        label: dynamicLabelFn(currentMatch.loaderData),
+        path: currentPath,
+      });
+    } else {
+      const label =
+        SEGMENT_LABELS[segment] ??
+        segment.charAt(0).toUpperCase() + segment.slice(1);
+
+      breadcrumbs.push({ label, path: currentPath });
+    }
   }
 
   const headerActions = HEADER_ACTIONS_CONFIG[pathname as TRoutes] || [];
