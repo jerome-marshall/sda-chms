@@ -9,7 +9,20 @@
         "useImageSize": "off"
       },
       "a11y": {
-        "useKeyWithClickEvents": "off"
+        "useKeyWithClickEvents": "off",
+        "useSemanticElements": "off",
+        "useFocusableInteractive": "warn",
+        "useAriaPropsForRole": "warn"
+      },
+      "style": {
+        "useFilenamingConvention": "off"
+      },
+      "performance": {
+        "noNamespaceImport": "warn",
+        "noBarrelFile": "warn"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "warn"
       }
     }
   },

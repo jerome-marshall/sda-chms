@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noNamespaceImport: React namespace import needed for hooks
 import * as React from "react";
 
 /**

@@ -197,7 +197,6 @@ export function DataTableDateFilter<TData>({
         }
       >
         {hasValue ? (
-          // biome-ignore lint/a11y/useSemanticElements: <from lib>
           <div
             aria-label={`Clear ${title} filter`}
             className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
