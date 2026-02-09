@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import PersonDetail from "@/components/people/person-detail";
 import { fetchApi, queryKeys } from "@/lib/api";
 
 export const Route = createFileRoute("/people/$peopleId")({
@@ -18,5 +19,5 @@ export const Route = createFileRoute("/people/$peopleId")({
 
 function RouteComponent() {
   const person = Route.useLoaderData();
-  return <div>{person.fullName}</div>;
+  return <PersonDetail person={person} />;
 }

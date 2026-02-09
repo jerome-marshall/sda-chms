@@ -1,0 +1,34 @@
+export interface PersonData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  preferredName: string | null;
+  gender: string | null;
+  dateOfBirth: string | null;
+  photoUrl: string | null;
+  email: string | null;
+  phone: string;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  occupation: string;
+  maritalStatus: string;
+  weddingDate: string | null;
+  memorialDay: string | null;
+  membershipStatus: string;
+  baptismDate: string | null;
+  baptismPlace: string | null;
+  dateJoinedChurch: string | null;
+  sabbathSchoolClass: string;
+  dietaryPreference: string | null;
+  preferredVisitingTime: string | null;
+  visitationNotes: string | null;
+  pastoralNotes: string | null;
+  householdId: string | null;
+  householdRole: string | null;
+  isActive: boolean;
+  fullName: string;
+  age: number | undefined;
+}
