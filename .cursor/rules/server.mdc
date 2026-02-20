@@ -1,0 +1,75 @@
+---
+description: "Server conventions for the Hono API — routes, use cases, data access, error handling"
+globs: "apps/server/**"
+alwaysApply: false
+---
+
+# Server (apps/server)
+
+Hono REST API running on Bun. Follows a strict three-layer architecture.
+
+## Architecture
+
+```
+Routes → Use Cases → Data Access → Database
+```
+
+- **Routes** (`src/routes/`): HTTP handlers. Validate input, call use cases, return responses. NEVER import from `data-access/` directly.
+- **Use Cases** (`src/use-case/`): Business logic. Orchestrate data-access calls, apply transformers, enforce rules. One file per domain.
+- **Data Access** (`src/data-access/`): Database operations. Thin wrappers around Drizzle queries. One file per domain.
+
+## Routes
+
+- One Hono sub-app per resource in `src/routes/` (e.g., `people.ts`, `groups.ts`)
+- Chain route handlers on a single `new Hono()` instance
+- Validate POST/PUT request bodies with `jsonValidator(schema)` from `src/lib/validator.ts`
+- Schemas come from `@sda-chms/shared/schema/*`
+- Export the Hono app as the default export
+- Wire into the main app in `src/index.ts` via `.route("/path", subApp)`
+- For the route pattern, see `src/routes/people.ts`
+
+## Use Cases
+
+- Exported async functions named with a `UseCase` suffix (e.g., `getAllPeopleUseCase`, `addPersonUseCase`)
+- Call data-access functions, never Drizzle queries directly
+- Apply data transformers to convert DB shapes to API response shapes
+- Throw errors for business rule violations — the global handler catches them
+- For the use case pattern, see `src/use-case/people.ts`
+
+## Data Access
+
+- Exported async functions with clear names (e.g., `getAllPeople`, `insertPerson`, `getPersonById`)
+- Wrap ALL database operations in `withDbErrorHandling()` from `src/lib/errors.ts`
+- Accept an optional `DbTransaction` parameter (default: `db`) for transactional operations
+- Return plain Drizzle result objects — no transformation here
+- For the data access pattern, see `src/data-access/people.ts`
+
+## Error Handling
+
+- Global `errorHandler` in `src/lib/errors.ts` handles all thrown errors
+- Recognized error types: `HTTPException`, `ZodError`, `DbError`
+- Don't catch errors in route handlers — let them propagate to the global handler
+- Don't construct manual error responses — throw typed errors instead
+- DB errors are wrapped via `withDbErrorHandling` which throws `DbError` with constraint info
+
+## Type-Safe Client
+
+- `src/client.ts` exports `hcWithType` for the web app to import as `@sda-chms/server/client`
+- The main app exports `THonoApp` type so the client gets full type inference
+- Any route changes are automatically reflected in the frontend's `apiClient`
+
+## Examples
+
+- Route handlers: `src/routes/people.ts`
+- Use cases: `src/use-case/people.ts`
+- Data access: `src/data-access/people.ts`
+- Error handling: `src/lib/errors.ts`
+- Validation helper: `src/lib/validator.ts`
+
+## Avoid
+
+- Don't query the database directly in route handlers — always go through use cases and data access
+- Don't catch errors in routes just to rethrow or format them — the global error handler does this
+- Don't return error responses manually with `c.json({ error })` — throw typed errors instead
+- Don't skip `withDbErrorHandling` in data-access functions
+- Don't put business logic in data-access functions — that belongs in use cases

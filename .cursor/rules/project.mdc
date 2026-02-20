@@ -1,0 +1,62 @@
+---
+description: "Core project identity, tech stack, hard constraints, and universal conventions for SDA-CHMS"
+alwaysApply: true
+---
+
+# SDA-CHMS Project
+
+SDA-CHMS is a church management system built as a Turborepo monorepo. The stack is Bun (runtime + package manager), TypeScript, Hono (server API), React 19 + Vite (web frontend), Drizzle ORM, and PostgreSQL.
+
+## Monorepo Structure
+
+```
+apps/
+  web/           → React 19 + Vite + TanStack Router frontend
+  server/        → Hono REST API running on Bun
+packages/
+  db/            → Drizzle ORM schemas, migrations, seed
+  shared/        → Zod schemas, constants, types shared across apps
+  env/           → Environment variable validation (t3-env)
+  config/        → Shared TypeScript config
+```
+
+Workspace packages are imported as `@sda-chms/db`, `@sda-chms/shared`, `@sda-chms/env`, `@sda-chms/server`, `@sda-chms/config`.
+
+## Constraints
+
+- NEVER commit secrets, API keys, or `.env` files
+- NEVER use the `any` type — use `unknown` with type guards
+- ALL validation MUST use Zod schemas from `@sda-chms/shared`
+- ALL database access MUST go through the data-access layer — never query the DB directly from routes or use cases
+- ALWAYS use Bun as runtime and package manager — never npm, yarn, or pnpm
+- ALWAYS run `bun x ultracite fix` before committing to ensure lint/format compliance
+
+## Conventions
+
+- **File naming**: kebab-case for all files (e.g., `add-person-form.tsx`, `use-people.ts`)
+- **Path aliases**: `@/` maps to `apps/web/src/`, `@sda-chms/*` for workspace packages
+- **Imports**: Use `@/` alias in the web app, `@sda-chms/*` for cross-package imports, relative imports only within the same feature folder
+- **Formatting/linting**: Biome via Ultracite — `bun x ultracite fix` to auto-fix, `bun x ultracite check` to verify
+- **Turborepo tasks**: `bun run dev` (all apps), `bun run build`, `bun run db:push`, `bun run db:generate`, `bun run db:migrate`, `bun run db:seed`, `bun run db:studio`
+
+## Avoid
+
+- Don't create new utility functions without checking `@/lib/utils` or `@sda-chms/shared/utils` first
+- Don't use npm/yarn/pnpm commands — always use `bun`
+- Don't apply Next.js patterns — this project uses Vite + Hono, not Next.js
+- Don't add barrel files (index files that re-export everything) — import directly from source
+
+## Rule Evolution
+
+These Cursor rules are living documents. When you notice any of the following during a conversation, **proactively update the relevant rule file** in `.cursor/rules/`:
+
+- **Repeated corrections**: If the user corrects the same mistake 2+ times, add it to the "Avoid" section of the relevant rule
+- **New patterns**: If a new architectural pattern, convention, or utility is introduced, document it in the matching rule
+- **Bug patterns**: If a recurring bug is traced to a misunderstanding of project conventions, capture the correct approach as a rule
+- **Outdated rules**: If a rule no longer matches the codebase (e.g., a refactored pattern, renamed file, removed utility), update or remove it
+
+When updating rules:
+- Keep changes minimal and focused — add a bullet point, don't rewrite the whole file
+- Place new constraints in "Constraints", new patterns in "Conventions", and new mistakes in "Avoid"
+- If a rule file doesn't exist for the area you're updating, add it to the closest matching rule
+- Briefly mention the rule update to the user so they're aware

@@ -1,0 +1,61 @@
+---
+description: "Shared package conventions — Zod schemas, constants, types, and utilities used across apps"
+globs: "packages/shared/**"
+alwaysApply: false
+---
+
+# Shared Package (packages/shared)
+
+Code shared between the web and server apps. Contains validation schemas, constants, types, and utilities.
+
+## Structure
+
+```
+src/
+  schema/       → Zod validation schemas for forms and API requests
+  constants/    → Enum value arrays and select options
+  types/        → Shared TypeScript interfaces and types
+  utils/        → Shared helper functions (transformers, formatters)
+```
+
+## Zod Schemas (`src/schema/`)
+
+- One file per domain (e.g., `people.ts`)
+- Always export both the Zod schema and its inferred type together
+- Use `z.infer<typeof schema>` for the type export
+- These are form/API-level schemas — DB-level schemas live in `@sda-chms/db`
+- Include `.refine()` for cross-field validation rules
+- Use descriptive error messages via the `error` option on each field
+
+## Constants (`src/constants/`)
+
+- One file per domain (e.g., `people.ts`)
+- Export `*_VALUES` as `const` tuples — used by Drizzle `pgEnum` and Zod schemas
+- Export `*_OPTIONS` as label/value arrays — used by frontend select/dropdown components
+- These are the single source of truth for enum-like values across the entire project
+
+## Types (`src/types/`)
+
+- Shared TypeScript interfaces used by both web and server (e.g., `ApiErrorBody`)
+- Keep types minimal — only what genuinely needs to be shared across apps
+
+## Utils (`src/utils/`)
+
+- Shared helper functions like data transformers (e.g., converting DB shapes to API shapes)
+- Must be pure functions with no app-specific dependencies
+
+## Import Paths
+
+Consumers import via subpath exports:
+
+- `@sda-chms/shared/schema/people`
+- `@sda-chms/shared/constants/people`
+- `@sda-chms/shared/types/errors`
+- `@sda-chms/shared/utils/helpers`
+
+## Avoid
+
+- Don't put app-specific logic here — only code genuinely shared between web and server
+- Don't import from `@sda-chms/db` or `@sda-chms/server` — shared must not depend on app packages
+- Don't duplicate DB-level schemas — those belong in `@sda-chms/db` using `drizzle-zod`
+- Don't add UI components or server route logic — this package is framework-agnostic

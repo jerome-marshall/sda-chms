@@ -1,0 +1,67 @@
+---
+description: "Database conventions for Drizzle ORM — schema definitions, migrations, naming, Zod integration"
+globs: "packages/db/**"
+alwaysApply: false
+---
+
+# Database (packages/db)
+
+PostgreSQL database managed with Drizzle ORM. Schemas, migrations, and seed data live here.
+
+## Schema Definitions
+
+- Schema files live in `src/schema/` — one file per domain (e.g., `people.ts`)
+- Use `pgTable`, `pgEnum`, and relations from `drizzle-orm`
+- Define relations alongside tables using `relations()` from `drizzle-orm`
+
+## Naming Conventions
+
+- **DB column names**: `snake_case` via Drizzle's string argument (e.g., `varchar("first_name")`)
+- **TypeScript field names**: `camelCase` (e.g., `firstName`)
+- **Table names**: plural `snake_case` (e.g., `people`, `people_departments`)
+- **Enum names**: `snake_case` (e.g., `membership_status`, `household_role`)
+
+## Standard Table Fields
+
+Every table MUST include:
+
+- `id: uuid().primaryKey().defaultRandom()` — UUID primary key
+- `createdAt: timestamp("created_at").notNull().defaultNow()`
+- `updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date())`
+
+Tables that support soft deletes include:
+
+- `isActive: boolean("is_active").notNull().default(true)`
+
+## Enums
+
+- Define with `pgEnum` using shared constant arrays from `@sda-chms/shared/constants`
+- Enum value arrays (`*_VALUES`) are the single source of truth in the shared package
+- Example: `export const genderEnum = pgEnum("gender", GENDER_VALUES)`
+
+## Zod Schemas (DB-level)
+
+- Auto-generate with `createSelectSchema` and `createInsertSchema` from `drizzle-zod`
+- Always export both the schema and the inferred TypeScript type
+- Naming: `*SelectSchemaDb`, `*InsertSchemaDb` for schemas; `*SelectDb`, `*InsertDb` for types
+- These are DB-level schemas — form/API validation schemas belong in `@sda-chms/shared/schema`
+
+## Migration Commands
+
+- `bun run db:generate` — generate migration files from schema changes
+- `bun run db:migrate` — apply pending migrations
+- `bun run db:push` — push schema directly (dev only, skips migration files)
+- `bun run db:studio` — open Drizzle Studio for visual DB inspection
+- `bun run db:seed` — run seed script at `src/seed.ts`
+
+## Canonical Example
+
+- For the complete schema pattern (tables, enums, relations, Zod schemas, types), see `src/schema/people.ts`
+
+## Avoid
+
+- Don't use `snake_case` for TypeScript field names — only for the DB column string argument
+- Don't skip the `id`, `createdAt`, `updatedAt` fields on new tables
+- Don't define enum values inline — import `*_VALUES` from `@sda-chms/shared/constants`
+- Don't put form validation schemas here — those belong in `@sda-chms/shared/schema`
+- Don't write raw SQL — use Drizzle's query builder and relational queries

@@ -1,0 +1,82 @@
+---
+description: "Frontend conventions for the React + Vite web app — routing, data fetching, components, styling"
+globs: "apps/web/**"
+alwaysApply: false
+---
+
+# Frontend (apps/web)
+
+React 19 app using Vite, TanStack Router (file-based), TanStack Query, shadcn/ui, and Tailwind CSS v4.
+
+## Routing
+
+- File-based routing in `src/routes/` using TanStack Router
+- Each route file exports `Route` from `createFileRoute()` and a named route component function
+- Dynamic segments use `$param` syntax (e.g., `$peopleId.tsx`)
+- Route loaders access `queryClient` and `apiClient` from router context to prefetch data
+- For the route + loader pattern, see `src/routes/people/$peopleId.tsx`
+
+## Data Fetching
+
+- Use `apiClient` (Hono RPC) + `fetchApi` wrapper + `queryKeys` from `@/lib/api`
+- Data hooks live in `src/hooks/data/` and wrap TanStack Query (`useQuery`, `useMutation`)
+- `fetchApi` handles error parsing — it throws `ApiError` on non-ok responses
+- Add all query keys to the `queryKeys` object in `@/lib/api` — never define keys inline
+- For the data hook pattern, see `src/hooks/data/use-people.ts`
+
+## Components
+
+- Default export for feature/page components (e.g., `AddPersonForm`, `PersonDetail`)
+- Named exports for compound UI components (e.g., `Card`, `CardHeader`, `CardContent`)
+- Props typed via interfaces (e.g., `interface PersonDetailProps { person: PersonData }`)
+- Colocate types in a `types.ts` file within the component folder when needed
+- For the form component pattern, see `src/components/people/add-person-form.tsx`
+
+## Forms
+
+- Use React Hook Form with `@hookform/resolvers/zod` for validation
+- Zod schemas come from `@sda-chms/shared/schema/*`
+- Reusable form field components in `src/components/form/` (`FormInput`, `FormSelect`, `FormDatePicker`)
+- On success: show toast via `sonner` and invalidate relevant queries
+- On error: parse `ApiError` and show descriptive toast message
+
+## Styling
+
+- Tailwind CSS v4 with shadcn/ui (base-maia theme, neutral base color)
+- Use `cn()` from `@/lib/utils` to merge conditional class names
+- No inline styles — use Tailwind utility classes exclusively
+- Theme toggle via `next-themes` (`ThemeProvider` with class strategy)
+- Icons from `lucide-react`
+
+## State Management
+
+- **Server state**: TanStack Query — all API data flows through query hooks
+- **URL state**: `nuqs` for search params and filter state
+- **Form state**: React Hook Form
+- No global client stores (no Redux, Zustand, etc.)
+
+## Examples
+
+- Route with loader: `src/routes/people/$peopleId.tsx`
+- Data hooks: `src/hooks/data/use-people.ts`
+- API client setup: `src/lib/api.ts`
+- Form pattern: `src/components/people/add-person-form.tsx`
+- Root layout + providers: `src/routes/__root.tsx`
+
+## Agent Skills
+
+Use these skills when working on frontend tasks — they contain detailed guidance and code examples:
+
+- **`frontend-design`** — Use when building or styling any UI: components, pages, dashboards, forms, or layouts. Provides guidelines for typography, color, motion, and spatial composition to produce distinctive, production-grade interfaces. Avoid generic AI aesthetics.
+- **`vercel-react-best-practices`** — Use when writing, reviewing, or refactoring React components. Covers 57 prioritized rules across data fetching waterfalls, bundle size, re-render optimization, and rendering performance. Especially important when working on data fetching hooks, lazy loading, or performance-sensitive code.
+- **`vercel-composition-patterns`** — Use when designing component APIs or refactoring components that have grown boolean-prop-heavy. Covers compound components, context providers, state lifting, and React 19 composition patterns. Avoids `forwardRef` — use React 19's `use()` and direct ref props instead.
+
+## Avoid
+
+- Don't use `fetch` directly — use `apiClient` via `fetchApi` from `@/lib/api`
+- Don't create query keys inline — add them to `queryKeys` in `@/lib/api`
+- Don't use CSS modules or styled-components — use Tailwind utilities
+- Don't install a global state library — use TanStack Query for server state, `nuqs` for URL state
+- Don't import from barrel files — import directly from the component/module file
+- Don't add boolean props to customize component behavior — use composition patterns instead (see `vercel-composition-patterns` skill)
+- Don't use `forwardRef` — pass refs directly as props (React 19)
