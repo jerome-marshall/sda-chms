@@ -6,9 +6,34 @@ import {
 } from "@sda-chms/db/schema/people";
 import { withDbErrorHandling } from "../lib/errors";
 
-export const getAllPeople = () =>
+/** Fetches all people with their household head's contact fields for the head-of-household fallback. */
+export const getAllPeopleWithHead = () =>
   withDbErrorHandling(async () => {
-    const people = await db.query.peopleTable.findMany();
+    const people = await db.query.peopleTable.findMany({
+      with: {
+        household: {
+          with: {
+            members: {
+              where: (member, { eq }) => eq(member.householdRole, "head"),
+              columns: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                addressLine1: true,
+                addressLine2: true,
+                city: true,
+                state: true,
+                country: true,
+                preferredVisitingTime: true,
+                phone: true,
+              },
+              limit: 1,
+            },
+          },
+          columns: {}, // household itself has no useful fields; we only need its members
+        },
+      },
+    });
     return people;
   }, "getAllPeople");
 

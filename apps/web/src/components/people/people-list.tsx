@@ -10,10 +10,12 @@ import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { usePeople } from "@/hooks/data/use-people";
 import { useClientDataTable } from "@/hooks/use-client-data-table";
 import type { Person } from "@/types/api";
+import { getInfoOrFromHousehold } from "@/utils/people";
+import HouseholdTooltip from "../household-tooltip";
 
 export const PeopleList = () => {
-  // Fetch data from API
   const { data: people, isLoading, isError } = usePeople();
+
   const columns = useMemo<ColumnDef<Person>[]>(
     () => [
       {
@@ -46,7 +48,20 @@ export const PeopleList = () => {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label="Phone" />
         ),
-        cell: ({ row }) => <div>{row.getValue("phone")}</div>,
+        cell: ({ row }) => {
+          const person = row.original;
+          const { data: phone, isfromHousehold } = getInfoOrFromHousehold(
+            person,
+            "phone"
+          );
+
+          return (
+            <div className="flex items-center gap-1">
+              <span>{phone || "-"}</span>
+              <HouseholdTooltip isFromHousehold={isfromHousehold} />
+            </div>
+          );
+        },
         enableSorting: true,
         meta: {
           label: "Phone",
@@ -62,8 +77,18 @@ export const PeopleList = () => {
           <DataTableColumnHeader column={column} label="City" />
         ),
         cell: ({ row }) => {
-          const city = row.getValue("city") as string | null | undefined;
-          return <div>{city || "-"}</div>;
+          const person = row.original;
+          const { data: city, isfromHousehold } = getInfoOrFromHousehold(
+            person,
+            "city"
+          );
+
+          return (
+            <div className="flex items-center gap-1">
+              <span>{city || "-"}</span>
+              <HouseholdTooltip isFromHousehold={isfromHousehold} />
+            </div>
+          );
         },
         enableSorting: true,
         meta: {

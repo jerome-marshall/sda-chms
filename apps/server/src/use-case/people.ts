@@ -3,20 +3,20 @@ import { HOUSEHOLD_ROLE } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import {
   getAllHouseholds,
-  getAllPeople,
+  getAllPeopleWithHead,
   getPersonById,
   insertHousehold,
   insertPerson,
 } from "../data-access/people";
 import {
-  peopleDbToApi,
+  peopleWithHeadDbToApi,
   personApiToDb,
   personDbToApi,
 } from "../transformers/people";
 
-export const getAllPeopleUseCase = async () => {
-  const people = await getAllPeople();
-  return peopleDbToApi(people);
+export const getAllPeopleWithHeadUseCase = async () => {
+  const people = await getAllPeopleWithHead();
+  return peopleWithHeadDbToApi(people);
 };
 
 export const getPersonByIdUseCase = async (id: string) => {

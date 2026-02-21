@@ -3,13 +3,13 @@ import { Hono } from "hono";
 import { jsonValidator } from "../lib/validator";
 import {
   addPersonUseCase,
-  getAllPeopleUseCase,
+  getAllPeopleWithHeadUseCase,
   getPersonByIdUseCase,
 } from "../use-case/people";
 
 const app = new Hono()
   .get("/", async (c) => {
-    const people = await getAllPeopleUseCase();
+    const people = await getAllPeopleWithHeadUseCase();
     return c.json(people, 200);
   })
   .post("/", jsonValidator(personInsertFormSchema), async (c) => {

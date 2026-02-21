@@ -1,0 +1,78 @@
+---
+description: "Business logic rules — domain rules and behavioral constraints for the entire church management system"
+alwaysApply: true
+---
+
+# Business Logic Rules
+
+This is a Seventh-day Adventist church management system (CHMS). These are the domain rules that every feature must follow. The system will eventually cover attendance, finances, ministries, events, and more — but the sections below reflect only what has been **implemented so far**.
+
+---
+
+## People & Households (implemented)
+
+### Households
+
+- Every person MUST belong to a household — there are no "standalone" people
+- Individuals (people who don't belong to a family) still get a household — they become the head of a new single-member household
+- Each household has exactly one head
+- Only a head can create a new household — non-heads must join an existing household
+- When a head is added without selecting a household, a new household is created automatically
+- Household name is derived from the head: "{firstName} {lastName} Family"
+- The household itself stores no address or contact info — that all comes from the head member
+- Deleting a household does not delete its members
+
+### Head-of-Household Fallback
+
+When a non-head member is missing address, phone, or preferred visiting time, we display the head's info instead. The UI indicates when info is coming from the household rather than the person directly.
+
+Heads never fall back — they always show their own info.
+
+### Person Identity
+
+- A person is uniquely identified by first name + last name + date of birth
+- Email must be unique across all people
+- Names are always title-cased before saving
+
+### Conditional Rules
+
+- Wedding date is only relevant when marital status is not "single"
+- Household selection is only relevant for non-heads — heads always create a new household
+- Baptism minimum age is 8 (SDA practice)
+
+### Computed Data
+
+- Full name and age are derived from stored fields, not entered directly
+
+### Membership & Status
+
+- Membership statuses: member, regular attendee, visitor, inactive, moved, deceased
+- Soft delete via an active flag — people are never hard-deleted
+- Defaults for new people: marital status is "single", membership is "member", dietary preference is "none"
+
+### Sabbath School Classes
+
+Assigned by age group: Beginner (0–3), Kindergarten (3–5), Primary (6–9), Junior (10–12), Earliteen (13–14), Youth (15–18), Adult (18+)
+
+### Important Dates
+
+- Each person can have a flexible list of important dates (date + occasion name)
+- Memorial day is a separate field for remembering deceased relatives
+
+---
+
+## Future Modules (not yet implemented)
+
+The following areas are planned but have no rules defined yet. Add rules here as each module is built:
+
+- **Attendance** — Sabbath tracking, midweek services, etc.
+- **Finances** — Tithe, offerings, budgets
+- **Ministries & Departments** — Roles, leadership, assignments
+- **Events & Calendar** — Church events, scheduling
+- **Communications** — Announcements, notifications
+
+---
+
+## Keeping This File Up to Date
+
+When you implement changes that add, remove, or modify any business rule described above, **update this file** to reflect the new behavior. This includes new domain constraints, changed defaults, new conditional logic, or revised rules. When a new module is started, move it from the "Future Modules" list into its own section with concrete rules.

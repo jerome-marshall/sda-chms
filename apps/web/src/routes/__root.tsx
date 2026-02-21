@@ -14,6 +14,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 import "../index.css";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { apiClient } from "@/lib/api";
 import { queryClient } from "@/lib/query";
 
@@ -55,9 +56,11 @@ function RootComponent() {
             disableTransitionOnChange
             storageKey="vite-ui-theme"
           >
-            <AppLayout>
-              <Outlet />
-            </AppLayout>
+            <TooltipProvider delayDuration={300}>
+              <AppLayout>
+                <Outlet />
+              </AppLayout>
+            </TooltipProvider>
             <Toaster position="top-right" richColors />
           </ThemeProvider>
         </NuqsAdapter>

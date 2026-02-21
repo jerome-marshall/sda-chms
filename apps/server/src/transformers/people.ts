@@ -4,6 +4,12 @@ import type {
 } from "@sda-chms/db/schema/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
+import type { getAllPeopleWithHead } from "../data-access/people";
+
+// Inferred from the data-access return type so it stays in sync with the query
+type PersonWithHouseholdHeadDb = Awaited<
+  ReturnType<typeof getAllPeopleWithHead>
+>[number];
 
 export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
   return {
@@ -47,6 +53,56 @@ export const personDbToApi = (personData: PeopleSelectDb) => {
   };
 };
 
-export const peopleDbToApi = (data: PeopleSelectDb[]) => {
-  return data.map(personDbToApi);
+/**
+ * Transforms a person + household head DB record into the API shape.
+ * Applies the head-of-household fallback: non-heads get the head's contact
+ * fields so the UI can display them when the member has none of their own.
+ */
+export const personWithHeadDbToApi = (
+  personData: PersonWithHouseholdHeadDb
+) => {
+  const { household, ...personDataWithoutHousehold } = personData;
+  const head = household?.members[0];
+  const personBase = {
+    ...personDataWithoutHousehold,
+    fullName: `${personData.firstName} ${personData.lastName ?? ""}`.trim(),
+    age: calculateAge(personData.dateOfBirth),
+  };
+
+  // No head found (data integrity gap) — no fallback fields available
+  if (!head) {
+    return {
+      ...personBase,
+      isHeadOfHousehold: personData.householdRole === "head",
+      household: undefined,
+    } as const;
+  }
+
+  // Person is the head — no fallback needed, they always show their own info
+  if (personData.id === head.id) {
+    return {
+      ...personBase,
+      isHeadOfHousehold: true as const,
+      household: undefined,
+    } as const;
+  }
+
+  // Non-head member — include the head's contact fields for UI fallback
+  return {
+    ...personBase,
+    isHeadOfHousehold: false as const,
+    householdHead: head,
+    householdAddressLine1: head.addressLine1,
+    householdAddressLine2: head.addressLine2,
+    householdCity: head.city,
+    householdState: head.state,
+    householdCountry: head.country,
+    householdPreferredVisitingTime: head.preferredVisitingTime,
+    householdPhone: head.phone,
+    household: undefined, // strip the raw join from the API response
+  };
+};
+
+export const peopleWithHeadDbToApi = (data: PersonWithHouseholdHeadDb[]) => {
+  return data.map(personWithHeadDbToApi);
 };
