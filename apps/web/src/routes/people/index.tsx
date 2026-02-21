@@ -7,7 +7,7 @@ export const Route = createFileRoute("/people/")({
 
 function RouteComponent() {
   return (
-    <div className="h-full">
+    <div className="flex max-h-[calc(100vh-5rem)] min-h-0 flex-1 flex-col">
       <PeopleList />
     </div>
   );

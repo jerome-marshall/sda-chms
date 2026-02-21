@@ -103,7 +103,7 @@ export const PeopleList = () => {
     data: people || [],
     columns,
     initialState: {
-      pagination: { pageIndex: 0, pageSize: 10 },
+      pagination: { pageIndex: 0, pageSize: 50 },
     },
     getRowId: (row: Person) => row.id,
   });

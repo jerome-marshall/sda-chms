@@ -84,7 +84,6 @@ const DYNAMIC_BREADCRUMB_LABELS: Record<
 
 const useHeaderData = () => {
   const matches = useMatches();
-  console.log("🚀 ~ useHeaderData ~ matches:", matches);
 
   // Use the deepest match's pathname to build breadcrumbs
   const currentMatch = matches.at(-1);
