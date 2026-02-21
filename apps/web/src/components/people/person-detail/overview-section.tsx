@@ -17,15 +17,15 @@ import { DetailRow, SectionCard } from "./section-card";
 import type { PersonData } from "./types";
 import { buildAddress, formatLabel } from "./utils";
 
-interface OverviewTabProps {
+interface OverviewSectionProps {
   person: PersonData;
 }
 
-export function OverviewTab({ person }: OverviewTabProps) {
+export function OverviewSection({ person }: OverviewSectionProps) {
   const address = buildAddress(person);
 
   return (
-    <div className="mt-4 grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2">
       <SectionCard
         description="Who they are at a glance"
         title="Personal Information"

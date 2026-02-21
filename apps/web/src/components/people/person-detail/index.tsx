@@ -1,7 +1,7 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
-import { ChurchTab } from "./church-tab";
-import { NotesTab } from "./notes-tab";
-import { OverviewTab } from "./overview-tab";
+import { Separator } from "@/components/ui/separator";
+import { ChurchSection } from "./church-section";
+import { NotesSection } from "./notes-section";
+import { OverviewSection } from "./overview-section";
 import { ProfileHeader } from "./profile-header";
 import type { PersonData } from "./types";
 
@@ -14,25 +14,15 @@ export default function PersonDetail({ person }: PersonDetailProps) {
     <div className="mx-auto w-full max-w-4xl">
       <ProfileHeader person={person} />
 
-      <Tabs defaultValue="overview">
-        <TabsList variant="line">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="church">Church</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
-        </TabsList>
+      <OverviewSection person={person} />
 
-        <TabsContent value="overview">
-          <OverviewTab person={person} />
-        </TabsContent>
+      <Separator className="my-8" />
 
-        <TabsContent value="church">
-          <ChurchTab person={person} />
-        </TabsContent>
+      <ChurchSection person={person} />
 
-        <TabsContent value="notes">
-          <NotesTab person={person} />
-        </TabsContent>
-      </Tabs>
+      <Separator className="my-8" />
+
+      <NotesSection person={person} />
     </div>
   );
 }

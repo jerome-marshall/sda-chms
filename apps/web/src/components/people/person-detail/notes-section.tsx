@@ -23,13 +23,13 @@ function NoteCard({ title, description, content }: NoteCardProps) {
   );
 }
 
-interface NotesTabProps {
+interface NotesSectionProps {
   person: PersonData;
 }
 
-export function NotesTab({ person }: NotesTabProps) {
+export function NotesSection({ person }: NotesSectionProps) {
   return (
-    <div className="mt-4 grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2">
       <NoteCard
         content={person.visitationNotes}
         description="Visitation-related observations"

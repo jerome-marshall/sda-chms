@@ -6,13 +6,13 @@ import { DetailRow, SectionCard } from "./section-card";
 import type { PersonData } from "./types";
 import { formatLabel, getMembershipColor } from "./utils";
 
-interface ChurchTabProps {
+interface ChurchSectionProps {
   person: PersonData;
 }
 
-export function ChurchTab({ person }: ChurchTabProps) {
+export function ChurchSection({ person }: ChurchSectionProps) {
   return (
-    <div className="mt-4 grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2">
       <SectionCard
         description="Their journey and involvement"
         title="Church Membership"
