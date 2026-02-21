@@ -42,7 +42,7 @@ export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
 export const personDbToApi = (personData: PeopleSelectDb) => {
   return {
     ...personData,
-    fullName: `${personData.firstName} ${personData.lastName}`,
+    fullName: `${personData.firstName} ${personData.lastName ?? ""}`.trim(),
     age: calculateAge(personData.dateOfBirth),
   };
 };
