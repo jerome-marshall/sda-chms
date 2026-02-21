@@ -9,6 +9,7 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   date,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -62,7 +63,7 @@ export const peopleTable = pgTable(
 
     // Basic Info
     firstName: varchar("first_name", { length: 100 }).notNull(),
-    lastName: varchar("last_name", { length: 100 }).notNull(),
+    lastName: varchar("last_name", { length: 100 }),
     preferredName: varchar("preferred_name", { length: 100 }),
     gender: genderEnum(),
     dateOfBirth: date("date_of_birth"),
@@ -70,7 +71,7 @@ export const peopleTable = pgTable(
 
     // Contact Info
     email: varchar({ length: 255 }).unique(),
-    phone: varchar({ length: 50 }).notNull(),
+    phone: varchar({ length: 50 }),
 
     // Address
     addressLine1: varchar("address_line_1", { length: 255 }),
@@ -80,7 +81,7 @@ export const peopleTable = pgTable(
     country: varchar({ length: 100 }),
 
     // Personal Details
-    occupation: varchar({ length: 255 }).notNull(),
+    occupation: varchar({ length: 255 }),
     maritalStatus: maritalStatusEnum("marital_status").notNull(),
     weddingDate: date("wedding_date"),
     memorialDay: date("memorial_day"),
@@ -90,13 +91,16 @@ export const peopleTable = pgTable(
     baptismDate: date("baptism_date"),
     baptismPlace: varchar("baptism_place", { length: 255 }),
     dateJoinedChurch: date("date_joined_church"),
-    sabbathSchoolClass: sabbathSchoolClassEnum(
-      "sabbath_school_class"
-    ).notNull(),
+    sabbathSchoolClass: sabbathSchoolClassEnum("sabbath_school_class"),
 
     // Preferences
     dietaryPreference: text("dietary_preference"),
     preferredVisitingTime: text("preferred_visiting_time"),
+
+    // Important Dates
+    importantDates: jsonb("important_dates")
+      .$type<{ date: string; name: string }[]>()
+      .default([]),
 
     // Private Notes
     visitationNotes: text("visitation_notes"),

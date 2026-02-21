@@ -35,16 +35,12 @@ export const personInsertFormSchema = z
     firstName: z
       .string({ error: errorMessages.firstName })
       .min(3, { error: errorMessages.firstName }),
-    lastName: z
-      .string({ error: errorMessages.lastName })
-      .min(1, { error: errorMessages.lastName }),
+    lastName: z.string({ error: errorMessages.lastName }).optional(),
     preferredName: z.string().optional(),
     gender: z.enum(GENDER_VALUES, { error: errorMessages.gender }),
     dateOfBirth: z.string({ message: errorMessages.dateOfBirth }),
     photoUrl: z.url().optional(),
-    phone: z
-      .string({ error: errorMessages.phone })
-      .min(10, { error: errorMessages.phone }),
+    phone: z.string({ error: errorMessages.phone }).optional(),
     email: z.email().optional(),
     addressLine1: z
       .string({ error: errorMessages.addressLine1 })
@@ -59,9 +55,7 @@ export const personInsertFormSchema = z
     country: z
       .string({ error: errorMessages.country })
       .min(1, { error: errorMessages.country }),
-    occupation: z
-      .string({ error: errorMessages.occupation })
-      .min(1, { error: errorMessages.occupation }),
+    occupation: z.string({ error: errorMessages.occupation }).optional(),
     maritalStatus: z.enum(MARITAL_STATUS_VALUES, {
       error: errorMessages.maritalStatus,
     }),
@@ -82,9 +76,11 @@ export const personInsertFormSchema = z
       error: errorMessages.householdRole,
     }),
     // groupIds: z.string().array().optional(),
-    sabbathSchoolClass: z.enum(SABBATH_SCHOOL_CLASS_VALUES, {
-      error: errorMessages.sabbathSchoolClass,
-    }),
+    sabbathSchoolClass: z
+      .enum(SABBATH_SCHOOL_CLASS_VALUES, {
+        error: errorMessages.sabbathSchoolClass,
+      })
+      .optional(),
     visitationNotes: z.string().optional(),
     pastoralNotes: z.string().optional(),
   })

@@ -8,7 +8,7 @@ import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
 export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
   return {
     firstName: toTitleCase(data.firstName),
-    lastName: toTitleCase(data.lastName),
+    lastName: data.lastName ? toTitleCase(data.lastName) : data.lastName,
     phone: data.phone,
     occupation: data.occupation,
     maritalStatus: data.maritalStatus,

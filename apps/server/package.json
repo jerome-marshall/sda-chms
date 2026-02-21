@@ -19,7 +19,8 @@
     "check-types": "tsc -b",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "bun run --hot src/index.ts",
-    "start": "bun run dist/index.js"
+    "start": "bun run dist/index.js",
+    "import-people": "bun run ./scripts/import-people.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
@@ -28,6 +29,7 @@
     "@sda-chms/shared": "workspace:*",
     "dotenv": "catalog:",
     "hono": "catalog:",
+    "udsv": "^0.7.3",
     "zod": "catalog:"
   },
   "devDependencies": {
