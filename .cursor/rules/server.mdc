@@ -66,6 +66,10 @@ Routes → Use Cases → Data Access → Database
 - Error handling: `src/lib/errors.ts`
 - Validation helper: `src/lib/validator.ts`
 
+## Hono Skill
+
+When working with unfamiliar Hono APIs, middleware, or features, use the **Hono skill** (`/.cursor/skills/hono/SKILL.md`) to look up documentation and test endpoints before implementing. This ensures correct usage and avoids guesswork.
+
 ## Avoid
 
 - Don't query the database directly in route handlers — always go through use cases and data access

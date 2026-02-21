@@ -4,6 +4,8 @@ globs: "packages/db/**"
 alwaysApply: false
 ---
 
+> **Skill available**: When working on database tasks, use the `drizzle-orm` skill at `.cursor/skills/drizzle-orm/SKILL.md` for detailed patterns on CRUD, relations, filtering, joins, transactions, and migrations.
+
 # Database (packages/db)
 
 PostgreSQL database managed with Drizzle ORM. Schemas, migrations, and seed data live here.
