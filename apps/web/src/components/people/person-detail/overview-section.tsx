@@ -92,7 +92,7 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           value={
             person.email ? (
               <a
-                className="text-primary hover:underline"
+                className="break-all text-primary hover:underline"
                 href={`mailto:${person.email}`}
               >
                 {person.email}
