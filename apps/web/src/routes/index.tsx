@@ -14,7 +14,7 @@ export const Route = createFileRoute("/")({
 
 function DashboardPage() {
   return (
-    <div className="fade-in slide-in-from-bottom-4 container mx-auto animate-in space-y-6 duration-500">
+    <div className="container mx-auto space-y-6">
       <div className="mb-8 flex flex-col space-y-2">
         <h1 className="font-bold text-3xl text-foreground tracking-tight">
           Dashboard

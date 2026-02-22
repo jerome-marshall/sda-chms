@@ -71,7 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               render={(props) => (
-                <a href="/" {...props}>
+                <Link to="/" {...props}>
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <Church className="size-4" />
                   </div>
@@ -79,7 +79,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <span className="font-semibold">SDA</span>
                     <span className="">Church Management</span>
                   </div>
-                </a>
+                </Link>
               )}
               size="lg"
             />
