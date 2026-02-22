@@ -1,6 +1,7 @@
 import {
   Briefcase,
   Calendar,
+  CalendarHeartIcon,
   Heart,
   Home,
   Mail,
@@ -148,6 +149,22 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           value={preferredVisitingTime}
         />
       </SectionCard>
+
+      {person.importantDates && person.importantDates.length > 0 && (
+        <SectionCard
+          description="Special occasions and anniversaries"
+          title="Dates to Remember"
+        >
+          {person.importantDates.map((entry) => (
+            <DetailRow
+              icon={CalendarHeartIcon}
+              key={`${entry.name}-${entry.date}`}
+              label={entry.name}
+              value={formatDate(entry.date)}
+            />
+          ))}
+        </SectionCard>
+      )}
     </div>
   );
 }
