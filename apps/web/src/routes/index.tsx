@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Home, TrendingUp, UserCheck, Users } from "lucide-react";
 import { AgeGroupChart } from "@/components/dashboard/age-group-chart";
 import { CelebrationsCard } from "@/components/dashboard/celebrations-card";
+import { ImportantDatesCard } from "@/components/dashboard/important-dates-card";
 import { MembershipBreakdownCard } from "@/components/dashboard/membership-breakdown-card";
 import { MemorialWatchCard } from "@/components/dashboard/memorial-watch-card";
 import { MOCK_MEMBERSHIP_STATS } from "@/components/dashboard/mock-data";
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/")({
 
 function DashboardPage() {
   return (
-    <div className="fade-in slide-in-from-bottom-4 container mx-auto max-w-7xl animate-in space-y-6 p-4 duration-500 md:p-6">
+    <div className="fade-in slide-in-from-bottom-4 container mx-auto animate-in space-y-6 p-4 duration-500 md:p-6">
       <div className="mb-8 flex flex-col space-y-2">
         <h1 className="font-bold text-3xl text-foreground tracking-tight">
           Dashboard
@@ -56,14 +57,10 @@ function DashboardPage() {
         />
       </div>
 
-      {/* Middle Row: Celebrations & Memorials */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <CelebrationsCard />
+        <ImportantDatesCard />
         <MemorialWatchCard />
-      </div>
-
-      {/* Bottom Row: Charts & Breakdown */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <AgeGroupChart />
         <MembershipBreakdownCard />
       </div>
