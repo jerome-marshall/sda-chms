@@ -134,7 +134,7 @@ export function OverviewSection({ person }: OverviewSectionProps) {
       </SectionCard>
 
       <SectionCard
-        description="For meal planning at events"
+        description="Food and visiting preferences"
         title="Preferences"
       >
         <DetailRow
