@@ -4,6 +4,7 @@ import { fetchApi, queryKeys } from "@/lib/api";
 
 export const Route = createFileRoute("/people/$peopleId")({
   component: RouteComponent,
+  // Pre-fetches person data before rendering so the detail page loads instantly
   loader: async ({ params, context: { queryClient, apiClient } }) => {
     const person = await queryClient.ensureQueryData({
       queryKey: queryKeys.person(params.peopleId),

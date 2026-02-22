@@ -16,11 +16,13 @@ import {
   personWithHeadDbToApi,
 } from "../transformers/people";
 
+/** Returns all people with household head fallback fields for the people list view. */
 export const getAllPeopleWithHeadUseCase = async () => {
   const people = await getAllPeopleWithHead();
   return peopleWithHeadDbToApi(people);
 };
 
+/** Returns a single person without household head fallback (used internally). */
 export const getPersonByIdUseCase = async (id: string) => {
   const person = await getPersonById(id);
   if (!person) {
@@ -40,6 +42,10 @@ export const getPersonWithHeadByIdUseCase = async (id: string) => {
   return personWithHeadDbToApi(person);
 };
 
+/**
+ * Creates a new person. If the person is a head-of-household, a new household is
+ * created in the same transaction and linked automatically.
+ */
 export const addPersonUseCase = async (data: PersonInsertForm) => {
   const personData = personApiToDb(data);
 
@@ -67,8 +73,6 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
       throw new Error("Only Head of Household can create a household");
     }
 
-    // If the person is not a head of household, just insert the person
-    // If the person is not a head of household, just insert the person
     const person = await insertPerson(personData, trx);
     return person;
   });
@@ -80,6 +84,7 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
   return personDbToApi(personFinal);
 };
 
+/** Returns all households with head/member separation and a derived household name ("{head.firstName} {head.lastName} Family"). */
 export const getAllHouseholdUseCase = async () => {
   const householdsData = await getAllHouseholds();
   const households = householdsData.map((household) => {

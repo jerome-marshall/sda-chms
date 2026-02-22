@@ -1,3 +1,4 @@
+/** Safely converts a string or Date to a Date, returning undefined for invalid/empty values. */
 export const toDate = (value: string | Date | undefined | null) => {
   if (!value) {
     return undefined;
@@ -38,6 +39,7 @@ export const toTitleCase = (str: string) => {
     .replace(/(?:^|[\s-])\w/g, (match) => match.toUpperCase());
 };
 
+/** Calculates age in whole years from a date of birth, adjusting for whether the birthday has passed this year. */
 export const calculateAge = (dateOfBirth: Date | string | undefined | null) => {
   const dob = toDate(dateOfBirth);
 

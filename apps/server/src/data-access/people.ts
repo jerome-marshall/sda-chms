@@ -37,18 +37,21 @@ export const getAllPeopleWithHead = () =>
     return people;
   }, "getAllPeople");
 
+/** Inserts a person record, optionally within an existing transaction. */
 export const insertPerson = (data: PeopleInsertDb, trx: DbTransaction = db) =>
   withDbErrorHandling(async () => {
     const person = await trx.insert(peopleTable).values(data).returning();
     return person[0];
   }, "insertPerson");
 
+/** Creates an empty household row — the head member is linked to it after insertion. */
 export const insertHousehold = (trx: DbTransaction = db) =>
   withDbErrorHandling(async () => {
     const household = await trx.insert(householdsTable).values({}).returning();
     return household[0];
   }, "insertHousehold");
 
+/** Fetches all households with their member list (used to build the household selector on the add-person form). */
 export const getAllHouseholds = () =>
   withDbErrorHandling(async () => {
     const households = await db.query.householdsTable.findMany({
@@ -73,6 +76,7 @@ export const getAllHouseholds = () =>
     return households;
   }, "getAllHouseholds");
 
+/** Fetches a single person without household data. */
 export const getPersonById = (id: string) =>
   withDbErrorHandling(async () => {
     const person = await db.query.peopleTable.findFirst({

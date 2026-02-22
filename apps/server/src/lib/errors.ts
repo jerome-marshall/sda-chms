@@ -6,6 +6,7 @@ import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import z from "zod";
 
+/** Global Hono error handler — normalizes all errors into a consistent ApiErrorBody JSON response. */
 export const errorHandler = (err: Error, c: Context): Response => {
   let message = err.message;
   let code: ApiErrorBody["code"] = "HTTP_ERROR";
@@ -44,6 +45,7 @@ export const errorHandler = (err: Error, c: Context): Response => {
   );
 };
 
+/** Wraps a data-access operation, catching raw DB errors and re-throwing them as DbError with a user-friendly message. */
 export const withDbErrorHandling = async <T>(
   operation: () => Promise<T>,
   context?: string

@@ -55,6 +55,7 @@ export default function Header() {
   );
 }
 
+/** Route-specific action buttons shown on the right side of the header. */
 const HEADER_ACTIONS_CONFIG: Partial<Record<TRoutes, ReactElement[]>> = {
   "/people": [
     <Link className={cn(buttonVariants())} key="add-person" to="/people/add">
@@ -70,7 +71,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   example: "Example",
 };
 
-// Maps a route ID to a function that extracts a display name from its loaderData
+/** Maps a route ID to a function that extracts a display name from its loaderData (e.g. person's fullName for the detail page). */
 const DYNAMIC_BREADCRUMB_LABELS: Record<
   TRoutes,
   (loaderData: Record<string, unknown>) => string
@@ -82,6 +83,7 @@ const DYNAMIC_BREADCRUMB_LABELS: Record<
   "/people/$peopleId": (data) => (data.fullName as string) ?? "Person",
 };
 
+/** Derives breadcrumbs from the current URL path and resolves dynamic labels from route loaderData. */
 const useHeaderData = () => {
   const matches = useMatches();
 

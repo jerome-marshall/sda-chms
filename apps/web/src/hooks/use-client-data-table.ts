@@ -29,6 +29,7 @@ interface UseClientDataTableProps<TData>
   initialState?: Partial<TableState>;
 }
 
+/** TanStack Table hook for client-side pagination, sorting, and filtering (all data loaded up-front). */
 export function useClientDataTable<TData>(
   props: UseClientDataTableProps<TData>
 ) {

@@ -14,6 +14,7 @@ type PersonWithHouseholdHead = Person & {
   householdHead: Partial<Record<HouseholdInfoKey, string | null | undefined>>;
 };
 
+/** Type guard: checks whether the person record includes household head data for fallback. */
 const hasHouseholdHead = (
   person: Person
 ): person is PersonWithHouseholdHead => {

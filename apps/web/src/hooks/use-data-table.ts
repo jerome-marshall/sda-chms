@@ -71,6 +71,7 @@ interface UseDataTableProps<TData>
   startTransition?: TransitionStartFunction;
 }
 
+/** TanStack Table hook for server-side pagination, sorting, and filtering — syncs state to URL query params via nuqs. */
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const {
     columns,

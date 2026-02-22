@@ -3,8 +3,10 @@ import { hcWithType } from "@sda-chms/server/client";
 import type { ApiErrorBody } from "@sda-chms/shared/types/errors";
 import type { ClientResponse } from "hono/client";
 
+/** Type-safe Hono RPC client — all API calls go through this. */
 export const apiClient = hcWithType(env.VITE_SERVER_URL);
 
+/** Client-side error thrown when the API returns a non-OK response. */
 export class ApiError extends Error {
   code: string;
   status: number;
@@ -24,6 +26,7 @@ export class ApiError extends Error {
   }
 }
 
+/** Unwraps a Hono client response, throwing an ApiError on non-OK status. */
 export const fetchApi = async <T>(
   promise: Promise<ClientResponse<T, number, "json">>
 ): Promise<T> => {
@@ -37,6 +40,7 @@ export const fetchApi = async <T>(
   return data;
 };
 
+/** Centralized TanStack Query key factory — keeps cache invalidation consistent. */
 export const queryKeys = {
   people: () => ["people"],
   person: (id: string) => ["people", id],

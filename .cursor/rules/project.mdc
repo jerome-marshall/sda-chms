@@ -39,6 +39,17 @@ Workspace packages are imported as `@sda-chms/db`, `@sda-chms/shared`, `@sda-chm
 - **Formatting/linting**: Biome via Ultracite — `bun x ultracite fix` to auto-fix, `bun x ultracite check` to verify
 - **Turborepo tasks**: `bun run dev` (all apps), `bun run build`, `bun run db:push`, `bun run db:generate`, `bun run db:migrate`, `bun run db:seed`, `bun run db:studio`
 
+## Documentation
+
+When writing or editing code, follow these documentation rules:
+
+- **JSDoc (`/** \*/`)** on all exported functions, classes, types, and constants — a brief 1-line summary; skip `@param`/`@returns` when types make it obvious
+- **Inline comments (`//`)** only where a reader would pause and wonder "why?" — guard clauses, non-obvious conditionals, domain rules, workarounds
+- **Do NOT** add comments that narrate what the code literally does (e.g., "Import the module", "Return the result")
+- **Do NOT** reference bug fixes, tickets, or PRs in comments
+- **Do NOT** add file-header banners or section separators (e.g., `// ============`)
+- **Reference domain concepts** (household fallback, membership rules, SDA conventions) when relevant
+
 ## Avoid
 
 - Don't create new utility functions without checking `@/lib/utils` or `@sda-chms/shared/utils` first
@@ -56,6 +67,7 @@ These Cursor rules are living documents. When you notice any of the following du
 - **Outdated rules**: If a rule no longer matches the codebase (e.g., a refactored pattern, renamed file, removed utility), update or remove it
 
 When updating rules:
+
 - Keep changes minimal and focused — add a bullet point, don't rewrite the whole file
 - Place new constraints in "Constraints", new patterns in "Conventions", and new mistakes in "Avoid"
 - If a rule file doesn't exist for the area you're updating, add it to the closest matching rule

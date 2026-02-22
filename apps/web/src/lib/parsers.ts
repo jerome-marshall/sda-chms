@@ -11,6 +11,7 @@ const sortingItemSchema = z.object({
   desc: z.boolean(),
 });
 
+/** Creates a nuqs URL parser for table sorting state, optionally validating column IDs. */
 export const getSortingStateParser = <TData>(
   columnIds?: string[] | Set<string>
 ) => {
@@ -58,6 +59,7 @@ const filterItemSchema = z.object({
 
 export type FilterItemSchema = z.infer<typeof filterItemSchema>;
 
+/** Creates a nuqs URL parser for table filter state, optionally validating column IDs. */
 export const getFiltersStateParser = <TData>(
   columnIds?: string[] | Set<string>
 ) => {

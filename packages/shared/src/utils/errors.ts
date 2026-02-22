@@ -1,3 +1,4 @@
+/** Application-level error thrown by the data-access layer after translating raw DB errors. */
 export class DbError extends Error {
   constraint: string | null;
   httpCode: number;

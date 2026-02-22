@@ -6,6 +6,7 @@ import type {
   FilterVariant,
 } from "@/types/data-table";
 
+/** Returns CSS styles for pinned columns (sticky positioning + border shadow). */
 export function getColumnPinningStyle<TData>({
   column,
   withBorder = false,
@@ -40,6 +41,7 @@ export function getColumnPinningStyle<TData>({
   };
 }
 
+/** Maps a filter variant (text, number, date, etc.) to its available operators. */
 export function getFilterOperators(filterVariant: FilterVariant) {
   const operatorMap: Record<
     FilterVariant,
@@ -58,12 +60,14 @@ export function getFilterOperators(filterVariant: FilterVariant) {
   return operatorMap[filterVariant] ?? dataTableConfig.textOperators;
 }
 
+/** Returns the default operator for a filter variant (e.g. "iLike" for text). */
 export function getDefaultFilterOperator(filterVariant: FilterVariant) {
   const operators = getFilterOperators(filterVariant);
 
   return operators[0]?.value ?? (filterVariant === "text" ? "iLike" : "eq");
 }
 
+/** Strips out filters with empty values (except isEmpty/isNotEmpty operators). */
 export function getValidFilters<TData>(
   filters: ExtendedColumnFilter<TData>[]
 ): ExtendedColumnFilter<TData>[] {

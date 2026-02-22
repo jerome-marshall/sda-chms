@@ -1,6 +1,7 @@
 import type { PersonDetail } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 
+/** Returns 1–2 letter initials for the avatar fallback. */
 export function getInitials(
   firstName: string,
   lastName?: string | null
@@ -11,6 +12,7 @@ export function getInitials(
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 
+/** Converts a snake_case enum value to a human-readable label (e.g. "regular_attendee" -> "Regular Attendee"). */
 export function formatLabel(value: string | null | undefined): string {
   if (!value) {
     return "—";
@@ -20,6 +22,7 @@ export function formatLabel(value: string | null | undefined): string {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+/** Maps a membership status to its Tailwind color classes for badge styling. */
 export function getMembershipColor(status: string): string {
   const colors: Record<string, string> = {
     member: "bg-emerald-500/15 text-emerald-600 border-emerald-600/25",
@@ -32,6 +35,7 @@ export function getMembershipColor(status: string): string {
   return colors[status] ?? "bg-zinc-500/15 text-zinc-400 border-zinc-500/25";
 }
 
+/** Joins non-empty address fields into a comma-separated string. */
 export function buildAddress(person: {
   addressLine1?: string | null;
   addressLine2?: string | null;

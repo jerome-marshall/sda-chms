@@ -30,6 +30,7 @@ const errorMessages = {
   city: "City is missing",
 };
 
+/** Zod schema for the "add person" form — validated on both client and server. */
 export const personInsertFormSchema = z
   .object({
     firstName: z

@@ -13,6 +13,7 @@ import type { Person } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 import HouseholdTooltip from "../household-tooltip";
 
+/** Main people list view — client-side data table with search, filter, and sort. */
 export const PeopleList = () => {
   const { data: people, isLoading, isError } = usePeople();
 

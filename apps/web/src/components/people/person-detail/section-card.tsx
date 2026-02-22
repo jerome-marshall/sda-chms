@@ -17,6 +17,7 @@ interface DetailRowProps {
   isFromHousehold?: boolean;
 }
 
+/** Displays a single label–value pair with an optional icon and household-fallback indicator. */
 export function DetailRow({
   icon: Icon,
   label,
@@ -53,6 +54,7 @@ interface SectionCardProps {
   children: React.ReactNode;
 }
 
+/** Card wrapper used to group related detail rows under a titled section. */
 export function SectionCard({
   title,
   description,

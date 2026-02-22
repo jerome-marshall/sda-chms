@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, fetchApi, queryKeys } from "@/lib/api";
 
+/** Fetches all church groups. */
 export const useGroups = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: queryKeys.groups(),

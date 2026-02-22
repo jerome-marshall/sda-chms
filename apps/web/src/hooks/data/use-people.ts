@@ -2,6 +2,7 @@ import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, fetchApi, queryKeys } from "@/lib/api";
 
+/** Fetches the full people list with household head fallback data. */
 export const usePeople = () => {
   const query = useQuery({
     queryKey: queryKeys.people(),
@@ -11,6 +12,7 @@ export const usePeople = () => {
   return query;
 };
 
+/** Mutation hook for creating a new person — invalidates the people list on success. */
 export const useAddPerson = ({
   onSuccess,
   onError,

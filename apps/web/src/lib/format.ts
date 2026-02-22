@@ -1,3 +1,4 @@
+/** Formats a date value for display using Intl.DateTimeFormat (defaults to "January 1, 2025" style). */
 export function formatDate(
   date: Date | string | number | undefined,
   opts: Intl.DateTimeFormatOptions = {}

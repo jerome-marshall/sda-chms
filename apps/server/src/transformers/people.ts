@@ -11,6 +11,7 @@ type PersonWithHouseholdHeadDb = Awaited<
   ReturnType<typeof getAllPeopleWithHead>
 >[number];
 
+/** Maps the client-submitted form data to the DB insert shape, title-casing names before storage. */
 export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
   return {
     firstName: toTitleCase(data.firstName),
@@ -45,6 +46,7 @@ export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
   };
 };
 
+/** Adds computed fields (fullName, age) to a DB person record for the API response. */
 export const personDbToApi = (personData: PeopleSelectDb) => {
   return {
     ...personData,
@@ -103,6 +105,7 @@ export const personWithHeadDbToApi = (
   };
 };
 
+/** Batch-transforms a list of person + household head records for the people list API. */
 export const peopleWithHeadDbToApi = (data: PersonWithHouseholdHeadDb[]) => {
   return data.map(personWithHeadDbToApi);
 };

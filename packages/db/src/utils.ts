@@ -10,6 +10,7 @@ export type Transaction = PgTransaction<
   ExtractTablesWithRelations<typeof schema>
 >;
 
+/** Wraps a callback in a database transaction, rolling back on error. */
 export function createTransaction<T>(
   cb: (trx: Transaction) => Promise<T>
 ): Promise<T> {
