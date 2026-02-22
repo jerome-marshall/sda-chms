@@ -1,23 +1,29 @@
 import { Briefcase, MapPin, Pencil } from "lucide-react";
+import HouseholdTooltip from "@/components/household-tooltip";
 import { cn } from "@/lib/utils";
+import type { PersonDetail } from "@/types/api";
+import { getInfoOrFromHousehold } from "@/utils/people";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { ContactChips } from "./contact-chips";
-import type { PersonData } from "./types";
 import {
-  buildAddress,
   formatLabel,
+  getAddress,
   getInitials,
   getMembershipColor,
 } from "./utils";
 
 interface ProfileHeaderProps {
-  person: PersonData;
+  person: PersonDetail;
 }
 
 export function ProfileHeader({ person }: ProfileHeaderProps) {
-  const address = buildAddress(person);
+  const { address, isAddressFromHousehold } = getAddress(person);
+  const { data: city } = getInfoOrFromHousehold(person, "city");
+  const { data: state } = getInfoOrFromHousehold(person, "state");
+  const { data: phone, isfromHousehold: isPhoneFromHousehold } =
+    getInfoOrFromHousehold(person, "phone");
 
   return (
     <div className="flex flex-col gap-6 py-8 sm:flex-row sm:items-start">
@@ -61,12 +67,17 @@ export function ProfileHeader({ person }: ProfileHeaderProps) {
           )}
         </div>
 
-        <ContactChips email={person.email} phone={person.phone}>
+        <ContactChips
+          email={person.email}
+          isPhoneFromHousehold={isPhoneFromHousehold}
+          phone={phone ?? null}
+        >
           {address && (
             <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted/60 px-2.5 py-1 text-sm">
               <MapPin className="size-3.5 text-muted-foreground" />
-              {person.city}
-              {person.state ? `, ${person.state}` : ""}
+              {city}
+              {state ? `, ${state}` : ""}
+              <HouseholdTooltip isFromHousehold={isAddressFromHousehold} />
             </span>
           )}
         </ContactChips>

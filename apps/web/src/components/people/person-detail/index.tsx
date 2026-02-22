@@ -1,15 +1,15 @@
 import { Separator } from "@/components/ui/separator";
+import type { PersonDetail } from "@/types/api";
 import { ChurchSection } from "./church-section";
 import { NotesSection } from "./notes-section";
 import { OverviewSection } from "./overview-section";
 import { ProfileHeader } from "./profile-header";
-import type { PersonData } from "./types";
 
 interface PersonDetailProps {
-  person: PersonData;
+  person: PersonDetail;
 }
 
-export default function PersonDetail({ person }: PersonDetailProps) {
+export default function PersonDetailPage({ person }: PersonDetailProps) {
   return (
     <div className="mx-auto w-full max-w-4xl">
       <ProfileHeader person={person} />
@@ -26,5 +26,3 @@ export default function PersonDetail({ person }: PersonDetailProps) {
     </div>
   );
 }
-
-export type { PersonData } from "./types";

@@ -12,17 +12,26 @@ import {
   VenusIcon,
 } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import type { PersonDetail } from "@/types/api";
+import { getInfoOrFromHousehold } from "@/utils/people";
 import { Separator } from "../../ui/separator";
 import { DetailRow, SectionCard } from "./section-card";
-import type { PersonData } from "./types";
-import { buildAddress, formatLabel } from "./utils";
+import { formatLabel, getAddress } from "./utils";
 
 interface OverviewSectionProps {
-  person: PersonData;
+  person: PersonDetail;
 }
 
 export function OverviewSection({ person }: OverviewSectionProps) {
-  const address = buildAddress(person);
+  // Resolve contact fields with head-of-household fallback so the UI can
+  // show the head's info (with a tooltip) when the member has none.
+  const { address, isAddressFromHousehold } = getAddress(person);
+  const { data: phone, isfromHousehold: isPhoneFromHousehold } =
+    getInfoOrFromHousehold(person, "phone");
+  const {
+    data: preferredVisitingTime,
+    isfromHousehold: isPreferredVisitingTimeFromHousehold,
+  } = getInfoOrFromHousehold(person, "preferredVisitingTime");
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -49,7 +58,7 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           value={
             person.dateOfBirth
               ? `${formatDate(person.dateOfBirth)} (Age ${person.age})`
-              : "—"
+              : null
           }
         />
         <DetailRow
@@ -57,13 +66,25 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           label="Occupation"
           value={person.occupation}
         />
+        {person.memorialDay && (
+          <DetailRow
+            icon={Calendar}
+            label="Memorial Day"
+            value={formatDate(person.memorialDay)}
+          />
+        )}
       </SectionCard>
 
       <SectionCard
         description="Best ways to reach them"
         title="Contact & Address"
       >
-        <DetailRow icon={Phone} label="Phone" value={person.phone} />
+        <DetailRow
+          icon={Phone}
+          isFromHousehold={isPhoneFromHousehold}
+          label="Phone"
+          value={phone}
+        />
         <DetailRow
           icon={Mail}
           label="Email"
@@ -75,20 +96,16 @@ export function OverviewSection({ person }: OverviewSectionProps) {
               >
                 {person.email}
               </a>
-            ) : (
-              "—"
-            )
+            ) : null
           }
         />
         <Separator />
-        <DetailRow icon={MapPin} label="Address" value={address || "—"} />
-        {person.preferredVisitingTime && (
-          <DetailRow
-            icon={Calendar}
-            label="Preferred Visiting Time"
-            value={person.preferredVisitingTime}
-          />
-        )}
+        <DetailRow
+          icon={MapPin}
+          isFromHousehold={isAddressFromHousehold}
+          label="Address"
+          value={address}
+        />
       </SectionCard>
 
       <SectionCard
@@ -124,13 +141,12 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           label="Dietary Preference"
           value={formatLabel(person.dietaryPreference)}
         />
-        {person.memorialDay && (
-          <DetailRow
-            icon={Calendar}
-            label="Memorial Day"
-            value={formatDate(person.memorialDay)}
-          />
-        )}
+        <DetailRow
+          icon={Calendar}
+          isFromHousehold={isPreferredVisitingTimeFromHousehold}
+          label="Visiting Time"
+          value={preferredVisitingTime}
+        />
       </SectionCard>
     </div>
   );

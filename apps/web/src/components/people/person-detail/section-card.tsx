@@ -1,3 +1,4 @@
+import HouseholdTooltip from "@/components/household-tooltip";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -12,6 +13,8 @@ interface DetailRowProps {
   label: string;
   value: React.ReactNode;
   className?: string;
+  /** When true, shows a tooltip indicating the value comes from the household head. */
+  isFromHousehold?: boolean;
 }
 
 export function DetailRow({
@@ -19,6 +22,7 @@ export function DetailRow({
   label,
   value,
   className,
+  isFromHousehold,
 }: DetailRowProps) {
   return (
     <div className={cn("flex items-start", className)}>
@@ -29,7 +33,10 @@ export function DetailRow({
           </div>
         )}
         <span className="w-36 shrink-0 text-muted-foreground text-xs uppercase tracking-wide">
-          {label}
+          <div className="flex items-center gap-1">
+            {label}
+            <HouseholdTooltip isFromHousehold={!!isFromHousehold} />
+          </div>
         </span>
       </div>
 

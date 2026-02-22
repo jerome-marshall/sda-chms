@@ -5,6 +5,7 @@ import {
   getAllHouseholds,
   getAllPeopleWithHead,
   getPersonById,
+  getPersonWithHeadById,
   insertHousehold,
   insertPerson,
 } from "../data-access/people";
@@ -12,6 +13,7 @@ import {
   peopleWithHeadDbToApi,
   personApiToDb,
   personDbToApi,
+  personWithHeadDbToApi,
 } from "../transformers/people";
 
 export const getAllPeopleWithHeadUseCase = async () => {
@@ -26,6 +28,16 @@ export const getPersonByIdUseCase = async (id: string) => {
   }
 
   return personDbToApi(person);
+};
+
+/** Retrieves a person by ID with household head data for the contact fallback. */
+export const getPersonWithHeadByIdUseCase = async (id: string) => {
+  const person = await getPersonWithHeadById(id);
+  if (!person) {
+    throw new Error("Person not found");
+  }
+
+  return personWithHeadDbToApi(person);
 };
 
 export const addPersonUseCase = async (data: PersonInsertForm) => {
@@ -55,6 +67,7 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
       throw new Error("Only Head of Household can create a household");
     }
 
+    // If the person is not a head of household, just insert the person
     // If the person is not a head of household, just insert the person
     const person = await insertPerson(personData, trx);
     return person;

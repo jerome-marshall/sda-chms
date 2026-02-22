@@ -4,7 +4,7 @@ import { jsonValidator } from "../lib/validator";
 import {
   addPersonUseCase,
   getAllPeopleWithHeadUseCase,
-  getPersonByIdUseCase,
+  getPersonWithHeadByIdUseCase,
 } from "../use-case/people";
 
 const app = new Hono()
@@ -14,13 +14,12 @@ const app = new Hono()
   })
   .post("/", jsonValidator(personInsertFormSchema), async (c) => {
     const data = await c.req.valid("json");
-    console.log("🚀 ~ data:", data);
     const person = await addPersonUseCase(data);
     return c.json(person, 201);
   })
   .get("/:id", async (c) => {
     const id = c.req.param("id");
-    const person = await getPersonByIdUseCase(id);
+    const person = await getPersonWithHeadByIdUseCase(id);
     return c.json(person, 200);
   });
 

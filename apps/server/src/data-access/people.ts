@@ -80,3 +80,35 @@ export const getPersonById = (id: string) =>
     });
     return person;
   }, "getPersonById");
+
+/** Fetches a single person with their household head's contact fields for the head-of-household fallback. */
+export const getPersonWithHeadById = (id: string) =>
+  withDbErrorHandling(async () => {
+    const person = await db.query.peopleTable.findFirst({
+      where: (table, { eq }) => eq(table.id, id),
+      with: {
+        household: {
+          with: {
+            members: {
+              where: (member, { eq }) => eq(member.householdRole, "head"),
+              columns: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                addressLine1: true,
+                addressLine2: true,
+                city: true,
+                state: true,
+                country: true,
+                preferredVisitingTime: true,
+                phone: true,
+              },
+              limit: 1,
+            },
+          },
+          columns: {}, // household itself has no useful fields; we only need its members
+        },
+      },
+    });
+    return person;
+  }, "getPersonWithHeadById");

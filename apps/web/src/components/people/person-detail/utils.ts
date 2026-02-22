@@ -1,4 +1,5 @@
-import type { PersonData } from "./types";
+import type { PersonDetail } from "@/types/api";
+import { getInfoOrFromHousehold } from "@/utils/people";
 
 export function getInitials(
   firstName: string,
@@ -31,7 +32,13 @@ export function getMembershipColor(status: string): string {
   return colors[status] ?? "bg-zinc-500/15 text-zinc-400 border-zinc-500/25";
 }
 
-export function buildAddress(person: PersonData): string {
+export function buildAddress(person: {
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+}): string {
   return [
     person.addressLine1,
     person.addressLine2,
@@ -41,4 +48,38 @@ export function buildAddress(person: PersonData): string {
   ]
     .filter(Boolean)
     .join(", ");
+}
+
+/**
+ * Resolves the display address for a person, falling back to the household
+ * head's address fields when the person has none of their own.
+ */
+export function getAddress(person: PersonDetail) {
+  const { data: addressLine1, isfromHousehold: isAddressLine1FromHousehold } =
+    getInfoOrFromHousehold(person, "addressLine1");
+  const { data: addressLine2, isfromHousehold: isAddressLine2FromHousehold } =
+    getInfoOrFromHousehold(person, "addressLine2");
+  const { data: city, isfromHousehold: isCityFromHousehold } =
+    getInfoOrFromHousehold(person, "city");
+  const { data: state, isfromHousehold: isStateFromHousehold } =
+    getInfoOrFromHousehold(person, "state");
+  const { data: country, isfromHousehold: isCountryFromHousehold } =
+    getInfoOrFromHousehold(person, "country");
+
+  // Prefer the person's own fields; use head's only when the person's are absent
+  const address = buildAddress({
+    addressLine1: person.addressLine1 || addressLine1,
+    addressLine2: person.addressLine2 || addressLine2,
+    city: person.city || city,
+    state: person.state || state,
+    country: person.country || country,
+  });
+  const isAddressFromHousehold =
+    isAddressLine1FromHousehold ||
+    isAddressLine2FromHousehold ||
+    isCityFromHousehold ||
+    isStateFromHousehold ||
+    isCountryFromHousehold;
+
+  return { address, isAddressFromHousehold };
 }
