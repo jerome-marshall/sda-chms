@@ -6,8 +6,8 @@ Review the current git diff for any changes that affect domain rules, and update
 
 - Only look at uncommitted changes (staged + unstaged)
 - Focus on logic that governs **how the system behaves** — not styling, layout, or wiring
-- Business logic includes: validation rules, computed values, default values, conditional behavior, status definitions, domain constraints, and any "if X then Y" rules that the system enforces
-- Business logic does **NOT** include: sorting order, filtering mechanics, UI layout, component names, API calls, or any other implementation/technical detail
+- Business logic includes: validation rules, default values, conditional behavior, status definitions, domain constraints, and any "if X then Y" rules that the system enforces
+- Business logic does **NOT** include: sorting order, filtering mechanics, UI layout, component names, API calls, date/time calculations, computed display values (e.g., "years since"), or any other implementation/technical detail
 
 ## Steps
 
@@ -15,7 +15,6 @@ Review the current git diff for any changes that affect domain rules, and update
 2. For each changed file, identify any code that introduces, modifies, or removes business logic — examples:
    - New validation or conditional checks
    - Changed default values or status definitions
-   - New computed/derived data logic
    - New domain concepts (entities, statuses, categories)
    - Modified rules around relationships (e.g., household membership, head-of-household)
    - Removed constraints or relaxed rules
@@ -57,7 +56,8 @@ If nothing business-logic-related was found, say:
 - A non-technical person should be able to read and understand every rule
 - NEVER reference code constructs: variable names, function names, field names, types (e.g., ~~`person.age`~~, ~~`isDeceased`~~)
 - NEVER reference UI elements: widget names, card names, page names, component names (e.g., ~~"dashboard widget"~~, ~~"celebrations card"~~)
-- NEVER describe implementation details: sorting algorithms, filtering logic, API endpoints, data transformations
+- NEVER describe implementation details: sorting algorithms, filtering logic, API endpoints, data transformations, date/time calculations, how values are computed or projected
 - DO describe: who is included/excluded, what qualifies as something, what defaults apply, what conditions trigger behavior
+- Ask yourself: "Is this a **rule the system enforces**, or is it just **how** the system calculates something?" — only document the former
 - Example — BAD: "The celebrations widget shows birthdays sorted by date descending using `person.age`"
 - Example — GOOD: "Birthdays and wedding anniversaries are considered celebrations"

@@ -89,9 +89,15 @@ function DashboardPage() {
         <Suspense fallback={<DashboardCardSkeleton rows={6} />}>
           <CelebrationsCard />
         </Suspense>
+
         <ImportantDatesCard />
-        <MemorialWatchCard />
+
+        <Suspense fallback={<DashboardCardSkeleton rows={6} />}>
+          <MemorialWatchCard />
+        </Suspense>
+
         <AgeGroupChart />
+
         <MembershipBreakdownCard />
       </div>
     </div>
