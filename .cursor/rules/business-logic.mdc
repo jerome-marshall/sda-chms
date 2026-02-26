@@ -1,6 +1,6 @@
 ---
 description: "Business logic rules — domain rules and behavioral constraints for the entire church management system"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Business Logic Rules
