@@ -52,8 +52,7 @@ Heads never fall back — they always show their own info.
 - A person is considered deceased if their membership status is "deceased" **or** they have a memorial day set
 - Active members = status "member" or "regular attendee"
 - Inactive members = status "inactive" or "moved"
-- "New this quarter" = people whose `dateJoinedChurch` falls within the last ~90 days
-- Dashboard people stats (total, active, inactive, new) always exclude deceased people
+- "New this quarter" = people whose date joined church falls within the last ~90 days
 
 ### Sabbath School Classes
 
