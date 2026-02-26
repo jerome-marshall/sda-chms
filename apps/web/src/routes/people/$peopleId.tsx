@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import PersonDetail from "@/components/people/person-detail";
-import { fetchApi, queryKeys } from "@/lib/api";
+import { fetchApi } from "@/lib/api";
+import { queryKeys } from "@/lib/query";
 
 export const Route = createFileRoute("/people/$peopleId")({
   component: RouteComponent,

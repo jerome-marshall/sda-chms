@@ -1,6 +1,7 @@
 import type * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 interface StatCardProps {
   label: string;
@@ -60,6 +61,28 @@ export function StatCard({
 
         {/* Subtle decorative aura behind the icon for visual depth */}
         <div className="pointer-events-none absolute top-0 right-0 h-32 w-32 translate-x-1/3 -translate-y-1/2 rounded-full bg-primary/5 blur-2xl" />
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Skeleton placeholder for StatCard while data is loading. */
+export function StatCardSkeleton({ className }: { className?: string }) {
+  return (
+    <Card
+      className={cn(
+        "overflow-hidden bg-background/50 py-0 shadow-sm ring-1 ring-border/50",
+        className
+      )}
+    >
+      <CardContent className="relative p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-3.5 w-28" />
+            <Skeleton className="h-9 w-16" />
+          </div>
+          <Skeleton className="h-12 w-12 rounded-xl" />
+        </div>
       </CardContent>
     </Card>
   );

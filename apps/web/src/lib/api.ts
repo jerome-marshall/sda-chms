@@ -39,11 +39,3 @@ export const fetchApi = async <T>(
   }
   return data;
 };
-
-/** Centralized TanStack Query key factory — keeps cache invalidation consistent. */
-export const queryKeys = {
-  people: () => ["people"],
-  person: (id: string) => ["people", id],
-  groups: () => ["groups"],
-  households: () => ["households"],
-};

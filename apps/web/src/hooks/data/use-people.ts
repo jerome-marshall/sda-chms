@@ -1,13 +1,11 @@
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiClient, fetchApi, queryKeys } from "@/lib/api";
+import { apiClient, fetchApi } from "@/lib/api";
+import { queryKeys, queryOptions } from "@/lib/query";
 
 /** Fetches the full people list with household head fallback data. */
 export const usePeople = () => {
-  const query = useQuery({
-    queryKey: queryKeys.people(),
-    queryFn: () => fetchApi(apiClient.people.$get()),
-  });
+  const query = useQuery(queryOptions.people());
 
   return query;
 };
