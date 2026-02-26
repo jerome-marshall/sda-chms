@@ -127,6 +127,7 @@ export const DIETARY_PREFERENCES_OPTIONS = [
   { value: DIETARY_PREFERENCES.NONE, label: "None" },
 ];
 
+/** SDA Sabbath School divisions, each mapped to an age range per General Conference guidelines. */
 export const SABBATH_SCHOOL_CLASS = {
   BEGINNER: "beginner",
   KINDERGARTEN: "kindergarten",
@@ -134,6 +135,7 @@ export const SABBATH_SCHOOL_CLASS = {
   JUNIOR: "junior",
   EARLITEEN: "earliteen",
   YOUTH: "youth",
+  YOUNG_ADULT: "young_adult",
   ADULT: "adult",
 } as const;
 export const SABBATH_SCHOOL_CLASS_VALUES = [
@@ -143,34 +145,65 @@ export const SABBATH_SCHOOL_CLASS_VALUES = [
   SABBATH_SCHOOL_CLASS.JUNIOR,
   SABBATH_SCHOOL_CLASS.EARLITEEN,
   SABBATH_SCHOOL_CLASS.YOUTH,
+  SABBATH_SCHOOL_CLASS.YOUNG_ADULT,
   SABBATH_SCHOOL_CLASS.ADULT,
 ] as const;
+/** Options include `minAge`/`maxAge` for auto-assigning a person's Sabbath School class by age. */
 export const SABBATH_SCHOOL_CLASS_OPTIONS = [
   {
     value: SABBATH_SCHOOL_CLASS.BEGINNER,
     label: "Beginner",
     ageGroup: "Birth-2",
+    minAge: 0,
+    maxAge: 2,
   },
   {
     value: SABBATH_SCHOOL_CLASS.KINDERGARTEN,
     label: "Kindergarten",
     ageGroup: "3-5",
+    minAge: 3,
+    maxAge: 5,
   },
   {
     value: SABBATH_SCHOOL_CLASS.PRIMARY,
     label: "Primary",
     ageGroup: "6-9",
+    minAge: 6,
+    maxAge: 9,
   },
   {
     value: SABBATH_SCHOOL_CLASS.JUNIOR,
     label: "Junior",
     ageGroup: "10-12",
+    minAge: 10,
+    maxAge: 12,
   },
   {
     value: SABBATH_SCHOOL_CLASS.EARLITEEN,
     label: "Earliteen",
     ageGroup: "13-14",
+    minAge: 13,
+    maxAge: 14,
   },
-  { value: SABBATH_SCHOOL_CLASS.YOUTH, label: "Youth", ageGroup: "15-18" },
-  { value: SABBATH_SCHOOL_CLASS.ADULT, label: "Adult", ageGroup: "18+" },
+  {
+    value: SABBATH_SCHOOL_CLASS.YOUTH,
+    label: "Youth",
+    ageGroup: "15-18",
+    minAge: 15,
+    maxAge: 18,
+  },
+  {
+    value: SABBATH_SCHOOL_CLASS.YOUNG_ADULT,
+    label: "Young Adult",
+    ageGroup: "19-30",
+    minAge: 19,
+    maxAge: 30,
+  },
+  {
+    value: SABBATH_SCHOOL_CLASS.ADULT,
+    label: "Adult",
+    ageGroup: "30+",
+    minAge: 18,
+    maxAge: Number.POSITIVE_INFINITY,
+  },
 ];
