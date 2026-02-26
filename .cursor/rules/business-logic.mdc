@@ -63,6 +63,11 @@ Assigned by age group: Beginner (0–3), Kindergarten (3–5), Primary (6–9), 
 - Each person can have a flexible list of important dates (date + occasion name)
 - Memorial day is a separate field for remembering deceased relatives
 
+### Celebrations
+
+- Birthdays and wedding anniversaries are considered celebrations
+- Deceased people are excluded from celebrations
+
 ---
 
 ## Future Modules (not yet implemented)
@@ -80,3 +85,5 @@ The following areas are planned but have no rules defined yet. Add rules here as
 ## Keeping This File Up to Date
 
 When you implement changes that add, remove, or modify any business rule described above, **update this file** to reflect the new behavior. This includes new domain constraints, changed defaults, new conditional logic, or revised rules. When a new module is started, move it from the "Future Modules" list into its own section with concrete rules.
+
+**Writing style**: Rules must be written in plain domain language — describe *how the system behaves*, not how it's built. Never reference code (variable names, function names, field names), specific UI elements (widgets, cards, pages), or implementation details (sorting, filtering, API calls). A non-technical person should be able to read and understand every rule.

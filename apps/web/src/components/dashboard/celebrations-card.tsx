@@ -1,9 +1,11 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Cake, Heart } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { queryOptions } from "@/lib/query";
+import { isDeceased } from "@/utils/people";
 import { Badge } from "../ui/badge";
 import { DashboardCard } from "./dashboard-card";
-import { MOCK_CELEBRATIONS } from "./mock-data";
 
 const celebrationsIcon = (
   <>
@@ -18,6 +20,53 @@ const celebrationsIcon = (
 
 /** Scrollable list of birthdays and anniversaries occurring this month. */
 export function CelebrationsCard() {
+  // Deceased people are excluded from celebrations per domain rules
+  const { data: people } = useSuspenseQuery({
+    ...queryOptions.people(),
+    select: (data) => data.filter((person) => !isDeceased(person)),
+  });
+
+  const currentMonth = new Date().getMonth();
+
+  const birthdaysThisMonth = people
+    .map((person) => {
+      if (person.dateOfBirth) {
+        return {
+          name: person.fullName,
+          date: person.dateOfBirth,
+          years: person.age,
+          type: "birthday",
+        } as const;
+      }
+      return null;
+    })
+    .filter(Boolean)
+    .filter((birthday) => new Date(birthday.date).getMonth() === currentMonth);
+
+  const anniversariesThisMonth = people
+    .map((person) => {
+      if (person.weddingDate) {
+        return {
+          name: person.fullName,
+          date: person.weddingDate,
+          // Years married = current year minus the wedding year
+          years:
+            new Date().getFullYear() -
+            new Date(person.weddingDate).getFullYear(),
+          type: "anniversary",
+        } as const;
+      }
+      return null;
+    })
+    .filter(Boolean)
+    .filter(
+      (anniversary) => new Date(anniversary.date).getMonth() === currentMonth
+    );
+
+  const celebrations = [...birthdaysThisMonth, ...anniversariesThisMonth].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
   return (
     <DashboardCard
       description="This Month"
@@ -26,10 +75,10 @@ export function CelebrationsCard() {
     >
       <ScrollArea className="h-[354px]">
         <div className="divide-y divide-border/30">
-          {MOCK_CELEBRATIONS.map((celebration) => (
+          {celebrations.map((celebration) => (
             <div
               className="group relative flex items-center justify-between overflow-hidden p-6 transition-colors hover:bg-muted/40"
-              key={celebration.id}
+              key={celebration.name + celebration.date}
             >
               <div className="flex items-center gap-4">
                 <Avatar className="h-10 w-10 border border-border/50 ring-2 ring-transparent transition-all group-hover:ring-primary/10">
@@ -71,7 +120,7 @@ export function CelebrationsCard() {
                     <span className="text-border">•</span>
                     <span>
                       {celebration.type === "birthday"
-                        ? `Turns ${celebration.age}`
+                        ? `Turns ${celebration.years}`
                         : `${celebration.years} Years`}
                     </span>
                   </p>

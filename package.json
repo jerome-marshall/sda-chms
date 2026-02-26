@@ -38,12 +38,13 @@
     "@sda-chms/env": "workspace:*"
   },
   "devDependencies": {
-    "turbo": "^2.6.3",
     "@biomejs/biome": "2.3.10",
-    "ultracite": "6.5.0",
-    "typescript": "catalog:",
+    "@sda-chms/config": "workspace:*",
+    "@total-typescript/ts-reset": "^0.6.1",
     "@types/bun": "catalog:",
-    "@sda-chms/config": "workspace:*"
+    "turbo": "^2.6.3",
+    "typescript": "catalog:",
+    "ultracite": "6.5.0"
   },
   "packageManager": "bun@1.3.0"
 }

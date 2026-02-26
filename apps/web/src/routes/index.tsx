@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Home, TrendingUp, UserCheck, Users } from "lucide-react";
+import { Suspense } from "react";
 import { AgeGroupChart } from "@/components/dashboard/age-group-chart";
 import { CelebrationsCard } from "@/components/dashboard/celebrations-card";
+import { DashboardCardSkeleton } from "@/components/dashboard/dashboard-card";
 import { ImportantDatesCard } from "@/components/dashboard/important-dates-card";
 import { MembershipBreakdownCard } from "@/components/dashboard/membership-breakdown-card";
 import { MemorialWatchCard } from "@/components/dashboard/memorial-watch-card";
@@ -84,7 +86,9 @@ function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <CelebrationsCard />
+        <Suspense fallback={<DashboardCardSkeleton rows={6} />}>
+          <CelebrationsCard />
+        </Suspense>
         <ImportantDatesCard />
         <MemorialWatchCard />
         <AgeGroupChart />

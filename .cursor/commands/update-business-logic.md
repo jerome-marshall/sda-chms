@@ -7,6 +7,7 @@ Review the current git diff for any changes that affect domain rules, and update
 - Only look at uncommitted changes (staged + unstaged)
 - Focus on logic that governs **how the system behaves** — not styling, layout, or wiring
 - Business logic includes: validation rules, computed values, default values, conditional behavior, status definitions, domain constraints, and any "if X then Y" rules that the system enforces
+- Business logic does **NOT** include: sorting order, filtering mechanics, UI layout, component names, API calls, or any other implementation/technical detail
 
 ## Steps
 
@@ -49,3 +50,14 @@ If nothing business-logic-related was found, say:
 - Do NOT add speculative rules for code that "might" be used later — only document what is implemented
 - Do NOT duplicate information already in the rules file — check before adding
 - Keep rule descriptions concise — one bullet point per rule, not paragraphs
+
+### Writing Style (critical)
+
+- Write rules in **plain domain language** — describe how the system behaves, not how it's built
+- A non-technical person should be able to read and understand every rule
+- NEVER reference code constructs: variable names, function names, field names, types (e.g., ~~`person.age`~~, ~~`isDeceased`~~)
+- NEVER reference UI elements: widget names, card names, page names, component names (e.g., ~~"dashboard widget"~~, ~~"celebrations card"~~)
+- NEVER describe implementation details: sorting algorithms, filtering logic, API endpoints, data transformations
+- DO describe: who is included/excluded, what qualifies as something, what defaults apply, what conditions trigger behavior
+- Example — BAD: "The celebrations widget shows birthdays sorted by date descending using `person.age`"
+- Example — GOOD: "Birthdays and wedding anniversaries are considered celebrations"

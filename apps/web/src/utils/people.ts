@@ -45,7 +45,7 @@ export function getInfoOrFromHousehold(person: Person, key: HouseholdInfoKey) {
 }
 
 /** A person is deceased if explicitly marked or has a memorial day recorded. */
-const isDeceased = (person: Person) => {
+export const isDeceased = (person: Person) => {
   return person.membershipStatus === "deceased" || person.memorialDay !== null;
 };
 
