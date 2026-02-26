@@ -5,11 +5,11 @@ import { CelebrationsCard } from "@/components/dashboard/celebrations-card";
 import { ImportantDatesCard } from "@/components/dashboard/important-dates-card";
 import { MembershipBreakdownCard } from "@/components/dashboard/membership-breakdown-card";
 import { MemorialWatchCard } from "@/components/dashboard/memorial-watch-card";
-import { MOCK_MEMBERSHIP_STATS } from "@/components/dashboard/mock-data";
 import { StatCard, StatCardSkeleton } from "@/components/dashboard/stat-card";
 import { useHouseholds } from "@/hooks/data/use-households";
 import { usePeople } from "@/hooks/data/use-people";
 import { queryOptions } from "@/lib/query";
+import { getPeopleStats } from "@/utils/people";
 
 export const Route = createFileRoute("/")({
   component: DashboardPage,
@@ -21,9 +21,8 @@ export const Route = createFileRoute("/")({
 
 function DashboardPage() {
   const { data: people, isLoading: isLoadingPeople } = usePeople();
-  console.log("🚀 ~ DashboardPage ~ isLoadingPeople:", isLoadingPeople);
+  const peopleStats = getPeopleStats(people || []);
   const { data: households, isLoading: isLoadingHouseholds } = useHouseholds();
-  console.log("🚀 ~ DashboardPage ~ households:", households);
 
   return (
     <div className="container mx-auto space-y-6">
@@ -38,16 +37,17 @@ function DashboardPage() {
 
       {/* Top Row: Stat Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {isLoadingPeople && !people ? (
+        {isLoadingPeople ? (
           <StatCardSkeleton />
         ) : (
           <StatCard
             icon={<Users className="h-6 w-6" />}
             label="Total Members"
             trendDirection="up"
-            value={people?.length || 0}
+            value={peopleStats.totalPeople}
           />
         )}
+
         {isLoadingHouseholds && !households ? (
           <StatCardSkeleton />
         ) : (
@@ -58,19 +58,29 @@ function DashboardPage() {
             value={households?.length || 0}
           />
         )}
-        <StatCard
-          icon={<UserCheck className="h-6 w-6" />}
-          label="Active Members"
-          trendDirection="neutral"
-          value={MOCK_MEMBERSHIP_STATS.activeCount}
-        />
-        <StatCard
-          className="bg-primary/5 ring-primary/20"
-          icon={<TrendingUp className="h-6 w-6" />}
-          label="New This Quarter"
-          trendDirection="up"
-          value={MOCK_MEMBERSHIP_STATS.newThisQuarter}
-        />
+
+        {isLoadingPeople ? (
+          <StatCardSkeleton />
+        ) : (
+          <StatCard
+            icon={<UserCheck className="h-6 w-6" />}
+            label="Active Members"
+            trendDirection="neutral"
+            value={peopleStats.totalActiveMembers}
+          />
+        )}
+
+        {isLoadingPeople ? (
+          <StatCardSkeleton />
+        ) : (
+          <StatCard
+            className="bg-primary/5 ring-primary/20"
+            icon={<TrendingUp className="h-6 w-6" />}
+            label="New This Quarter"
+            trendDirection="up"
+            value={peopleStats.totalNewMembers}
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

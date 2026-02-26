@@ -43,3 +43,37 @@ export function getInfoOrFromHousehold(person: Person, key: HouseholdInfoKey) {
   // Fall back to the head's value
   return { data: person.householdHead[key], isfromHousehold: true };
 }
+
+/** A person is deceased if explicitly marked or has a memorial day recorded. */
+const isDeceased = (person: Person) => {
+  return person.membershipStatus === "deceased" || person.memorialDay !== null;
+};
+
+/** Computes dashboard stats from a people list, excluding deceased members. */
+export const getPeopleStats = (people: Person[]) => {
+  const peopleAlive = people.filter((person) => !isDeceased(person));
+  const totalActiveMembers = peopleAlive.filter(
+    (person) =>
+      person.membershipStatus === "member" ||
+      person.membershipStatus === "regular_attendee"
+  ).length;
+  const totalInactiveMembers = peopleAlive.filter(
+    (person) =>
+      person.membershipStatus === "inactive" ||
+      person.membershipStatus === "moved"
+  ).length;
+  // ~90 days approximation for "this quarter"
+  const totalNewMembers = peopleAlive.filter(
+    (person) =>
+      person.dateJoinedChurch &&
+      new Date(person.dateJoinedChurch) >
+        new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000)
+  ).length;
+
+  return {
+    totalPeople: peopleAlive.length,
+    totalActiveMembers,
+    totalInactiveMembers,
+    totalNewMembers,
+  };
+};
