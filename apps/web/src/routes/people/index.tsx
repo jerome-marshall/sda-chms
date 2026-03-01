@@ -14,7 +14,7 @@ export const Route = createFileRoute("/people/")({
 
 function RouteComponent() {
   return (
-    <div className="flex max-h-[calc(100vh-6rem)] min-h-0 flex-1 flex-col space-y-6">
+    <div className="flex min-h-0 flex-1 flex-col space-y-6 overflow-hidden">
       <div className="flex justify-between gap-4">
         <h1 className="font-bold text-3xl text-foreground tracking-tight">
           People Directory
