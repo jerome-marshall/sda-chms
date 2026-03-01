@@ -52,6 +52,11 @@ export const isDeceased = (person: Person) => {
 /** Computes dashboard stats from a people list, excluding deceased members. */
 export const getPeopleStats = (people: Person[]) => {
   const peopleAlive = people.filter((person) => !isDeceased(person));
+  const totalMembers = peopleAlive.length;
+  const totalBaptized = peopleAlive.filter(
+    (person) => person.baptismDate
+  ).length;
+  const totalUnbaptized = totalMembers - totalBaptized;
   const totalActiveMembers = peopleAlive.filter(
     (person) =>
       person.membershipStatus === "member" ||
@@ -75,5 +80,7 @@ export const getPeopleStats = (people: Person[]) => {
     totalActiveMembers,
     totalInactiveMembers,
     totalNewMembers,
+    totalBaptized,
+    totalUnbaptized,
   };
 };
