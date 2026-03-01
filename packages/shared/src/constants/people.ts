@@ -127,6 +127,43 @@ export const DIETARY_PREFERENCES_OPTIONS = [
   { value: DIETARY_PREFERENCES.NONE, label: "None" },
 ];
 
+/** Whether an important date repeats every year or is a single occurrence. */
+export const IMPORTANT_DATE_RECURRENCE = {
+  NONE: "none",
+  YEARLY: "yearly",
+} as const;
+export const IMPORTANT_DATE_RECURRENCE_VALUES = [
+  IMPORTANT_DATE_RECURRENCE.NONE,
+  IMPORTANT_DATE_RECURRENCE.YEARLY,
+] as const;
+export const IMPORTANT_DATE_RECURRENCE_OPTIONS = [
+  { value: IMPORTANT_DATE_RECURRENCE.NONE, label: "One-time" },
+  { value: IMPORTANT_DATE_RECURRENCE.YEARLY, label: "Yearly" },
+];
+
+/** Broad life-area categories for organising important dates. */
+export const IMPORTANT_DATE_CATEGORY = {
+  PERSONAL: "personal",
+  CHURCH: "church",
+  BUSINESS_WORK: "business/work",
+  ACADEMIC: "academic",
+  HEALTH: "health",
+} as const;
+export const IMPORTANT_DATE_CATEGORY_VALUES = [
+  IMPORTANT_DATE_CATEGORY.PERSONAL,
+  IMPORTANT_DATE_CATEGORY.CHURCH,
+  IMPORTANT_DATE_CATEGORY.BUSINESS_WORK,
+  IMPORTANT_DATE_CATEGORY.ACADEMIC,
+  IMPORTANT_DATE_CATEGORY.HEALTH,
+] as const;
+export const IMPORTANT_DATE_CATEGORY_OPTIONS = [
+  { value: IMPORTANT_DATE_CATEGORY.PERSONAL, label: "Personal" },
+  { value: IMPORTANT_DATE_CATEGORY.CHURCH, label: "Church" },
+  { value: IMPORTANT_DATE_CATEGORY.BUSINESS_WORK, label: "Business/Work" },
+  { value: IMPORTANT_DATE_CATEGORY.ACADEMIC, label: "Academic" },
+  { value: IMPORTANT_DATE_CATEGORY.HEALTH, label: "Health" },
+];
+
 /** SDA Sabbath School divisions, each mapped to an age range per General Conference guidelines. */
 export const SABBATH_SCHOOL_CLASS = {
   BEGINNER: "beginner",

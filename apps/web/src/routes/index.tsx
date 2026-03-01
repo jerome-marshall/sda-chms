@@ -90,7 +90,9 @@ function DashboardPage() {
           <CelebrationsCard />
         </Suspense>
 
-        <ImportantDatesCard />
+        <Suspense fallback={<DashboardCardSkeleton rows={6} />}>
+          <ImportantDatesCard />
+        </Suspense>
 
         <Suspense fallback={<DashboardCardSkeleton rows={6} />}>
           <MemorialWatchCard />

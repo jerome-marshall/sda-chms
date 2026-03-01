@@ -12,6 +12,7 @@ import {
   UtensilsCrossed,
   VenusIcon,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
 import type { PersonDetail } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
@@ -158,9 +159,36 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           {person.importantDates.map((entry) => (
             <DetailRow
               icon={CalendarHeartIcon}
-              key={`${entry.name}-${entry.date}`}
+              key={entry.id ?? `${entry.name}-${entry.date}`}
               label={entry.name}
-              value={formatDate(entry.date)}
+              value={
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span>{formatDate(entry.date)}</span>
+                    {entry.recurrence === "yearly" && (
+                      <Badge
+                        className="px-1.5 py-0 text-[10px]"
+                        variant="outline"
+                      >
+                        Yearly
+                      </Badge>
+                    )}
+                    {entry.category && (
+                      <Badge
+                        className="px-1.5 py-0 text-[10px] capitalize"
+                        variant="secondary"
+                      >
+                        {entry.category}
+                      </Badge>
+                    )}
+                  </div>
+                  {entry.notes && (
+                    <p className="text-muted-foreground text-xs">
+                      {entry.notes}
+                    </p>
+                  )}
+                </div>
+              }
             />
           ))}
         </SectionCard>

@@ -3,6 +3,8 @@ import {
   DIETARY_PREFERENCES_VALUES,
   GENDER_VALUES,
   HOUSEHOLD_ROLE_VALUES,
+  IMPORTANT_DATE_CATEGORY_VALUES,
+  IMPORTANT_DATE_RECURRENCE_VALUES,
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS_VALUES,
   SABBATH_SCHOOL_CLASS_VALUES,
@@ -29,6 +31,17 @@ const errorMessages = {
   addressLine1: "Address is missing",
   city: "City is missing",
 };
+
+/** Zod schema for a single important date entry stored in the JSONB column. */
+export const importantDateSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, { message: "Name is required" }),
+  date: z.string().min(1, { message: "Date is required" }),
+  recurrence: z.enum(IMPORTANT_DATE_RECURRENCE_VALUES),
+  category: z.enum(IMPORTANT_DATE_CATEGORY_VALUES).optional(),
+  notes: z.string().optional(),
+});
+export type ImportantDate = z.infer<typeof importantDateSchema>;
 
 /** Zod schema for the "add person" form — validated on both client and server. */
 export const personInsertFormSchema = z
@@ -84,6 +97,7 @@ export const personInsertFormSchema = z
       .optional(),
     visitationNotes: z.string().optional(),
     pastoralNotes: z.string().optional(),
+    importantDates: z.array(importantDateSchema).optional(),
   })
   .refine(
     (data) => {

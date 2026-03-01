@@ -5,6 +5,7 @@ import {
   MEMBERSHIP_STATUS_VALUES,
   SABBATH_SCHOOL_CLASS_VALUES,
 } from "@sda-chms/shared/constants/people";
+import type { ImportantDate } from "@sda-chms/shared/schema/people";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -99,7 +100,7 @@ export const peopleTable = pgTable(
 
     // Important Dates
     importantDates: jsonb("important_dates")
-      .$type<{ date: string; name: string }[]>()
+      .$type<ImportantDate[]>()
       .default([]),
 
     // Private Notes

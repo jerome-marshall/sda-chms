@@ -1,12 +1,3 @@
-// Important date entry (custom occasions per person)
-export interface ImportantDate {
-  id: string;
-  memberName: string;
-  occasion: string;
-  date: string;
-  daysUntil: number; // 0 = today, negative = already passed this month
-}
-
 // Celebration entry (birthday or anniversary)
 export interface Celebration {
   id: string;
@@ -57,44 +48,6 @@ export const MOCK_CELEBRATIONS: Celebration[] = [
     years: 25,
   },
   { id: "5", name: "Olivia Taylor", date: "Feb 28", type: "birthday", age: 41 },
-];
-
-export const MOCK_IMPORTANT_DATES: ImportantDate[] = [
-  {
-    id: "1",
-    memberName: "Grace Okonkwo",
-    occasion: "Baptism Anniversary",
-    date: "Feb 22",
-    daysUntil: 0,
-  },
-  {
-    id: "2",
-    memberName: "James Whitfield",
-    occasion: "Surgery Recovery",
-    date: "Feb 24",
-    daysUntil: 2,
-  },
-  {
-    id: "3",
-    memberName: "The Nakamura Family",
-    occasion: "Home Dedication",
-    date: "Feb 26",
-    daysUntil: 4,
-  },
-  {
-    id: "4",
-    memberName: "Pastor Emmanuel",
-    occasion: "Ordination Anniversary",
-    date: "Feb 28",
-    daysUntil: 6,
-  },
-  {
-    id: "5",
-    memberName: "Miriam Adeyemi",
-    occasion: "Graduation Day",
-    date: "Mar 1",
-    daysUntil: 7,
-  },
 ];
 
 export const MOCK_MEMORIALS: MemorialEntry[] = [

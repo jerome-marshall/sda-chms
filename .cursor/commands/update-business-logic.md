@@ -7,7 +7,7 @@ Review the current git diff for any changes that affect domain rules, and update
 - Only look at uncommitted changes (staged + unstaged)
 - Focus on logic that governs **how the system behaves** — not styling, layout, or wiring
 - Business logic includes: validation rules, default values, conditional behavior, status definitions, domain constraints, and any "if X then Y" rules that the system enforces
-- Business logic does **NOT** include: sorting order, filtering mechanics, UI layout, component names, API calls, date/time calculations, computed display values (e.g., "years since"), or any other implementation/technical detail
+- Business logic does **NOT** include: sorting order, filtering mechanics, UI layout, component names, API calls, date/time calculations, computed display values (e.g., "years since"), front-end display logic (e.g., time-windowing, grouping, pagination), or any other implementation/technical detail
 
 ## Steps
 
@@ -58,6 +58,9 @@ If nothing business-logic-related was found, say:
 - NEVER reference UI elements: widget names, card names, page names, component names (e.g., ~~"dashboard widget"~~, ~~"celebrations card"~~)
 - NEVER describe implementation details: sorting algorithms, filtering logic, API endpoints, data transformations, date/time calculations, how values are computed or projected
 - DO describe: who is included/excluded, what qualifies as something, what defaults apply, what conditions trigger behavior
-- Ask yourself: "Is this a **rule the system enforces**, or is it just **how** the system calculates something?" — only document the former
+- Ask yourself: "Is this a **rule the system enforces**, or is it just **how** the system displays or presents data?" — only document the former
+- Front-end display decisions (e.g., "show items within the current week", "sort by date", "group by category") are NOT business rules — they describe how a view renders data, not a domain constraint
 - Example — BAD: "The celebrations widget shows birthdays sorted by date descending using `person.age`"
+- Example — BAD: "Important dates within the current week are surfaced in the weekly view" (this is a UI time-window, not a domain rule)
 - Example — GOOD: "Birthdays and wedding anniversaries are considered celebrations"
+- Example — GOOD: "An important date can be either a one-time occasion or a yearly recurring occasion"

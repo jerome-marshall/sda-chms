@@ -4,6 +4,7 @@ import {
   GENDER_VALUES,
   MARITAL_STATUS_VALUES,
 } from "@sda-chms/shared/constants/people";
+import type { ImportantDate } from "@sda-chms/shared/schema/people";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -127,15 +128,19 @@ export function splitName(fullName: string): {
 // Important Dates Parsing (planning doc section 6)
 // ---------------------------------------------------------------------------
 
+/**
+ * Parses a multi-line CSV cell of important dates (one per line, "date - occasion" format)
+ * into typed ImportantDate objects. Imported dates default to yearly recurrence.
+ */
 export function parseImportantDates(
   raw: string | undefined | null,
   csvRowNum: number
-): { date: string; name: string }[] {
+): ImportantDate[] {
   if (!raw || raw.trim() === "") {
     return [];
   }
 
-  const results: { date: string; name: string }[] = [];
+  const results: ImportantDate[] = [];
   for (const line of raw.split(NEWLINE_RE).filter((l) => l.trim() !== "")) {
     const parts = line.split("-").map((p) => p.trim());
     if (parts.length < 2) {
@@ -151,8 +156,10 @@ export function parseImportantDates(
     }
     const occasion = parts.slice(1).join("-").trim();
     results.push({
+      id: crypto.randomUUID(),
       date: dateStr,
       name: !occasion || occasion === "?" ? "unknown" : occasion,
+      recurrence: "yearly",
     });
   }
   return results;

@@ -60,8 +60,11 @@ Assigned by age group: Beginner (0–2), Kindergarten (3–5), Primary (6–9), 
 
 ### Important Dates
 
-- Each person can have a flexible list of important dates (date + occasion name)
-- Memorial day is a separate field for remembering deceased relatives
+- Each person can have custom important dates (e.g. work/business anniversary, graduation) — separate from birthdays, wedding anniversaries, and memorial days, which have their own dedicated views
+- Baptism anniversaries are automatically derived from the baptism date — they don't need to be entered manually
+- Deceased people are excluded from Important Dates
+- An important date can be either a one-time occasion or a yearly recurring occasion
+- Important dates can optionally be categorised as Personal, Church, Business/Work, Academic, or Health
 
 ### Celebrations
 
@@ -90,6 +93,8 @@ The following areas are planned but have no rules defined yet. Add rules here as
 
 ## Keeping This File Up to Date
 
-When you implement changes that add, remove, or modify any business rule described above, **update this file** to reflect the new behavior. This includes new domain constraints, changed defaults, new conditional logic, or revised rules. When a new module is started, move it from the "Future Modules" list into its own section with concrete rules.
+Only update this file when there is a **meaningful change** to how the system works — a new domain constraint, a changed default, new conditional logic, or a revised rule. When in doubt, **do not update**. Minor implementation tweaks, refactors, and UI adjustments should not result in new rules. When a new module is started, move it from the "Future Modules" list into its own section with concrete rules.
 
 **Writing style**: Rules must be written in plain domain language — describe _how the system behaves_, not how it's built. Never reference code (variable names, function names, field names), specific UI elements (widgets, cards, pages), or implementation details (sorting, filtering, API calls). A non-technical person should be able to read and understand every rule.
+
+**What does NOT belong here**: Front-end display logic — how data is shown, grouped, sorted, filtered, or time-windowed in the UI — is not a business rule. For example, "show dates within the current week" describes a UI view, not a domain constraint. Only include rules the system *enforces* regardless of how or where the data is displayed.
