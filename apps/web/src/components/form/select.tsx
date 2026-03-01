@@ -21,8 +21,10 @@ interface FormSelectProps<T extends FieldValues> {
   placeholder?: string;
   disabled?: boolean;
   onChange?: (value: string | null) => void;
+  defaultValue?: string;
 }
 
+/** Controlled select field integrated with react-hook-form. */
 const FormSelect = <T extends FieldValues>({
   form,
   name,
@@ -31,6 +33,7 @@ const FormSelect = <T extends FieldValues>({
   placeholder,
   disabled,
   onChange,
+  defaultValue,
 }: FormSelectProps<T>) => {
   return (
     <Controller
@@ -40,6 +43,7 @@ const FormSelect = <T extends FieldValues>({
         <Field orientation="vertical">
           <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
           <Select
+            defaultValue={defaultValue}
             disabled={disabled}
             name={field.name}
             onValueChange={(value) => {
