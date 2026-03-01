@@ -157,39 +157,43 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           title="Dates to Remember"
         >
           {person.importantDates.map((entry) => (
-            <DetailRow
-              icon={CalendarHeartIcon}
+            <div
+              className="flex items-start gap-3"
               key={entry.id ?? `${entry.name}-${entry.date}`}
-              label={entry.name}
-              value={
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span>{formatDate(entry.date)}</span>
-                    {entry.recurrence === "yearly" && (
-                      <Badge
-                        className="px-1.5 py-0 text-[10px]"
-                        variant="outline"
-                      >
-                        Yearly
-                      </Badge>
-                    )}
-                    {entry.category && (
-                      <Badge
-                        className="px-1.5 py-0 text-[10px] capitalize"
-                        variant="secondary"
-                      >
-                        {entry.category}
-                      </Badge>
-                    )}
-                  </div>
-                  {entry.notes && (
-                    <p className="text-muted-foreground text-xs">
-                      {entry.notes}
-                    </p>
+            >
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted/60">
+                <CalendarHeartIcon className="size-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0 space-y-0.5">
+                <p className="text-muted-foreground text-xs uppercase tracking-wide">
+                  {entry.name}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-foreground text-sm">
+                    {formatDate(entry.date)}
+                  </span>
+                  {entry.recurrence === "yearly" && (
+                    <Badge
+                      className="px-1.5 py-0 text-[10px]"
+                      variant="outline"
+                    >
+                      Yearly
+                    </Badge>
+                  )}
+                  {entry.category && (
+                    <Badge
+                      className="px-1.5 py-0 text-[10px] capitalize"
+                      variant="secondary"
+                    >
+                      {entry.category}
+                    </Badge>
                   )}
                 </div>
-              }
-            />
+                {entry.notes && (
+                  <p className="text-muted-foreground text-xs">{entry.notes}</p>
+                )}
+              </div>
+            </div>
           ))}
         </SectionCard>
       )}

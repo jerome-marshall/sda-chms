@@ -26,24 +26,23 @@ export function DetailRow({
   isFromHousehold,
 }: DetailRowProps) {
   return (
-    <div className={cn("flex items-start", className)}>
-      <div className="flex items-center gap-3">
-        {Icon && (
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted/60">
-            <Icon className="size-4 text-muted-foreground" />
-          </div>
-        )}
-        <span className="w-36 shrink-0 text-muted-foreground text-xs uppercase tracking-wide">
-          <div className="flex items-center gap-1">
+    <div className={cn("flex items-start gap-3", className)}>
+      {Icon && (
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted/60">
+          <Icon className="size-4 text-muted-foreground" />
+        </div>
+      )}
+      <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <span className="w-32 shrink-0 text-muted-foreground text-xs uppercase tracking-wide">
+          <span className="flex items-center gap-1">
             {label}
             <HouseholdTooltip isFromHousehold={!!isFromHousehold} />
-          </div>
+          </span>
+        </span>
+        <span className="min-w-0 flex-1 text-foreground text-sm">
+          {value || "—"}
         </span>
       </div>
-
-      <span className="mt-[5px] min-w-0 text-foreground text-sm">
-        {value || "—"}
-      </span>
     </div>
   );
 }
