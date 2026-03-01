@@ -63,9 +63,40 @@ export function CelebrationsCard() {
       (anniversary) => new Date(anniversary.date).getMonth() === currentMonth
     );
 
-  const celebrations = [...birthdaysThisMonth, ...anniversariesThisMonth].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  // Group anniversaries by household so couples appear as a single entry.
+  // Key is householdId when present, otherwise the person's full name (solo fallback).
+  const anniversaryByHousehold = new Map<
+    string,
+    { entry: (typeof anniversariesThisMonth)[number]; firstName: string }[]
+  >();
+
+  for (const anniversary of anniversariesThisMonth) {
+    const person = people.find((p) => p.fullName === anniversary.name);
+    const key = person?.householdId ?? anniversary.name;
+
+    if (!anniversaryByHousehold.has(key)) {
+      anniversaryByHousehold.set(key, []);
+    }
+    anniversaryByHousehold.get(key)?.push({
+      entry: anniversary,
+      firstName: person?.firstName ?? anniversary.name,
+    });
+  }
+
+  const deduplicatedAnniversaries = Array.from(
+    anniversaryByHousehold.values()
+  ).map((members) => ({
+    ...members[0].entry,
+    name:
+      members.length > 1
+        ? members.map((m) => m.firstName).join(" & ")
+        : members[0].entry.name,
+  }));
+
+  const celebrations = [
+    ...birthdaysThisMonth,
+    ...deduplicatedAnniversaries,
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <DashboardCard
