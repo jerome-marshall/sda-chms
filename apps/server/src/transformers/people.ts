@@ -2,7 +2,10 @@ import type {
   PeopleInsertDb,
   PeopleSelectDb,
 } from "@sda-chms/db/schema/people";
-import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
+import type {
+  PersonInsertForm,
+  PersonUpdateForm,
+} from "@sda-chms/shared/schema/people";
 import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
 import type { getAllPeopleWithHead } from "../data-access/people";
 
@@ -11,41 +14,46 @@ type PersonWithHouseholdHeadDb = Awaited<
   ReturnType<typeof getAllPeopleWithHead>
 >[number];
 
+/** Shared field mapping used by both insert and update transformers. */
+const personFormToDbFields = (
+  data: PersonInsertForm | PersonUpdateForm
+): Omit<PeopleInsertDb, "isActive"> => ({
+  firstName: toTitleCase(data.firstName),
+  lastName: data.lastName ? toTitleCase(data.lastName) : data.lastName,
+  phone: data.phone,
+  occupation: data.occupation,
+  maritalStatus: data.maritalStatus,
+  membershipStatus: data.membershipStatus,
+  dietaryPreference: data.dietaryPreference,
+  preferredVisitingTime: data.preferredVisitingTime,
+  addressLine1: data.addressLine1,
+  addressLine2: data.addressLine2,
+  city: data.city,
+  state: data.state,
+  country: data.country,
+  visitationNotes: data.visitationNotes,
+  weddingDate: data.weddingDate,
+  memorialDay: data.memorialDay,
+  baptismDate: data.baptismDate,
+  baptismPlace: data.baptismPlace,
+  dateJoinedChurch: data.dateJoinedChurch,
+  dateOfBirth: data.dateOfBirth,
+  email: data.email,
+  photoUrl: data.photoUrl,
+  gender: data.gender,
+  preferredName: data.preferredName,
+  householdId: data.householdId,
+  householdRole: data.householdRole,
+  sabbathSchoolClass: data.sabbathSchoolClass,
+  pastoralNotes: data.pastoralNotes,
+  importantDates: data.importantDates ?? [],
+});
+
 /** Maps the client-submitted form data to the DB insert shape, title-casing names before storage. */
-export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => {
-  return {
-    firstName: toTitleCase(data.firstName),
-    lastName: data.lastName ? toTitleCase(data.lastName) : data.lastName,
-    phone: data.phone,
-    occupation: data.occupation,
-    maritalStatus: data.maritalStatus,
-    membershipStatus: data.membershipStatus,
-    dietaryPreference: data.dietaryPreference,
-    preferredVisitingTime: data.preferredVisitingTime,
-    addressLine1: data.addressLine1,
-    addressLine2: data.addressLine2,
-    city: data.city,
-    state: data.state,
-    country: data.country,
-    visitationNotes: data.visitationNotes,
-    weddingDate: data.weddingDate,
-    memorialDay: data.memorialDay,
-    baptismDate: data.baptismDate,
-    baptismPlace: data.baptismPlace,
-    dateJoinedChurch: data.dateJoinedChurch,
-    isActive: true,
-    dateOfBirth: data.dateOfBirth,
-    email: data.email,
-    photoUrl: data.photoUrl,
-    gender: data.gender,
-    preferredName: data.preferredName,
-    householdId: data.householdId,
-    householdRole: data.householdRole,
-    sabbathSchoolClass: data.sabbathSchoolClass,
-    pastoralNotes: data.pastoralNotes,
-    importantDates: data.importantDates ?? [],
-  };
-};
+export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => ({
+  ...personFormToDbFields(data),
+  isActive: true,
+});
 
 /** Adds computed fields (fullName, age) to a DB person record for the API response. */
 export const personDbToApi = (personData: PeopleSelectDb) => {
@@ -110,3 +118,8 @@ export const personWithHeadDbToApi = (
 export const peopleWithHeadDbToApi = (data: PersonWithHouseholdHeadDb[]) => {
   return data.map(personWithHeadDbToApi);
 };
+
+/** Maps the client-submitted update form data to the DB shape without overriding isActive. */
+export const personUpdateApiToDb = (
+  data: PersonUpdateForm
+): Omit<PeopleInsertDb, "isActive"> => personFormToDbFields(data);

@@ -14,11 +14,17 @@ export const queryKeys = {
   households: () => ["households"],
 };
 
+/** Pre-built query option objects for use in loaders and hooks — ensures key/fetcher consistency. */
 export const queryOptions = {
   people: () =>
     tsQueryOptions({
       queryKey: queryKeys.people(),
       queryFn: () => fetchApi(apiClient.people.$get()),
+    }),
+  person: (id: string) =>
+    tsQueryOptions({
+      queryKey: queryKeys.person(id),
+      queryFn: () => fetchApi(apiClient.people[":id"].$get({ param: { id } })),
     }),
   groups: () =>
     tsQueryOptions({

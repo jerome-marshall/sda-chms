@@ -1,4 +1,4 @@
-import { type DbTransaction, db } from "@sda-chms/db";
+import { type DbTransaction, db, eq } from "@sda-chms/db";
 import {
   householdsTable,
   type PeopleInsertDb,
@@ -84,6 +84,21 @@ export const getPersonById = (id: string) =>
     });
     return person;
   }, "getPersonById");
+
+/** Updates a person record by ID, optionally within an existing transaction. */
+export const updatePerson = (
+  id: string,
+  data: Partial<PeopleInsertDb>,
+  trx: DbTransaction = db
+) =>
+  withDbErrorHandling(async () => {
+    const result = await trx
+      .update(peopleTable)
+      .set(data)
+      .where(eq(peopleTable.id, id))
+      .returning();
+    return result[0];
+  }, "updatePerson");
 
 /** Fetches a single person with their household head's contact fields for the head-of-household fallback. */
 export const getPersonWithHeadById = (id: string) =>

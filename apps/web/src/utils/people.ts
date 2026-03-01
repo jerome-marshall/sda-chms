@@ -1,4 +1,52 @@
-import type { Person } from "@/types/api";
+import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
+import type { Person, PersonDetail } from "@/types/api";
+
+/** Converts nullable DB strings to optional form strings. */
+function toOptional(value: string | null | undefined): string | undefined {
+  return value ?? undefined;
+}
+
+/** Maps a PersonDetail API response to the form shape used by Add/Edit person forms. */
+export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
+  // Personal
+  firstName: person.firstName,
+  lastName: toOptional(person.lastName),
+  preferredName: toOptional(person.preferredName),
+  gender: person.gender ?? ("" as PersonInsertForm["gender"]),
+  dateOfBirth: person.dateOfBirth ?? "",
+  photoUrl: toOptional(person.photoUrl),
+  // Contact
+  phone: toOptional(person.phone),
+  email: toOptional(person.email),
+  preferredVisitingTime: toOptional(person.preferredVisitingTime),
+  // Address
+  addressLine1: person.addressLine1 ?? "",
+  addressLine2: toOptional(person.addressLine2),
+  city: person.city ?? "",
+  state: person.state ?? "",
+  country: person.country ?? "",
+  // Church membership
+  membershipStatus: person.membershipStatus,
+  dateJoinedChurch: toOptional(person.dateJoinedChurch),
+  baptismDate: toOptional(person.baptismDate),
+  baptismPlace: toOptional(person.baptismPlace),
+  sabbathSchoolClass: person.sabbathSchoolClass ?? undefined,
+  // Family & household
+  maritalStatus: person.maritalStatus,
+  weddingDate: toOptional(person.weddingDate),
+  occupation: toOptional(person.occupation),
+  householdId: toOptional(person.householdId),
+  householdRole:
+    person.householdRole ?? ("" as PersonInsertForm["householdRole"]),
+  // Preferences
+  dietaryPreference: (person.dietaryPreference ??
+    "none") as PersonInsertForm["dietaryPreference"],
+  // Notes
+  memorialDay: toOptional(person.memorialDay),
+  visitationNotes: toOptional(person.visitationNotes),
+  pastoralNotes: toOptional(person.pastoralNotes),
+  importantDates: person.importantDates ?? [],
+});
 
 /** Contact fields eligible for head-of-household fallback. */
 type HouseholdInfoKey =

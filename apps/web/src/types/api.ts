@@ -14,3 +14,8 @@ export type Person = People[number];
 export type PersonDetail = ExtractClientResponseData<
   Awaited<ReturnType<(typeof apiClient.people)[":id"]["$get"]>>
 >;
+
+/** Minimal person shape returned by the POST /people endpoint (no household head data). */
+export type PersonCreated = ExtractClientResponseData<
+  Awaited<ReturnType<typeof apiClient.people.$post>>
+>;

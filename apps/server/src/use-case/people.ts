@@ -1,6 +1,9 @@
 import { createTransaction } from "@sda-chms/db";
 import { HOUSEHOLD_ROLE } from "@sda-chms/shared/constants/people";
-import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
+import type {
+  PersonInsertForm,
+  PersonUpdateForm,
+} from "@sda-chms/shared/schema/people";
 import {
   getAllHouseholds,
   getAllPeopleWithHead,
@@ -8,11 +11,13 @@ import {
   getPersonWithHeadById,
   insertHousehold,
   insertPerson,
+  updatePerson,
 } from "../data-access/people";
 import {
   peopleWithHeadDbToApi,
   personApiToDb,
   personDbToApi,
+  personUpdateApiToDb,
   personWithHeadDbToApi,
 } from "../transformers/people";
 
@@ -50,31 +55,19 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
   const personData = personApiToDb(data);
 
   const personFinal = await createTransaction(async (trx) => {
-    if (!data.householdId) {
-      // If no household ID, check if the person is a head of household
-      if (data.householdRole === "head") {
-        // If the person is a head of household, create a household
-        const household = await insertHousehold(trx);
-
-        if (!household) {
-          throw new Error("Failed to create household");
-        }
-
-        const person = await insertPerson(
-          {
-            ...personData,
-            householdId: household.id,
-          },
-          trx
-        );
-        return person;
-      }
-
+    if (!data.householdId && data.householdRole !== "head") {
       throw new Error("Only Head of Household can create a household");
     }
 
-    const person = await insertPerson(personData, trx);
-    return person;
+    if (!data.householdId) {
+      const household = await insertHousehold(trx);
+      if (!household) {
+        throw new Error("Failed to create household");
+      }
+      return insertPerson({ ...personData, householdId: household.id }, trx);
+    }
+
+    return insertPerson(personData, trx);
   });
 
   if (!personFinal) {
@@ -82,6 +75,41 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
   }
 
   return personDbToApi(personFinal);
+};
+
+/**
+ * Updates an existing person. Applies the same household rules as addPersonUseCase:
+ * heads without a household get a new one created automatically.
+ */
+export const updatePersonUseCase = async (
+  id: string,
+  data: PersonUpdateForm
+) => {
+  const personData = personUpdateApiToDb(data);
+
+  await createTransaction(async (trx) => {
+    if (!data.householdId && data.householdRole !== "head") {
+      throw new Error("Only Head of Household can create a household");
+    }
+
+    if (!data.householdId) {
+      const household = await insertHousehold(trx);
+      if (!household) {
+        throw new Error("Failed to create household");
+      }
+      await updatePerson(id, { ...personData, householdId: household.id }, trx);
+      return;
+    }
+
+    await updatePerson(id, personData, trx);
+  });
+
+  const updated = await getPersonWithHeadById(id);
+  if (!updated) {
+    throw new Error("Person not found");
+  }
+
+  return personWithHeadDbToApi(updated);
 };
 
 /** Returns all households with head/member separation and a derived household name ("{head.firstName} {head.lastName} Family"). */

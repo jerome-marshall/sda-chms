@@ -110,3 +110,7 @@ export const personInsertFormSchema = z
     }
   );
 export type PersonInsertForm = z.infer<typeof personInsertFormSchema>;
+
+/** Zod schema for the "edit person" form — same fields as insert, validated on both client and server. */
+export const personUpdateFormSchema = personInsertFormSchema;
+export type PersonUpdateForm = z.infer<typeof personUpdateFormSchema>;

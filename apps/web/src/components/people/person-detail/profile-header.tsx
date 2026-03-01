@@ -1,11 +1,12 @@
+import { Link } from "@tanstack/react-router";
 import { Briefcase, MapPin, Pencil } from "lucide-react";
 import HouseholdTooltip from "@/components/household-tooltip";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PersonDetail } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
-import { Button } from "../../ui/button";
 import { ContactChips } from "./contact-chips";
 import {
   formatLabel,
@@ -83,10 +84,14 @@ export function ProfileHeader({ person }: ProfileHeaderProps) {
         </ContactChips>
       </div>
 
-      <Button size="sm" variant="outline">
+      <Link
+        className={buttonVariants({ size: "sm", variant: "outline" })}
+        params={{ peopleId: person.id }}
+        to="/people/$peopleId/edit"
+      >
         <Pencil className="size-3.5" data-icon="inline-start" />
         Edit
-      </Button>
+      </Link>
     </div>
   );
 }
