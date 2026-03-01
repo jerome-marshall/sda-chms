@@ -18,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import type { TRoutes } from "@/types/route";
 import { Separator } from "./ui/separator";
 
@@ -71,13 +72,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               render={(props) => (
-                <Link to="/" {...props}>
+                <Link
+                  to="/"
+                  {...props}
+                  className={cn(props.className, "h-10 py-0")}
+                >
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <Church className="size-4" />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold">SDA</span>
-                    <span className="">Church Management</span>
+                    <span className="font-semibold">SDA Church</span>
                   </div>
                 </Link>
               )}

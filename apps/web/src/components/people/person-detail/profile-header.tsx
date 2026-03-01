@@ -27,7 +27,7 @@ export function ProfileHeader({ person }: ProfileHeaderProps) {
     getInfoOrFromHousehold(person, "phone");
 
   return (
-    <div className="flex flex-col gap-6 py-8 sm:flex-row sm:items-start">
+    <div className="flex flex-col gap-6 pb-8 sm:flex-row sm:items-start">
       <Avatar className="size-20 text-2xl ring-2 ring-primary/20">
         {person.photoUrl ? (
           <AvatarImage alt={person.fullName} src={person.photoUrl} />
