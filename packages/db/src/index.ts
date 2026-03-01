@@ -8,7 +8,7 @@ import type { Transaction } from "./utils";
 export const db = drizzle(env.DATABASE_URL, { schema });
 
 // biome-ignore lint/performance/noBarrelFile: <required here>
-export { eq, sql } from "drizzle-orm";
+export { and, eq, ilike, isNotNull, sql } from "drizzle-orm";
 export { createTransaction } from "./utils";
 
 export type DbTransaction = typeof db | Transaction;

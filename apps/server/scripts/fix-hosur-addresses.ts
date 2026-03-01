@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
 
-import { db, sql } from "@sda-chms/db";
+import { and, db, eq, ilike, isNotNull } from "@sda-chms/db";
 import { peopleTable } from "@sda-chms/db/schema/people";
 
 /**
@@ -30,7 +30,10 @@ async function fixHosurAddresses() {
     })
     .from(peopleTable)
     .where(
-      sql`${peopleTable.addressLine1} IS NOT NULL AND ${peopleTable.addressLine1} ILIKE '%Hosur%'`
+      and(
+        isNotNull(peopleTable.addressLine1),
+        ilike(peopleTable.addressLine1, "%Hosur%")
+      )
     );
 
   console.log(
@@ -63,7 +66,7 @@ async function fixHosurAddresses() {
           state: "Tamil Nadu",
           country: "India",
         })
-        .where(sql`${peopleTable.id} = ${person.id}`);
+        .where(eq(peopleTable.id, person.id));
 
       console.log(`✓ Updated: ${person.firstName} ${person.lastName ?? ""}`);
       console.log(`  Before: ${person.addressLine1}`);

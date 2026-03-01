@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
 
-import { db, sql } from "@sda-chms/db";
+import { db, eq } from "@sda-chms/db";
 import { peopleTable } from "@sda-chms/db/schema/people";
 
 /**
@@ -37,7 +37,7 @@ async function backfill() {
     await db
       .update(peopleTable)
       .set({ importantDates: patched })
-      .where(sql`${peopleTable.id} = ${person.id}`);
+      .where(eq(peopleTable.id, person.id));
 
     updated++;
   }
