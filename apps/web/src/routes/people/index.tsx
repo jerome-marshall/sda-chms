@@ -2,14 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download, Plus } from "lucide-react";
 import PeopleList from "@/components/people/people-list";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { queryOptions } from "@/lib/query";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/people/")({
   component: RouteComponent,
-  loader: ({ context: { queryClient } }) => {
-    queryClient.prefetchQuery(queryOptions.people());
-  },
 });
 
 function RouteComponent() {
@@ -19,7 +15,6 @@ function RouteComponent() {
         <h1 className="font-bold text-3xl text-foreground tracking-tight">
           People Directory
         </h1>
-
         <div className="flex shrink-0 items-center gap-2">
           <Button className="gap-2 shadow-sm" size="sm" variant="outline">
             <Download className="h-4 w-4" />
@@ -34,7 +29,6 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-
       <PeopleList />
     </div>
   );

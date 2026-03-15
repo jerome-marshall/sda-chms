@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import PersonDetail from "@/components/people/person-detail";
+import EditPersonForm from "@/components/people/edit-person-form";
 import { queryOptions } from "@/lib/query";
 
-export const Route = createFileRoute("/people/$peopleId")({
+export const Route = createFileRoute("/people/$peopleId/edit")({
   component: RouteComponent,
-  // Pre-fetches person data before rendering so the detail page loads instantly
+  staticData: { breadcrumb: "Edit" },
+  // ensureQueryData blocks navigation until data is ready, complementing the parent prefetch
   loader: async ({ params, context: { queryClient } }) => {
     await queryClient.ensureQueryData(queryOptions.person(params.peopleId));
   },
@@ -19,5 +20,9 @@ function RouteComponent() {
     return null;
   }
 
-  return <PersonDetail person={person} />;
+  return (
+    <div>
+      <EditPersonForm person={person} />
+    </div>
+  );
 }

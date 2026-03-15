@@ -15,6 +15,9 @@ import { getPeopleStats } from "@/utils/people";
 
 export const Route = createFileRoute("/")({
   component: DashboardPage,
+  staticData: {
+    breadcrumb: "Home",
+  },
   loader: ({ context: { queryClient } }) => {
     queryClient.prefetchQuery(queryOptions.people());
     queryClient.prefetchQuery(queryOptions.groups());

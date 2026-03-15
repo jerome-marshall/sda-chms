@@ -63,7 +63,7 @@ const PersonFormFields = ({
   return (
     <div className="mx-auto max-w-2xl">
       <form
-        className="space-y-8"
+        className="relative space-y-8"
         id={formId}
         onSubmit={form.handleSubmit(onSubmit)}
       >
@@ -355,7 +355,7 @@ const PersonFormFields = ({
           </FieldGroup>
         </FieldSet>
 
-        <div className="sticky bottom-0 -mb-4 flex justify-center border-t bg-background py-4">
+        <div className="sticky bottom-0 -mb-6 flex justify-center border-t bg-background py-4">
           <Button className="w-[180px]" disabled={isSubmitting} type="submit">
             {submitLabel}
           </Button>
