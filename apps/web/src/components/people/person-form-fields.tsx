@@ -10,6 +10,7 @@ import {
   SABBATH_SCHOOL_CLASS_OPTIONS,
 } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
+import { useRouter } from "@tanstack/react-router";
 import { CalendarPlus, Trash2 } from "lucide-react";
 import { type UseFormReturn, useFieldArray } from "react-hook-form";
 import { useHouseholds } from "@/hooks/data/use-households";
@@ -42,8 +43,9 @@ const PersonFormFields = ({
   isSubmitting,
   formId = "person-form",
 }: PersonFormFieldsProps) => {
-  const { data: households } = useHouseholds();
+  const router = useRouter();
 
+  const { data: households } = useHouseholds();
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "importantDates",
@@ -355,8 +357,20 @@ const PersonFormFields = ({
           </FieldGroup>
         </FieldSet>
 
-        <div className="sticky bottom-0 -mb-6 flex justify-center border-t bg-background py-4">
-          <Button className="w-[180px]" disabled={isSubmitting} type="submit">
+        <div className="sticky -bottom-6 flex justify-end gap-3 border-t bg-background py-4">
+          <Button
+            className="w-[160px]"
+            disabled={isSubmitting}
+            onClick={() => {
+              form.reset();
+              router.history.back();
+            }}
+            type="button"
+            variant={"secondary"}
+          >
+            Cancel
+          </Button>
+          <Button className="w-[160px]" disabled={isSubmitting} type="submit">
             {submitLabel}
           </Button>
         </div>
