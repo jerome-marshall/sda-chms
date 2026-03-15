@@ -32,7 +32,7 @@ export function DetailRow({
           <Icon className="size-4 text-muted-foreground" />
         </div>
       )}
-      <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-0.5">
+      <div className="relative top-1.5 flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-0.5">
         <span className="w-32 shrink-0 text-muted-foreground text-xs uppercase tracking-wide">
           <span className="flex items-center gap-1">
             {label}

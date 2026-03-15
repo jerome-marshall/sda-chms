@@ -140,7 +140,7 @@ export function OverviewSection({ person }: OverviewSectionProps) {
       >
         <DetailRow
           icon={UtensilsCrossed}
-          label="Dietary Preference"
+          label="Dietary"
           value={formatLabel(person.dietaryPreference)}
         />
         <DetailRow

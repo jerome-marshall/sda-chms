@@ -40,7 +40,7 @@ export function ChurchSection({ person }: ChurchSectionProps) {
         />
         <DetailRow
           icon={User}
-          label="Sabbath School Class"
+          label="Sabbath School"
           value={formatLabel(person.sabbathSchoolClass)}
         />
       </SectionCard>
