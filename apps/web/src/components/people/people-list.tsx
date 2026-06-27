@@ -1,30 +1,33 @@
 import { MEMBERSHIP_STATUS_OPTIONS } from "@sda-chms/shared/constants/people";
 import { Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { MapPin, Phone, Shield, User } from "lucide-react";
 import { useMemo } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
+import { DataGrid } from "@/components/data-grid/data-grid";
+import { DataGridFilterMenu } from "@/components/data-grid/data-grid-filter-menu";
+import { DataGridRowHeightMenu } from "@/components/data-grid/data-grid-row-height-menu";
+import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select-column";
+import { DataGridSkeleton } from "@/components/data-grid/data-grid-skeleton";
+import { DataGridSortMenu } from "@/components/data-grid/data-grid-sort-menu";
+import { DataGridViewMenu } from "@/components/data-grid/data-grid-view-menu";
 import { usePeople } from "@/hooks/data/use-people";
-import { useClientDataTable } from "@/hooks/use-client-data-table";
+import { useDataGrid } from "@/hooks/use-data-grid";
+import { getFilterFn } from "@/lib/data-grid-filters";
 import type { Person } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 import HouseholdTooltip from "../household-tooltip";
 
-/** Main people list view — client-side data table with search, filter, and sort. */
+/** Main people list view rendered as a read-only data grid. */
 export const PeopleList = () => {
   const { data: people, isLoading, isError } = usePeople();
+  const filterFn = useMemo(() => getFilterFn<Person>(), []);
 
   const columns = useMemo<ColumnDef<Person>[]>(
     () => [
+      getDataGridSelectColumn<Person>(),
       {
         id: "fullName",
         accessorKey: "fullName",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="Full Name" />
-        ),
+        header: "Name",
         cell: ({ row }) => (
           <Link
             className="underline hover:no-underline"
@@ -34,21 +37,19 @@ export const PeopleList = () => {
             {row.getValue("fullName")}
           </Link>
         ),
-        enableSorting: true,
+        filterFn,
         meta: {
-          label: "Full Name",
-          placeholder: "Search names...",
-          variant: "text",
-          icon: User,
+          label: "Name",
+          cell: {
+            variant: "short-text",
+          },
         },
-        enableColumnFilter: true,
       },
       {
         id: "phone",
-        accessorKey: "phone",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="Phone" />
-        ),
+        accessorFn: (person) =>
+          getInfoOrFromHousehold(person, "phone").data ?? "",
+        header: "Phone",
         cell: ({ row }) => {
           const person = row.original;
           const { data: phone, isfromHousehold } = getInfoOrFromHousehold(
@@ -63,20 +64,19 @@ export const PeopleList = () => {
             </div>
           );
         },
-        enableSorting: true,
+        filterFn,
         meta: {
           label: "Phone",
-          placeholder: "Search phone numbers...",
-          variant: "text",
-          icon: Phone,
+          cell: {
+            variant: "short-text",
+          },
         },
       },
       {
         id: "city",
-        accessorKey: "city",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="City" />
-        ),
+        accessorFn: (person) =>
+          getInfoOrFromHousehold(person, "city").data ?? "",
+        header: "City",
         cell: ({ row }) => {
           const person = row.original;
           const { data: city, isfromHousehold } = getInfoOrFromHousehold(
@@ -91,20 +91,18 @@ export const PeopleList = () => {
             </div>
           );
         },
-        enableSorting: true,
+        filterFn,
         meta: {
           label: "City",
-          placeholder: "Search cities...",
-          variant: "text",
-          icon: MapPin,
+          cell: {
+            variant: "short-text",
+          },
         },
       },
       {
         id: "membershipStatus",
         accessorKey: "membershipStatus",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="Membership Status" />
-        ),
+        header: "Membership Status",
         cell: ({ row }) => {
           const status = row.getValue("membershipStatus") as string;
           const option = MEMBERSHIP_STATUS_OPTIONS.find(
@@ -112,30 +110,27 @@ export const PeopleList = () => {
           );
           return <div>{option?.label || status}</div>;
         },
-        enableSorting: true,
+        filterFn,
         meta: {
           label: "Membership Status",
-          variant: "multiSelect",
           options: MEMBERSHIP_STATUS_OPTIONS,
-          icon: Shield,
+          cell: {
+            variant: "select",
+          },
         },
-        enableColumnFilter: true,
       },
     ],
-    []
+    [filterFn]
   );
 
-  const { table } = useClientDataTable<Person>({
+  const { table } = useDataGrid<Person>({
     data: people || [],
     columns,
-    initialState: {
-      pagination: { pageIndex: 0, pageSize: 50 },
-    },
     getRowId: (row: Person) => row.id,
   });
 
   if (isLoading) {
-    return <DataTableSkeleton columnCount={5} rowCount={10} />;
+    return <DataGridSkeleton columnCount={5} rowCount={10} />;
   }
 
   if (isError) {
@@ -147,9 +142,19 @@ export const PeopleList = () => {
   }
 
   return (
-    <DataTable table={table}>
-      <DataTableToolbar table={table} />
-    </DataTable>
+    <div className="flex flex-col gap-3">
+      <div
+        aria-orientation="horizontal"
+        className="flex items-center justify-end gap-2"
+        role="toolbar"
+      >
+        <DataGridFilterMenu align="end" table={table} />
+        <DataGridSortMenu align="end" table={table} />
+        <DataGridRowHeightMenu align="end" table={table} />
+        <DataGridViewMenu align="end" table={table} />
+      </div>
+      <DataGrid height={640} table={table} />
+    </div>
   );
 };
 
