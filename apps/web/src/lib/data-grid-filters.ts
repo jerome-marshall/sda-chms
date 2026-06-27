@@ -112,83 +112,146 @@ export function getOperatorsForVariant(variant: string): ReadonlyArray<{
   }
 }
 
+function isEmptyCellValue(cellValue: unknown): boolean {
+  return (
+    cellValue === null ||
+    cellValue === undefined ||
+    cellValue === "" ||
+    (Array.isArray(cellValue) && cellValue.length === 0)
+  );
+}
+
+function matchPresenceOperator(
+  operator: FilterOperator,
+  cellValue: unknown
+): boolean | null {
+  switch (operator) {
+    case "isEmpty":
+      return isEmptyCellValue(cellValue);
+    case "isNotEmpty":
+      return !isEmptyCellValue(cellValue);
+    case "isTrue":
+      return cellValue === true;
+    case "isFalse":
+      return cellValue === false || !cellValue;
+    default:
+      return null;
+  }
+}
+
+function matchEqualityOperator(
+  operator: FilterOperator,
+  cellValue: unknown,
+  value: unknown
+): boolean | null {
+  if (operator === "is") {
+    if (Array.isArray(cellValue)) {
+      return cellValue.some((entry) => String(entry) === String(value));
+    }
+    return String(cellValue) === String(value);
+  }
+  if (operator === "isNot") {
+    if (Array.isArray(cellValue)) {
+      return !cellValue.some((entry) => String(entry) === String(value));
+    }
+    return String(cellValue) !== String(value);
+  }
+  return null;
+}
+
+function matchNumberOperator(
+  operator: FilterOperator,
+  cellValue: number,
+  value: number,
+  endValue: unknown
+): boolean | null {
+  switch (operator) {
+    case "greaterThan":
+      return cellValue > value;
+    case "greaterThanOrEqual":
+      return cellValue >= value;
+    case "lessThan":
+      return cellValue < value;
+    case "lessThanOrEqual":
+      return cellValue <= value;
+    case "isBetween":
+      return typeof endValue === "number"
+        ? cellValue >= value && cellValue <= endValue
+        : null;
+    default:
+      return null;
+  }
+}
+
+function matchStringOperator(
+  operator: FilterOperator,
+  cellValueStr: string,
+  filterValueStr: string
+): boolean | null {
+  switch (operator) {
+    case "contains":
+      return cellValueStr.includes(filterValueStr);
+    case "notContains":
+      return !cellValueStr.includes(filterValueStr);
+    case "equals":
+      return cellValueStr === filterValueStr;
+    case "notEquals":
+      return cellValueStr !== filterValueStr;
+    case "startsWith":
+      return cellValueStr.startsWith(filterValueStr);
+    case "endsWith":
+      return cellValueStr.endsWith(filterValueStr);
+    default:
+      return null;
+  }
+}
+
+function isBlankFilterValue(value: unknown): boolean {
+  return value === undefined || value === null || value === "";
+}
+
+function toComparableStrings(
+  cellValue: unknown,
+  value: unknown
+): [string, string] {
+  const cellValueStr = String(cellValue ?? "").toLowerCase();
+  const filterValueStr =
+    typeof value === "string" ? value.toLowerCase() : String(value);
+  return [cellValueStr, filterValueStr];
+}
+
 export function getFilterFn<TData>(): FilterFn<TData> {
   return (row: Row<TData>, columnId: string, filterValue: unknown): boolean => {
     if (!filterValue || typeof filterValue !== "object") {
       return true;
     }
 
-    const filter = filterValue as FilterValue;
-    const { operator, value, endValue } = filter;
+    const { operator, value, endValue } = filterValue as FilterValue;
     const cellValue = row.getValue(columnId);
 
-    if (operator === "isEmpty") {
-      return (
-        cellValue === null ||
-        cellValue === undefined ||
-        cellValue === "" ||
-        (Array.isArray(cellValue) && cellValue.length === 0)
-      );
+    const presenceResult = matchPresenceOperator(operator, cellValue);
+    if (presenceResult !== null) {
+      return presenceResult;
     }
 
-    if (operator === "isNotEmpty") {
-      return !(
-        cellValue === null ||
-        cellValue === undefined ||
-        cellValue === "" ||
-        (Array.isArray(cellValue) && cellValue.length === 0)
-      );
-    }
-
-    if (operator === "isTrue") {
-      return cellValue === true;
-    }
-
-    if (operator === "isFalse") {
-      return cellValue === false || !cellValue;
-    }
-
-    if (value === undefined || value === null || value === "") {
+    if (isBlankFilterValue(value)) {
       return true;
     }
 
-    const cellValueStr = String(cellValue ?? "").toLowerCase();
-    const filterValueStr =
-      typeof value === "string" ? value.toLowerCase() : String(value);
+    const numberResult =
+      typeof cellValue === "number" && typeof value === "number"
+        ? matchNumberOperator(operator, cellValue, value, endValue)
+        : null;
+    const [cellValueStr, filterValueStr] = toComparableStrings(
+      cellValue,
+      value
+    );
 
-    if (operator === "contains") return cellValueStr.includes(filterValueStr);
-    if (operator === "notContains")
-      return !cellValueStr.includes(filterValueStr);
-    if (operator === "equals") return cellValueStr === filterValueStr;
-    if (operator === "notEquals") return cellValueStr !== filterValueStr;
-    if (operator === "startsWith")
-      return cellValueStr.startsWith(filterValueStr);
-    if (operator === "endsWith") return cellValueStr.endsWith(filterValueStr);
+    const result =
+      matchEqualityOperator(operator, cellValue, value) ??
+      numberResult ??
+      matchStringOperator(operator, cellValueStr, filterValueStr);
 
-    if (typeof cellValue === "number" && typeof value === "number") {
-      if (operator === "greaterThan") return cellValue > value;
-      if (operator === "greaterThanOrEqual") return cellValue >= value;
-      if (operator === "lessThan") return cellValue < value;
-      if (operator === "lessThanOrEqual") return cellValue <= value;
-      if (operator === "isBetween" && typeof endValue === "number") {
-        return cellValue >= value && cellValue <= endValue;
-      }
-    }
-
-    if (operator === "is") {
-      if (Array.isArray(cellValue)) {
-        return cellValue.some((entry) => String(entry) === String(value));
-      }
-      return String(cellValue) === String(value);
-    }
-
-    if (operator === "isNot") {
-      if (Array.isArray(cellValue)) {
-        return !cellValue.some((entry) => String(entry) === String(value));
-      }
-      return String(cellValue) !== String(value);
-    }
-
-    return true;
+    return result ?? true;
   };
 }

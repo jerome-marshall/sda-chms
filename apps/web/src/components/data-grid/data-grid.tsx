@@ -25,14 +25,13 @@ export function DataGrid<TData>({
 }: DataGridProps<TData>) {
   const rowHeight = table.options.meta?.rowHeight ?? "short";
 
-  const rowClassName =
-    rowHeight === "extra-tall"
-      ? "[&_td]:py-5 [&_th]:py-4"
-      : rowHeight === "tall"
-        ? "[&_td]:py-4 [&_th]:py-3.5"
-        : rowHeight === "medium"
-          ? "[&_td]:py-3 [&_th]:py-3"
-          : "[&_td]:py-2.5 [&_th]:py-2.5";
+  const rowClassNames: Record<string, string> = {
+    "extra-tall": "[&_td]:py-5 [&_th]:py-4",
+    tall: "[&_td]:py-4 [&_th]:py-3.5",
+    medium: "[&_td]:py-3 [&_th]:py-3",
+    short: "[&_td]:py-2.5 [&_th]:py-2.5",
+  };
+  const rowClassName = rowClassNames[rowHeight] ?? rowClassNames.short;
 
   return (
     <div
@@ -46,18 +45,23 @@ export function DataGrid<TData>({
               <TableRow className={rowClassName} key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead className="bg-background" key={header.id}>
-                    {header.isPlaceholder ? null : typeof header.column
-                        .columnDef.header === "string" ? (
-                      <DataGridColumnHeader
-                        column={header.column}
-                        label={header.column.columnDef.header}
-                      />
-                    ) : (
-                      flexRender(
+                    {(() => {
+                      if (header.isPlaceholder) {
+                        return null;
+                      }
+                      if (typeof header.column.columnDef.header === "string") {
+                        return (
+                          <DataGridColumnHeader
+                            column={header.column}
+                            label={header.column.columnDef.header}
+                          />
+                        );
+                      }
+                      return flexRender(
                         header.column.columnDef.header,
                         header.getContext()
-                      )
-                    )}
+                      );
+                    })()}
                   </TableHead>
                 ))}
               </TableRow>

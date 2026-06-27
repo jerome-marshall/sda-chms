@@ -2,6 +2,7 @@
 
 import type { ColumnFilter, Table } from "@tanstack/react-table";
 import { GripVertical, ListFilter, Trash2 } from "lucide-react";
+import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,9 @@ export function DataGridFilterMenu<TData>({
     const availableColumns: { id: string; label: string }[] = [];
 
     for (const column of table.getAllColumns()) {
-      if (!column.getCanFilter()) continue;
+      if (!column.getCanFilter()) {
+        continue;
+      }
 
       const label = column.columnDef.meta?.label ?? column.id;
       labels.set(column.id, label);
@@ -73,7 +76,9 @@ export function DataGridFilterMenu<TData>({
 
   const onFilterAdd = useCallback(() => {
     const firstColumn = columns[0];
-    if (!firstColumn) return;
+    if (!firstColumn) {
+      return;
+    }
 
     const variant = columnVariants.get(firstColumn.id) ?? "short-text";
     const defaultOperator = getDefaultOperator(variant);
@@ -212,6 +217,51 @@ function DataGridFilterItem<TData>({
   const column = table.getColumn(filter.id);
   const selectOptions = column?.columnDef.meta?.options ?? [];
 
+  let valueInput: ReactNode;
+  if (OPERATORS_WITHOUT_VALUE.has(filterValue.operator)) {
+    valueInput = (
+      <div className="h-9 rounded-4xl border border-input border-dashed bg-input/10" />
+    );
+  } else if (variant === "select" || variant === "multi-select") {
+    valueInput = (
+      <Select
+        onValueChange={(value) => {
+          if (!value) {
+            return;
+          }
+
+          onFilterUpdate(filter.id, {
+            value: { ...filterValue, value },
+          });
+        }}
+        value={String(filterValue.value ?? "")}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Value" />
+        </SelectTrigger>
+        <SelectContent>
+          {selectOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  } else {
+    valueInput = (
+      <Input
+        onChange={(event) =>
+          onFilterUpdate(filter.id, {
+            value: { ...filterValue, value: event.target.value },
+          })
+        }
+        placeholder="Value"
+        value={String(filterValue.value ?? "")}
+      />
+    );
+  }
+
   return (
     <div className="grid grid-cols-[auto_72px_1fr_1fr_auto] items-center gap-2">
       <div className="flex size-9 items-center justify-center rounded-xl border border-border border-dashed text-muted-foreground">
@@ -220,7 +270,9 @@ function DataGridFilterItem<TData>({
       <span className="text-muted-foreground text-sm">Where</span>
       <Select
         onValueChange={(value) => {
-          if (!value) return;
+          if (!value) {
+            return;
+          }
           const nextVariant = columnVariants.get(value) ?? "short-text";
           onFilterUpdate(filter.id, {
             id: value,
@@ -249,7 +301,9 @@ function DataGridFilterItem<TData>({
 
       <Select
         onValueChange={(value) => {
-          if (!value) return;
+          if (!value) {
+            return;
+          }
 
           onFilterUpdate(filter.id, {
             value: {
@@ -274,41 +328,7 @@ function DataGridFilterItem<TData>({
         </SelectContent>
       </Select>
 
-      {OPERATORS_WITHOUT_VALUE.has(filterValue.operator) ? (
-        <div className="h-9 rounded-4xl border border-input border-dashed bg-input/10" />
-      ) : variant === "select" || variant === "multi-select" ? (
-        <Select
-          onValueChange={(value) => {
-            if (!value) return;
-
-            onFilterUpdate(filter.id, {
-              value: { ...filterValue, value },
-            });
-          }}
-          value={String(filterValue.value ?? "")}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Value" />
-          </SelectTrigger>
-          <SelectContent>
-            {selectOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ) : (
-        <Input
-          onChange={(event) =>
-            onFilterUpdate(filter.id, {
-              value: { ...filterValue, value: event.target.value },
-            })
-          }
-          placeholder="Value"
-          value={String(filterValue.value ?? "")}
-        />
-      )}
+      {valueInput}
 
       <Button
         aria-label="Remove filter"

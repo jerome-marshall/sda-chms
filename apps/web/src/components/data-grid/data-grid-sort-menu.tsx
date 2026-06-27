@@ -43,7 +43,9 @@ export function DataGridSortMenu<TData>({
     const availableColumns: { id: string; label: string }[] = [];
 
     for (const column of table.getAllColumns()) {
-      if (!column.getCanSort()) continue;
+      if (!column.getCanSort()) {
+        continue;
+      }
 
       const label = column.columnDef.meta?.label ?? column.id;
       labels.set(column.id, label);
@@ -58,7 +60,9 @@ export function DataGridSortMenu<TData>({
 
   const onSortAdd = useCallback(() => {
     const firstColumn = columns[0];
-    if (!firstColumn) return;
+    if (!firstColumn) {
+      return;
+    }
 
     table.setSorting((current) => [
       ...current,
@@ -136,7 +140,9 @@ export function DataGridSortMenu<TData>({
                 </div>
                 <Select
                   onValueChange={(value) => {
-                    if (!value) return;
+                    if (!value) {
+                      return;
+                    }
                     onSortUpdate(sort.id, { id: value });
                   }}
                   value={sort.id}
@@ -160,7 +166,9 @@ export function DataGridSortMenu<TData>({
                 </Select>
                 <Select
                   onValueChange={(value) => {
-                    if (!value) return;
+                    if (!value) {
+                      return;
+                    }
                     onSortUpdate(sort.id, { desc: value === "desc" });
                   }}
                   value={sort.desc ? "desc" : "asc"}

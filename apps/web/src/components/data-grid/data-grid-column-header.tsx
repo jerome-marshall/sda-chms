@@ -1,5 +1,6 @@
 import type { Column } from "@tanstack/react-table";
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
 interface DataGridColumnHeaderProps<TData, TValue> {
@@ -17,6 +18,15 @@ export function DataGridColumnHeader<TData, TValue>({
     return <span className="font-medium text-foreground">{label}</span>;
   }
 
+  let sortIcon: ReactNode;
+  if (sortDirection === "asc") {
+    sortIcon = <ChevronUp className="size-4 text-muted-foreground" />;
+  } else if (sortDirection === "desc") {
+    sortIcon = <ChevronDown className="size-4 text-muted-foreground" />;
+  } else {
+    sortIcon = <ChevronsUpDown className="size-4 text-muted-foreground" />;
+  }
+
   return (
     <Button
       className="-ml-2 h-8 rounded-xl px-2 font-medium text-foreground hover:bg-muted/60"
@@ -25,13 +35,7 @@ export function DataGridColumnHeader<TData, TValue>({
       variant="ghost"
     >
       {label}
-      {sortDirection === "asc" ? (
-        <ChevronUp className="size-4 text-muted-foreground" />
-      ) : sortDirection === "desc" ? (
-        <ChevronDown className="size-4 text-muted-foreground" />
-      ) : (
-        <ChevronsUpDown className="size-4 text-muted-foreground" />
-      )}
+      {sortIcon}
     </Button>
   );
 }
