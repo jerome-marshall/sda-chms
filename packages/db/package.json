@@ -15,10 +15,13 @@
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "bun run ./src/seed.ts",
-    "check-types": "tsc --noEmit"
+    "db:apply-schema": "bun run ./src/apply-schema.ts",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.10",
+    "@electric-sql/pglite": "^0.5.3",
     "@types/pg": "^8.20.0",
     "typescript": "catalog:",
     "@sda-chms/config": "workspace:*"

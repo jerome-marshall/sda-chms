@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
 
 import { readFileSync } from "node:fs";
-import { db } from "@sda-chms/db";
+import { getDb } from "@sda-chms/db";
 import { householdsTable, peopleTable } from "@sda-chms/db/schema/people";
 import { inferSchema, initParser } from "udsv";
 import { groupByHousehold } from "./household-resolver";
@@ -13,6 +13,8 @@ import {
   isValidRow,
   transformRow,
 } from "./import-helpers";
+
+const db = getDb();
 
 const csvPath =
   process.argv[2] ?? "~/Downloads/SDA Appavu Nagar Church Members Info.csv";

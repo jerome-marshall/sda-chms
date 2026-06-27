@@ -1,4 +1,4 @@
-import { type DbTransaction, db, eq } from "@sda-chms/db";
+import { type DbTransaction, eq, getDb } from "@sda-chms/db";
 import {
   householdsTable,
   type PeopleInsertDb,
@@ -9,7 +9,7 @@ import { withDbErrorHandling } from "../lib/errors";
 /** Fetches all people with their household head's contact fields for the head-of-household fallback. */
 export const getAllPeopleWithHead = () =>
   withDbErrorHandling(async () => {
-    const people = await db.query.peopleTable.findMany({
+    const people = await getDb().query.peopleTable.findMany({
       with: {
         household: {
           with: {
@@ -38,14 +38,17 @@ export const getAllPeopleWithHead = () =>
   }, "getAllPeople");
 
 /** Inserts a person record, optionally within an existing transaction. */
-export const insertPerson = (data: PeopleInsertDb, trx: DbTransaction = db) =>
+export const insertPerson = (
+  data: PeopleInsertDb,
+  trx: DbTransaction = getDb()
+) =>
   withDbErrorHandling(async () => {
     const person = await trx.insert(peopleTable).values(data).returning();
     return person[0];
   }, "insertPerson");
 
 /** Creates an empty household row — the head member is linked to it after insertion. */
-export const insertHousehold = (trx: DbTransaction = db) =>
+export const insertHousehold = (trx: DbTransaction = getDb()) =>
   withDbErrorHandling(async () => {
     const household = await trx.insert(householdsTable).values({}).returning();
     return household[0];
@@ -54,7 +57,7 @@ export const insertHousehold = (trx: DbTransaction = db) =>
 /** Fetches all households with their member list (used to build the household selector on the add-person form). */
 export const getAllHouseholds = () =>
   withDbErrorHandling(async () => {
-    const households = await db.query.householdsTable.findMany({
+    const households = await getDb().query.householdsTable.findMany({
       with: {
         members: {
           columns: {
@@ -79,7 +82,7 @@ export const getAllHouseholds = () =>
 /** Fetches a single person without household data. */
 export const getPersonById = (id: string) =>
   withDbErrorHandling(async () => {
-    const person = await db.query.peopleTable.findFirst({
+    const person = await getDb().query.peopleTable.findFirst({
       where: (table, { eq }) => eq(table.id, id),
     });
     return person;
@@ -89,7 +92,7 @@ export const getPersonById = (id: string) =>
 export const updatePerson = (
   id: string,
   data: Partial<PeopleInsertDb>,
-  trx: DbTransaction = db
+  trx: DbTransaction = getDb()
 ) =>
   withDbErrorHandling(async () => {
     const result = await trx
@@ -103,7 +106,7 @@ export const updatePerson = (
 /** Fetches a single person with their household head's contact fields for the head-of-household fallback. */
 export const getPersonWithHeadById = (id: string) =>
   withDbErrorHandling(async () => {
-    const person = await db.query.peopleTable.findFirst({
+    const person = await getDb().query.peopleTable.findFirst({
       where: (table, { eq }) => eq(table.id, id),
       with: {
         household: {
