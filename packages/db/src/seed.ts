@@ -1,31 +1,16 @@
-// Load environment variables FIRST before any imports that depend on them
-import dotenv from "dotenv";
-
-dotenv.config({
-  path: "../../apps/server/.env",
-});
-
 import { faker } from "@faker-js/faker";
 import {
   DIETARY_PREFERENCES_VALUES,
   GENDER_VALUES,
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS_VALUES,
-  SABBATH_SCHOOL_CLASS,
-  SABBATH_SCHOOL_CLASS_OPTIONS,
 } from "@sda-chms/shared/constants/people";
+import { getSabbathSchoolClass } from "@sda-chms/shared/utils/sabbath-school";
+import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
 // biome-ignore lint/performance/noNamespaceImport: <import schema>
 import * as schema from "./schema/index.js";
 import { peopleTable } from "./schema/people.js";
-
-// Create database connection after env is loaded
-if (!process.env.DATABASE_URL) {
-  console.error("Error: DATABASE_URL environment variable is not set");
-  process.exit(1);
-}
-
-const db = drizzle(process.env.DATABASE_URL, { schema });
 
 // ============================================================================
 // SOUTH INDIAN NAME DATA
@@ -328,8 +313,10 @@ const PASTORAL_NOTES_TEMPLATES = [
 // HELPER FUNCTIONS
 // ============================================================================
 
-// Reference date: January 6, 2026
-const REFERENCE_DATE = new Date("2026-01-06");
+// Reference date: January 6, 2026. Built from numeric parts (local time) rather
+// than an ISO string (which parses as UTC) so age math lines up with the local
+// date accessors used downstream regardless of the runner's timezone.
+const REFERENCE_DATE = new Date(2026, 0, 6);
 
 function getSouthIndianFirstName(gender: string): string {
   if (gender === "male") {
@@ -350,34 +337,6 @@ function formatDate(date: Date): string {
     throw new Error("Invalid date format");
   }
   return dateStr;
-}
-
-function calculateAge(dateOfBirth: Date, referenceDate: Date): number {
-  let age = referenceDate.getFullYear() - dateOfBirth.getFullYear();
-  const monthDiff = referenceDate.getMonth() - dateOfBirth.getMonth();
-  const dayDiff = referenceDate.getDate() - dateOfBirth.getDate();
-
-  // Adjust age if birthday hasn't occurred yet this year
-  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-    age--;
-  }
-
-  return age;
-}
-
-function getSabbathSchoolClass(
-  dateOfBirth: Date
-): (typeof SABBATH_SCHOOL_CLASS)[keyof typeof SABBATH_SCHOOL_CLASS] {
-  const age = calculateAge(dateOfBirth, REFERENCE_DATE);
-
-  // Derive from the canonical age bands so the seed never drifts from the single
-  // source of truth in SABBATH_SCHOOL_CLASS_OPTIONS.
-  const match = SABBATH_SCHOOL_CLASS_OPTIONS.find(
-    (option) => age >= option.minAge && age <= option.maxAge
-  );
-
-  return (match?.value ??
-    SABBATH_SCHOOL_CLASS.ADULT) as (typeof SABBATH_SCHOOL_CLASS)[keyof typeof SABBATH_SCHOOL_CLASS];
 }
 
 function generateEmail(firstName: string, lastName: string): string | null {
@@ -620,7 +579,7 @@ function createRandomPerson() {
       ? faker.helpers.arrayElement(BAPTISM_PLACES)
       : null,
     dateJoinedChurch: generateDateJoinedChurch(baptismDate),
-    sabbathSchoolClass: getSabbathSchoolClass(dateOfBirth),
+    sabbathSchoolClass: getSabbathSchoolClass(dateOfBirth, REFERENCE_DATE),
 
     // Preferences
     dietaryPreference: faker.helpers.arrayElement(DIETARY_PREFERENCES_VALUES),
@@ -635,6 +594,31 @@ function createRandomPerson() {
 }
 
 async function seed() {
+  // Load env + open the connection lazily so importing this module (e.g. to unit
+  // test getSabbathSchoolClass) never requires a database.
+  dotenv.config({ path: "../../apps/server/.env" });
+
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error("Error: DATABASE_URL environment variable is not set");
+    process.exit(1);
+  }
+
+  // Guard: never seed faker data into a non-local DB by accident. The active
+  // DATABASE_URL can resolve to a cloud/production host (e.g. Neon), so refuse
+  // anything that isn't localhost unless explicitly opted in.
+  const host = new URL(dbUrl).hostname;
+  const isLocalHost =
+    host === "localhost" || host === "127.0.0.1" || host === "::1";
+  if (!isLocalHost && process.env.SEED_ALLOW_REMOTE !== "true") {
+    console.error(
+      `Refusing to seed non-local database host "${host}". Seeding is for local development; set SEED_ALLOW_REMOTE=true to override.`
+    );
+    process.exit(1);
+  }
+
+  const db = drizzle(dbUrl, { schema });
+
   const count = Number.parseInt(process.argv[2] || "100", 10);
 
   console.log(`Generating ${count} people...`);
@@ -644,8 +628,11 @@ async function seed() {
   console.log(`Inserting ${people.length} people into database...`);
 
   try {
-    await db.insert(peopleTable).values(people);
-    console.log(`Successfully seeded ${people.length} people!`);
+    // Faker can occasionally produce two people who collide on the
+    // (first_name, last_name, date_of_birth) unique index or the unique email
+    // within one batch; skip those rather than aborting the whole seed.
+    await db.insert(peopleTable).values(people).onConflictDoNothing();
+    console.log(`Successfully seeded up to ${people.length} people!`);
   } catch (error) {
     console.error("Error seeding database:", error);
     process.exit(1);
@@ -654,4 +641,7 @@ async function seed() {
   process.exit(0);
 }
 
-seed();
+// Only run when executed directly (bun run src/seed.ts), not when imported by tests.
+if (import.meta.main) {
+  seed();
+}

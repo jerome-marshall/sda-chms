@@ -38,15 +38,22 @@ export const toTitleCase = (str: string) =>
     .toLowerCase()
     .replace(/(?:^|[\s-])\w/g, (match) => match.toUpperCase());
 
-/** Calculates age in whole years from a date of birth, adjusting for whether the birthday has passed this year. */
-export const calculateAge = (dateOfBirth: Date | string | undefined | null) => {
+/**
+ * Calculates age in whole years from a date of birth, adjusting for whether the
+ * birthday has passed by `referenceDate` (defaults to now). Pass an explicit
+ * reference date for deterministic results (e.g. seeding/tests).
+ */
+export const calculateAge = (
+  dateOfBirth: Date | string | undefined | null,
+  referenceDate: Date = new Date()
+) => {
   const dob = toDate(dateOfBirth);
 
   if (!dob) {
     return;
   }
 
-  const today = new Date();
+  const today = referenceDate;
   let age = today.getFullYear() - dob.getFullYear();
   const monthDiff = today.getMonth() - dob.getMonth();
   const dayDiff = today.getDate() - dob.getDate();

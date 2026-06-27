@@ -2,8 +2,10 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
 
-import { and, db, eq, ilike, isNotNull } from "@sda-chms/db";
+import { and, eq, getDb, ilike, isNotNull } from "@sda-chms/db";
 import { peopleTable } from "@sda-chms/db/schema/people";
+
+const db = getDb();
 
 /**
  * Temporary script to fix addresses containing "Hosur" in addressLine1.

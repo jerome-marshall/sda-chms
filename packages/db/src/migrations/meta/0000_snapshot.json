@@ -1,5 +1,5 @@
 {
-  "id": "0c599677-5e55-4ede-87b2-a86380c9a2fb",
+  "id": "b6621562-9971-4884-9dfa-c386dd162aef",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -133,48 +133,6 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "address_line_1": {
-          "name": "address_line_1",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "address_line_2": {
-          "name": "address_line_2",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "city": {
-          "name": "city",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "state": {
-          "name": "state",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "country": {
-          "name": "country",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "phone": {
-          "name": "phone",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -220,12 +178,6 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "role": {
-          "name": "role",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
         },
         "joined_at": {
           "name": "joined_at",
@@ -393,7 +345,7 @@
           "name": "last_name",
           "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "preferred_name": {
           "name": "preferred_name",
@@ -430,7 +382,7 @@
           "name": "phone",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "address_line_1": {
           "name": "address_line_1",
@@ -466,7 +418,7 @@
           "name": "occupation",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "marital_status": {
           "name": "marital_status",
@@ -517,7 +469,7 @@
           "type": "sabbath_school_class",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "dietary_preference": {
           "name": "dietary_preference",
@@ -530,6 +482,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "important_dates": {
+          "name": "important_dates",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[]'::jsonb"
         },
         "visitation_notes": {
           "name": "visitation_notes",
@@ -593,7 +552,17 @@
           "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "people_household_id_households_id_fk": {
+          "name": "people_household_id_households_id_fk",
+          "tableFrom": "people",
+          "tableTo": "households",
+          "columnsFrom": ["household_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "people_email_unique": {
@@ -756,77 +725,6 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
-    },
-    "public.relationships": {
-      "name": "relationships",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "person_id": {
-          "name": "person_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "related_person_id": {
-          "name": "related_person_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "relationship_type": {
-          "name": "relationship_type",
-          "type": "relationship_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "relationships_person_id_people_id_fk": {
-          "name": "relationships_person_id_people_id_fk",
-          "tableFrom": "relationships",
-          "tableTo": "people",
-          "columnsFrom": ["person_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "relationships_related_person_id_people_id_fk": {
-          "name": "relationships_related_person_id_people_id_fk",
-          "tableFrom": "relationships",
-          "tableTo": "people",
-          "columnsFrom": ["related_person_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -857,19 +755,6 @@
         "deceased"
       ]
     },
-    "public.relationship_type": {
-      "name": "relationship_type",
-      "schema": "public",
-      "values": [
-        "parent",
-        "child",
-        "spouse",
-        "sibling",
-        "grandparent",
-        "grandchild",
-        "other"
-      ]
-    },
     "public.sabbath_school_class": {
       "name": "sabbath_school_class",
       "schema": "public",
@@ -880,6 +765,7 @@
         "junior",
         "earliteen",
         "youth",
+        "young_adult",
         "adult"
       ]
     }

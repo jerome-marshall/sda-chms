@@ -2,8 +2,10 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
 
-import { db, eq } from "@sda-chms/db";
+import { eq, getDb } from "@sda-chms/db";
 import { peopleTable } from "@sda-chms/db/schema/people";
+
+const db = getDb();
 
 /**
  * Backfills existing importantDates entries with `id` and `recurrence` fields
