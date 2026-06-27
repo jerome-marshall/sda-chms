@@ -30,7 +30,8 @@
     "db:push": "turbo -F @sda-chms/db db:push",
     "db:studio": "turbo -F @sda-chms/db db:studio",
     "db:generate": "turbo -F @sda-chms/db db:generate",
-    "db:migrate": "turbo -F @sda-chms/db db:migrate"
+    "db:migrate": "turbo -F @sda-chms/db db:migrate",
+    "prepare": "husky"
   },
   "dependencies": {
     "dotenv": "catalog:",
@@ -42,6 +43,8 @@
     "@sda-chms/config": "workspace:*",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/bun": "catalog:",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
     "turbo": "^2.6.3",
     "typescript": "catalog:",
     "ultracite": "6.5.0"

@@ -12,10 +12,10 @@ function getDefaultValues(
   max: number
 ): number[] {
   if (Array.isArray(value)) {
-    return value;
+    return value as number[];
   }
   if (Array.isArray(defaultValue)) {
-    return defaultValue;
+    return defaultValue as number[];
   }
   return [min, max];
 }
