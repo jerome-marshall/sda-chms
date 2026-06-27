@@ -7,8 +7,8 @@ export interface HouseholdGroup {
 }
 
 interface ValidEntry {
-  row: CsvRow;
   csvRowNum: number;
+  row: CsvRow;
 }
 
 function getFamily(row: CsvRow): string {

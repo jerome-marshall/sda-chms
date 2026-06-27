@@ -13,8 +13,8 @@ import {
 import { cn } from "@/lib/utils";
 
 interface DataGridProps<TData> extends React.ComponentProps<"div"> {
-  table: TanstackTable<TData>;
   height?: number;
+  table: TanstackTable<TData>;
 }
 
 export function DataGrid<TData>({

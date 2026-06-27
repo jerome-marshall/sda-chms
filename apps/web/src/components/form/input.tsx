@@ -9,8 +9,8 @@ import { Input } from "../ui/input";
 
 interface FormInputProps<T extends FieldValues> {
   form: UseFormReturn<T>;
-  name: Path<T>;
   label: string;
+  name: Path<T>;
   placeholder?: string;
   type?: React.HTMLInputTypeAttribute;
 }
@@ -21,28 +21,26 @@ const FormInput = <T extends FieldValues>({
   label,
   placeholder,
   type = "text",
-}: FormInputProps<T>) => {
-  return (
-    <Controller
-      control={form.control}
-      name={name}
-      render={({ field, fieldState }) => (
-        <Field>
-          <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-          <Input
-            {...field}
-            aria-invalid={fieldState.invalid}
-            autoComplete="off"
-            id={field.name}
-            placeholder={placeholder}
-            type={type}
-            value={field.value ?? ""}
-          />
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </Field>
-      )}
-    />
-  );
-};
+}: FormInputProps<T>) => (
+  <Controller
+    control={form.control}
+    name={name}
+    render={({ field, fieldState }) => (
+      <Field>
+        <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+        <Input
+          {...field}
+          aria-invalid={fieldState.invalid}
+          autoComplete="off"
+          id={field.name}
+          placeholder={placeholder}
+          type={type}
+          value={field.value ?? ""}
+        />
+        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+      </Field>
+    )}
+  />
+);
 
 export default FormInput;

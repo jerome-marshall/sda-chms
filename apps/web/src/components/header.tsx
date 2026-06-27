@@ -63,8 +63,8 @@ export type BreadcrumbValue =
   | ((match: AnyRouteMatch) => string | string[]);
 
 interface ResolvedBreadcrumbItem {
-  path: string;
   label: string;
+  path: string;
 }
 
 /** Derives breadcrumbs from the current URL path and resolves dynamic labels from route loaderData. */

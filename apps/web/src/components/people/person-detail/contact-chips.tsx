@@ -2,10 +2,10 @@ import { Mail, Phone } from "lucide-react";
 import HouseholdTooltip from "@/components/household-tooltip";
 
 interface ContactChipsProps {
-  phone: string | null;
+  children?: React.ReactNode;
   email: string | null;
   isPhoneFromHousehold?: boolean;
-  children?: React.ReactNode;
+  phone: string | null;
 }
 
 export function ContactChips({

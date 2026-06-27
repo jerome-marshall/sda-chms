@@ -10,19 +10,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface DashboardCardProps {
-  title: string;
-  description: string;
-  /** One or more icon elements rendered to the left of the title. */
-  icon: ReactNode;
   children: ReactNode;
   className?: string;
   contentClassName?: string;
+  description: string;
+  /** One or more icon elements rendered to the left of the title. */
+  icon: ReactNode;
+  title: string;
 }
 
 interface DashboardCardSkeletonProps {
+  className?: string;
   /** Number of placeholder rows to render in the content area. */
   rows?: number;
-  className?: string;
 }
 
 /** Loading placeholder that mirrors the DashboardCard layout — header + stacked content rows. */

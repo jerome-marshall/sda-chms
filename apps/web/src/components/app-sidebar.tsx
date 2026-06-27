@@ -24,14 +24,14 @@ import { Separator } from "./ui/separator";
 
 // Church Management System navigation data
 interface NavItem {
-  title: string;
-  url: TRoutes;
   icon: LucideIcon;
   items?: Array<{
     title: string;
     url: TRoutes;
     isActive?: boolean;
   }>;
+  title: string;
+  url: TRoutes;
 }
 
 const data: { navMain: NavItem[] } = {

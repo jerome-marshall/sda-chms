@@ -25,8 +25,8 @@ const SORT_ORDERS = [
 
 interface DataGridSortMenuProps<TData>
   extends React.ComponentProps<typeof PopoverContent> {
-  table: Table<TData>;
   disabled?: boolean;
+  table: Table<TData>;
 }
 
 export function DataGridSortMenu<TData>({

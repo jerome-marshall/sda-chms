@@ -3,9 +3,9 @@ import type { PersonDetail } from "@/types/api";
 import { SectionCard } from "./section-card";
 
 interface NoteCardProps {
-  title: string;
-  description: string;
   content: string | null;
+  description: string;
+  title: string;
 }
 
 function NoteCard({ title, description, content }: NoteCardProps) {

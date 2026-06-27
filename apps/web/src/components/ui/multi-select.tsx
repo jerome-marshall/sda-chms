@@ -28,13 +28,13 @@ import {
 import { cn } from "@/lib/utils";
 
 interface MultiSelectContextType {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  selectedValues: Set<string>;
-  toggleValue: (value: string) => void;
   items: Map<string, ReactNode>;
-  single: boolean;
   onItemAdded: (value: string, label: ReactNode) => void;
+  open: boolean;
+  selectedValues: Set<string>;
+  setOpen: (open: boolean) => void;
+  single: boolean;
+  toggleValue: (value: string) => void;
 }
 const MultiSelectContext = createContext<MultiSelectContextType | null>(null);
 

@@ -6,8 +6,8 @@ import { DashboardCard } from "./dashboard-card";
 
 interface StatusRowProps {
   color: string;
-  label: string;
   count: number;
+  label: string;
 }
 
 /** A single labeled row in the membership status breakdown list. */

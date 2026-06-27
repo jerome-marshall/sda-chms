@@ -9,12 +9,12 @@ import {
 } from "../../ui/card";
 
 interface DetailRowProps {
-  icon?: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: React.ReactNode;
   className?: string;
+  icon?: React.ComponentType<{ className?: string }>;
   /** When true, shows a tooltip indicating the value comes from the household head. */
   isFromHousehold?: boolean;
+  label: string;
+  value: React.ReactNode;
 }
 
 /** Displays a single label–value pair with an optional icon and household-fallback indicator. */
@@ -48,9 +48,9 @@ export function DetailRow({
 }
 
 interface SectionCardProps {
-  title: string;
-  description?: string;
   children: React.ReactNode;
+  description?: string;
+  title: string;
 }
 
 /** Card wrapper used to group related detail rows under a titled section. */

@@ -57,18 +57,18 @@ interface UseDataTableProps<TData>
       | "manualSorting"
     >,
     Required<Pick<TableOptions<TData>, "pageCount">> {
+  clearOnDefault?: boolean;
+  debounceMs?: number;
+  enableAdvancedFilter?: boolean;
+  history?: "push" | "replace";
   initialState?: Omit<Partial<TableState>, "sorting"> & {
     sorting?: ExtendedColumnSort<TData>[];
   };
   queryKeys?: Partial<QueryKeys>;
-  history?: "push" | "replace";
-  debounceMs?: number;
-  throttleMs?: number;
-  clearOnDefault?: boolean;
-  enableAdvancedFilter?: boolean;
   scroll?: boolean;
   shallow?: boolean;
   startTransition?: TransitionStartFunction;
+  throttleMs?: number;
 }
 
 /** TanStack Table hook for server-side pagination, sorting, and filtering — syncs state to URL query params via nuqs. */
@@ -156,11 +156,11 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     [pagination, setPage, setPerPage]
   );
 
-  const columnIds = useMemo(() => {
-    return new Set(
-      columns.map((column) => column.id).filter(Boolean) as string[]
-    );
-  }, [columns]);
+  const columnIds = useMemo(
+    () =>
+      new Set(columns.map((column) => column.id).filter(Boolean) as string[]),
+    [columns]
+  );
 
   const [sorting, setSorting] = useQueryState(
     sortKey,

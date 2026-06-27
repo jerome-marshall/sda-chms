@@ -63,15 +63,10 @@ type PersonWithHouseholdHead = Person & {
 };
 
 /** Type guard: checks whether the person record includes household head data for fallback. */
-const hasHouseholdHead = (
-  person: Person
-): person is PersonWithHouseholdHead => {
-  return (
-    "householdHead" in person &&
-    typeof person.householdHead === "object" &&
-    person.householdHead !== null
-  );
-};
+const hasHouseholdHead = (person: Person): person is PersonWithHouseholdHead =>
+  "householdHead" in person &&
+  typeof person.householdHead === "object" &&
+  person.householdHead !== null;
 
 /**
  * Returns a contact field for a person, falling back to the household head's
@@ -93,9 +88,8 @@ export function getInfoOrFromHousehold(person: Person, key: HouseholdInfoKey) {
 }
 
 /** A person is deceased if explicitly marked or has a memorial day recorded. */
-export const isDeceased = (person: Person) => {
-  return person.membershipStatus === "deceased" || person.memorialDay !== null;
-};
+export const isDeceased = (person: Person) =>
+  person.membershipStatus === "deceased" || person.memorialDay !== null;
 
 /** Computes dashboard stats from a people list, excluding deceased members. */
 export const getPeopleStats = (people: Person[]) => {

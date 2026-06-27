@@ -14,14 +14,14 @@ import {
 } from "../ui/select";
 
 interface FormSelectProps<T extends FieldValues> {
+  defaultValue?: string;
+  disabled?: boolean;
   form: UseFormReturn<T>;
-  name: Path<T>;
   label: string;
+  name: Path<T>;
+  onChange?: (value: string | null) => void;
   options: { value: string; label: string }[];
   placeholder?: string;
-  disabled?: boolean;
-  onChange?: (value: string | null) => void;
-  defaultValue?: string;
 }
 
 /** Controlled select field integrated with react-hook-form. */
@@ -34,45 +34,44 @@ const FormSelect = <T extends FieldValues>({
   disabled,
   onChange,
   defaultValue,
-}: FormSelectProps<T>) => {
-  return (
-    <Controller
-      control={form.control}
-      name={name}
-      render={({ field, fieldState }) => (
-        <Field orientation="vertical">
-          <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-          <Select
-            defaultValue={defaultValue}
-            disabled={disabled}
-            name={field.name}
-            onValueChange={(value) => {
-              field.onChange(value);
-              onChange?.(value);
-            }}
-            value={field.value ?? ""}
+}: FormSelectProps<T>) => (
+  <Controller
+    control={form.control}
+    name={name}
+    render={({ field, fieldState }) => (
+      <Field orientation="vertical">
+        <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+        <Select
+          defaultValue={defaultValue}
+          disabled={disabled}
+          name={field.name}
+          onValueChange={(value) => {
+            field.onChange(value);
+            onChange?.(value);
+          }}
+          value={field.value ?? ""}
+        >
+          <SelectTrigger
+            aria-invalid={fieldState.invalid}
+            id={field.name}
+            ref={field.ref}
           >
-            <SelectTrigger
-              aria-invalid={fieldState.invalid}
-              id={field.name}
-              ref={field.ref}
-            >
-              {options.find((option) => option.value === field.value)
-                ?.label || <SelectValue>{placeholder}</SelectValue>}
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </Field>
-      )}
-    />
-  );
-};
+            {options.find((option) => option.value === field.value)?.label || (
+              <SelectValue>{placeholder}</SelectValue>
+            )}
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+      </Field>
+    )}
+  />
+);
 
 export default FormSelect;

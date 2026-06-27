@@ -11,23 +11,23 @@ import type { ImportantDate } from "@sda-chms/shared/schema/people";
 // ---------------------------------------------------------------------------
 
 export interface CsvRow {
-  Name: unknown;
-  Gender: unknown;
-  DOB: unknown;
-  Memorial: unknown;
-  Phone: unknown;
-  Email: unknown;
-  Occupation: unknown;
-  "Pref. Home Visit": unknown;
   Address: unknown;
   "Baptism Date": unknown;
   "Baptism Place": unknown;
-  "Marital Status": unknown;
-  "Wedding Date": unknown;
-  "Dietary Pref.": unknown;
   "Dates to Remember": unknown;
+  "Dietary Pref.": unknown;
+  DOB: unknown;
+  Email: unknown;
   Family: unknown;
+  Gender: unknown;
+  "Marital Status": unknown;
+  Memorial: unknown;
+  Name: unknown;
+  Occupation: unknown;
+  Phone: unknown;
+  "Pref. Home Visit": unknown;
   Relation: unknown;
+  "Wedding Date": unknown;
 }
 
 export interface FailedRow {
@@ -37,12 +37,12 @@ export interface FailedRow {
 }
 
 export interface ImportSummary {
-  total: number;
-  skipped: number;
   attempted: number;
-  succeeded: number;
   failed: number;
   failures: FailedRow[];
+  skipped: number;
+  succeeded: number;
+  total: number;
 }
 
 // ---------------------------------------------------------------------------

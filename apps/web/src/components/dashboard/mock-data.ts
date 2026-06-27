@@ -1,33 +1,33 @@
 // Celebration entry (birthday or anniversary)
 export interface Celebration {
+  age?: number; // for birthdays
+  date: string; // ISO date or "Feb 14" format
   id: string;
   name: string;
-  date: string; // ISO date or "Feb 14" format
   type: "birthday" | "anniversary";
-  age?: number; // for birthdays
   years?: number; // for anniversaries
 }
 
 // Memorial entry
 export interface MemorialEntry {
-  id: string;
-  memberName: string;
-  lovedOneName: string;
   date: string;
+  id: string;
+  lovedOneName: string;
+  memberName: string;
   yearsSince: number;
 }
 
 // Membership stats
 export interface MembershipStats {
-  totalMembers: number;
-  totalFamilies: number;
-  totalBaptized: number;
-  totalUnbaptizedChildren: number;
   activeCount: number;
-  inactiveCount: number;
-  newThisQuarter: number;
   byAgeGroup: { group: string; count: number }[];
   byStatus: { status: string; count: number }[];
+  inactiveCount: number;
+  newThisQuarter: number;
+  totalBaptized: number;
+  totalFamilies: number;
+  totalMembers: number;
+  totalUnbaptizedChildren: number;
 }
 
 export const MOCK_CELEBRATIONS: Celebration[] = [

@@ -56,13 +56,11 @@ export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => ({
 });
 
 /** Adds computed fields (fullName, age) to a DB person record for the API response. */
-export const personDbToApi = (personData: PeopleSelectDb) => {
-  return {
-    ...personData,
-    fullName: `${personData.firstName} ${personData.lastName ?? ""}`.trim(),
-    age: calculateAge(personData.dateOfBirth),
-  };
-};
+export const personDbToApi = (personData: PeopleSelectDb) => ({
+  ...personData,
+  fullName: `${personData.firstName} ${personData.lastName ?? ""}`.trim(),
+  age: calculateAge(personData.dateOfBirth),
+});
 
 /**
  * Transforms a person + household head DB record into the API shape.
@@ -115,9 +113,8 @@ export const personWithHeadDbToApi = (
 };
 
 /** Batch-transforms a list of person + household head records for the people list API. */
-export const peopleWithHeadDbToApi = (data: PersonWithHouseholdHeadDb[]) => {
-  return data.map(personWithHeadDbToApi);
-};
+export const peopleWithHeadDbToApi = (data: PersonWithHouseholdHeadDb[]) =>
+  data.map(personWithHeadDbToApi);
 
 /** Maps the client-submitted update form data to the DB shape without overriding isActive. */
 export const personUpdateApiToDb = (

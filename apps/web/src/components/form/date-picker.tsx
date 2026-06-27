@@ -12,10 +12,10 @@ import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface FormDatePickerProps<T extends FieldValues> {
-  form: UseFormReturn<T>;
-  name: Path<T>;
-  label: string;
   disabled?: boolean;
+  form: UseFormReturn<T>;
+  label: string;
+  name: Path<T>;
 }
 
 const FormDatePicker = <T extends FieldValues>({

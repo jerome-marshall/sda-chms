@@ -35,8 +35,8 @@ const OPERATORS_WITHOUT_VALUE = new Set([
 
 interface DataGridFilterMenuProps<TData>
   extends React.ComponentProps<typeof PopoverContent> {
-  table: Table<TData>;
   disabled?: boolean;
+  table: Table<TData>;
 }
 
 export function DataGridFilterMenu<TData>({
@@ -190,13 +190,13 @@ export function DataGridFilterMenu<TData>({
 }
 
 interface DataGridFilterItemProps<TData> {
-  table: Table<TData>;
-  filter: ColumnFilter;
-  columns: Array<{ id: string; label: string }>;
   columnLabels: Map<string, string>;
+  columns: Array<{ id: string; label: string }>;
   columnVariants: Map<string, string>;
-  onFilterUpdate: (filterId: string, updates: Partial<ColumnFilter>) => void;
+  filter: ColumnFilter;
   onFilterRemove: (filterId: string) => void;
+  onFilterUpdate: (filterId: string, updates: Partial<ColumnFilter>) => void;
+  table: Table<TData>;
 }
 
 function DataGridFilterItem<TData>({

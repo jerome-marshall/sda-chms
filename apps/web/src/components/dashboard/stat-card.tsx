@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 
 interface StatCardProps {
-  label: string;
-  value: string | number;
+  className?: string;
   icon: React.ReactNode;
+  label: string;
   trend?: string;
   trendDirection?: "up" | "down" | "neutral";
-  className?: string;
+  value: string | number;
 }
 
 /** Reusable stat card showing an icon, large value, label, and optional trend indicator. */

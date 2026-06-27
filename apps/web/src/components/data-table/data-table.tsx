@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
-  table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
+  table: TanstackTable<TData>;
 }
 
 export function DataTable<TData>({

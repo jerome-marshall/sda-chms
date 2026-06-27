@@ -17,8 +17,8 @@ import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
 interface Range {
-  min: number;
   max: number;
+  min: number;
 }
 
 type RangeValue = [number, number];
@@ -44,7 +44,7 @@ function parseValuesAsNumbers(value: unknown): RangeValue | undefined {
     return [Number(value[0]), Number(value[1])];
   }
 
-  return undefined;
+  return;
 }
 
 interface DataTableSliderFilterProps<TData> {
@@ -99,13 +99,16 @@ export function DataTableSliderFilter<TData>({
     return { min: minValue, max: maxValue, step: stepValue };
   }, [column, defaultRange]);
 
-  const range = useMemo((): RangeValue => {
-    return columnFilterValue ?? [min, max];
-  }, [columnFilterValue, min, max]);
+  const range = useMemo(
+    (): RangeValue => columnFilterValue ?? [min, max],
+    [columnFilterValue, min, max]
+  );
 
-  const formatValue = useCallback((value: number) => {
-    return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
-  }, []);
+  const formatValue = useCallback(
+    (value: number) =>
+      value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+    []
+  );
 
   const onFromInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {

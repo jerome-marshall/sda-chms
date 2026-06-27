@@ -21,9 +21,7 @@ app.use(
 );
 
 const routes = app
-  .get("/", (c) => {
-    return c.text("OK");
-  })
+  .get("/", (c) => c.text("OK"))
   .route("/people", peopleRoutes)
   .route("/groups", groupsRoutes)
   .route("/households", householdRoutes);

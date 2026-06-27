@@ -19,8 +19,8 @@ import type { apiClient } from "@/lib/api";
 import { queryClient } from "@/lib/query";
 
 export interface MyRouterContext {
-  queryClient: QueryClient;
   apiClient: typeof apiClient;
+  queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({

@@ -29,10 +29,10 @@ import { Separator } from "../ui/separator";
 
 interface PersonFormFieldsProps {
   form: UseFormReturn<PersonInsertForm>;
+  formId?: string;
+  isSubmitting?: boolean;
   onSubmit: (data: PersonInsertForm) => void;
   submitLabel: string;
-  isSubmitting?: boolean;
-  formId?: string;
 }
 
 /** Shared form sections for creating or editing a person. */

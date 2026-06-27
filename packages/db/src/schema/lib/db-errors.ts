@@ -89,9 +89,9 @@ const PostgresErrorHandlers: Record<string, ErrorHandler> = {
 };
 
 export interface DbErrorResult {
-  message: string;
   constraint: string | null;
   httpCode: number;
+  message: string;
 }
 
 /**
