@@ -12,6 +12,7 @@ import {
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS_VALUES,
   SABBATH_SCHOOL_CLASS,
+  SABBATH_SCHOOL_CLASS_OPTIONS,
 } from "@sda-chms/shared/constants/people";
 import { drizzle } from "drizzle-orm/node-postgres";
 // biome-ignore lint/performance/noNamespaceImport: <import schema>
@@ -369,32 +370,14 @@ function getSabbathSchoolClass(
 ): (typeof SABBATH_SCHOOL_CLASS)[keyof typeof SABBATH_SCHOOL_CLASS] {
   const age = calculateAge(dateOfBirth, REFERENCE_DATE);
 
-  // Beginners: birth-3 years (0-3 years old)
-  if (age <= 3) {
-    return SABBATH_SCHOOL_CLASS.BEGINNER;
-  }
-  // Kindergarten: 4-5 years old
-  if (age >= 4 && age <= 5) {
-    return SABBATH_SCHOOL_CLASS.KINDERGARTEN;
-  }
-  // Primary: 6-8 years old
-  if (age >= 6 && age <= 8) {
-    return SABBATH_SCHOOL_CLASS.PRIMARY;
-  }
-  // Juniors: 9-11 years old
-  if (age >= 9 && age <= 11) {
-    return SABBATH_SCHOOL_CLASS.JUNIOR;
-  }
-  // Earliteen: 12-13 years old
-  if (age >= 12 && age <= 13) {
-    return SABBATH_SCHOOL_CLASS.EARLITEEN;
-  }
-  // Youth: 14-18 years old
-  if (age >= 14 && age <= 18) {
-    return SABBATH_SCHOOL_CLASS.YOUTH;
-  }
-  // Adult: 18+ years old
-  return SABBATH_SCHOOL_CLASS.ADULT;
+  // Derive from the canonical age bands so the seed never drifts from the single
+  // source of truth in SABBATH_SCHOOL_CLASS_OPTIONS.
+  const match = SABBATH_SCHOOL_CLASS_OPTIONS.find(
+    (option) => age >= option.minAge && age <= option.maxAge
+  );
+
+  return (match?.value ??
+    SABBATH_SCHOOL_CLASS.ADULT) as (typeof SABBATH_SCHOOL_CLASS)[keyof typeof SABBATH_SCHOOL_CLASS];
 }
 
 function generateEmail(firstName: string, lastName: string): string | null {

@@ -87,9 +87,9 @@ export function getInfoOrFromHousehold(person: Person, key: HouseholdInfoKey) {
   return { data: person.householdHead[key], isfromHousehold: true };
 }
 
-/** A person is deceased if explicitly marked or has a memorial day recorded. */
+/** A person is deceased when their membership status says so. */
 export const isDeceased = (person: Person) =>
-  person.membershipStatus === "deceased" || person.memorialDay !== null;
+  person.membershipStatus === "deceased";
 
 /** Computes dashboard stats from a people list, excluding deceased members. */
 export const getPeopleStats = (people: Person[]) => {

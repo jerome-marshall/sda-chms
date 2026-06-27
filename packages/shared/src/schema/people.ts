@@ -48,7 +48,7 @@ export const personInsertFormSchema = z
   .object({
     firstName: z
       .string({ error: errorMessages.firstName })
-      .min(3, { error: errorMessages.firstName }),
+      .min(1, { error: errorMessages.firstName }),
     lastName: z.string({ error: errorMessages.lastName }).optional(),
     preferredName: z.string().optional(),
     gender: z.enum(GENDER_VALUES, { error: errorMessages.gender }),
