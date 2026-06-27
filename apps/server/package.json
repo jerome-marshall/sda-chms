@@ -23,7 +23,7 @@
     "import-people": "bun run ./scripts/import-people.ts"
   },
   "dependencies": {
-    "@hono/zod-validator": "^0.7.6",
+    "@hono/zod-validator": "^0.8.0",
     "@sda-chms/db": "workspace:*",
     "@sda-chms/env": "workspace:*",
     "@sda-chms/shared": "workspace:*",
@@ -35,7 +35,7 @@
   "devDependencies": {
     "@types/bun": "catalog:",
     "typescript": "catalog:",
-    "tsdown": "^0.16.5",
+    "tsdown": "^0.22.3",
     "@sda-chms/config": "workspace:*"
   }
 }
