@@ -3,36 +3,34 @@ import type { DataTableConfig } from "@/config/data-table";
 import type { FilterItemSchema } from "@/lib/parsers";
 
 declare module "@tanstack/react-table" {
-  // biome-ignore lint/correctness/noUnusedVariables: TData is used in the TableMeta interface
   interface TableMeta<TData extends RowData> {
     queryKeys?: QueryKeys;
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: TData and TValue are used in the ColumnMeta interface
   interface ColumnMeta<TData extends RowData, TValue> {
+    icon?: React.FC<React.SVGProps<SVGSVGElement>>;
     label?: string;
-    placeholder?: string;
-    variant?: FilterVariant;
     options?: Option[];
+    placeholder?: string;
     range?: [number, number];
     unit?: string;
-    icon?: React.FC<React.SVGProps<SVGSVGElement>>;
+    variant?: FilterVariant;
   }
 }
 
 export interface QueryKeys {
+  filters: string;
+  joinOperator: string;
   page: string;
   perPage: string;
   sort: string;
-  filters: string;
-  joinOperator: string;
 }
 
 export interface Option {
-  label: string;
-  value: string;
   count?: number;
   icon?: React.FC<React.SVGProps<SVGSVGElement>>;
+  label: string;
+  value: string;
 }
 
 export type FilterOperator = DataTableConfig["operators"][number];

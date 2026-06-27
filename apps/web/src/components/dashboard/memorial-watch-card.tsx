@@ -74,7 +74,7 @@ export function MemorialWatchCard() {
                           .split(" ")
                           .map((n) => n[0])
                           .join("")
-                          .substring(0, 2)}
+                          .slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
 

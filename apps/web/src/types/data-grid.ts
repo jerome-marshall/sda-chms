@@ -46,13 +46,12 @@ export type FilterOperator =
   | BooleanFilterOperator;
 
 export interface FilterValue {
+  endValue?: string | number;
   operator: FilterOperator;
   value?: string | number | string[];
-  endValue?: string | number;
 }
 
 declare module "@tanstack/react-table" {
-  // biome-ignore lint/correctness/noUnusedVariables: TData and TValue must match the other ColumnMeta augmentation
   interface ColumnMeta<TData extends RowData, TValue> {
     cell?: {
       variant?:
@@ -67,9 +66,8 @@ declare module "@tanstack/react-table" {
     };
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: TData must match the other TableMeta augmentation
   interface TableMeta<TData extends RowData> {
-    rowHeight?: RowHeightValue;
     onRowHeightChange?: (value: RowHeightValue) => void;
+    rowHeight?: RowHeightValue;
   }
 }

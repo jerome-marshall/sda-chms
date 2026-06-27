@@ -185,7 +185,6 @@ function ChartTooltipContent({
       <div className="grid gap-1.5">
         {payload
           .filter((item) => item.type !== "none")
-          // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex but necessary for chart tooltip rendering
           .map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
@@ -319,7 +318,7 @@ function getPayloadConfigFromPayload(
   key: string
 ) {
   if (typeof payload !== "object" || payload === null) {
-    return undefined;
+    return;
   }
 
   const payloadPayload =
@@ -353,9 +352,9 @@ function getPayloadConfigFromPayload(
 
 export {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  ChartTooltip,
+  ChartTooltipContent,
 };

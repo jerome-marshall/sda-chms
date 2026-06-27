@@ -46,8 +46,9 @@
       "!**/.svelte-kit",
       "!**/wrangler.jsonc",
       "!**/.source",
-      "!**/convex/_generated"
+      "!**/convex/_generated",
+      "!apps/web/public/*.html"
     ]
   },
-  "extends": ["ultracite/core", "ultracite/react"]
+  "extends": ["ultracite/biome/core", "ultracite/biome/react"]
 }

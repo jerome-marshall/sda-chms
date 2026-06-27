@@ -23,7 +23,7 @@ function getIsDateRange(value: DateSelection): value is DateRange {
 
 function parseAsDate(timestamp: number | string | undefined): Date | undefined {
   if (!timestamp) {
-    return undefined;
+    return;
   }
 
   const numericTimestamp =
@@ -38,12 +38,9 @@ function parseColumnFilterValue(value: unknown) {
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => {
-      if (typeof item === "number" || typeof item === "string") {
-        return item;
-      }
-      return undefined;
-    });
+    return value.map((item) =>
+      typeof item === "number" || typeof item === "string" ? item : undefined
+    );
   }
 
   if (typeof value === "string" || typeof value === "number") {
@@ -55,8 +52,8 @@ function parseColumnFilterValue(value: unknown) {
 
 interface DataTableDateFilterProps<TData> {
   column: Column<TData, unknown>;
-  title?: string;
   multiple?: boolean;
+  title?: string;
 }
 
 export function DataTableDateFilter<TData>({

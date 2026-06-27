@@ -582,7 +582,7 @@ function createRandomPerson() {
   const preferredName =
     faker.number.float() < 0.2
       ? faker.helpers.arrayElement([
-          firstName.substring(0, 3),
+          firstName.slice(0, 3),
           `${firstName.charAt(0)}K`,
           firstName,
         ])

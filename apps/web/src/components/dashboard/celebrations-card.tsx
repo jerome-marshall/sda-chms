@@ -118,7 +118,7 @@ export function CelebrationsCard() {
                       .split(" ")
                       .map((n) => n[0])
                       .join("")
-                      .substring(0, 2)}
+                      .slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">

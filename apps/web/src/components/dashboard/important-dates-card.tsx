@@ -9,11 +9,11 @@ import { Badge } from "../ui/badge";
 import { DashboardCard } from "./dashboard-card";
 
 interface ImportantDateEntry {
+  date: string;
+  daysUntil: number;
   id: string;
   memberName: string;
   occasion: string;
-  date: string;
-  daysUntil: number;
 }
 
 const importantDatesIcon = (
@@ -164,7 +164,7 @@ export function ImportantDatesCard() {
                         .split(" ")
                         .map((n) => n[0])
                         .join("")
-                        .substring(0, 2)}
+                        .slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
 
