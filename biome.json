@@ -47,7 +47,7 @@
       "!**/wrangler.jsonc",
       "!**/.source",
       "!**/convex/_generated",
-      "!apps/web/public/*.html"
+      "!apps/web/public"
     ]
   },
   "extends": ["ultracite/biome/core", "ultracite/biome/react"]
