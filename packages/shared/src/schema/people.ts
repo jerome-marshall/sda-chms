@@ -88,6 +88,9 @@ export const personInsertFormSchema = z
     }),
     preferredVisitingTime: z.string().optional(),
     householdId: z.string().optional(),
+    // Stored family name for the household this person heads/defines. Only
+    // meaningful when creating a new household (householdRole === "head").
+    familyName: z.string().optional(),
     householdRole: z.enum(HOUSEHOLD_ROLE_VALUES, {
       error: errorMessages.householdRole,
     }),

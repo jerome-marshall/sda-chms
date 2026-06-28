@@ -224,6 +224,16 @@ const PersonFormFields = ({
               placeholder="Select household"
             />
           </FieldGroup>
+          {form.watch("householdRole") === "head" && (
+            <FieldGroup className="grid grid-cols-2 gap-4">
+              <FormInput
+                form={form}
+                label="Family name"
+                name="familyName"
+                placeholder="e.g. The Robinson-Smiths"
+              />
+            </FieldGroup>
+          )}
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormInput form={form} label="Occupation" name="occupation" />
           </FieldGroup>
