@@ -149,6 +149,14 @@ const PersonFormFields = ({
               form={form}
               label="Membership status"
               name="membershipStatus"
+              onChange={(value) => {
+                // A Memorial Day is only valid for a deceased Person; clear it
+                // whenever the status moves away from Deceased.
+                if (value !== "deceased") {
+                  form.setValue("memorialDay", undefined);
+                  form.clearErrors("memorialDay");
+                }
+              }}
               options={MEMBERSHIP_STATUS_OPTIONS}
               placeholder="Select membership status"
             />
@@ -340,6 +348,7 @@ const PersonFormFields = ({
           <FieldDescription>Any extra details worth noting.</FieldDescription>
           <FieldGroup className="grid grid-cols-1 gap-4">
             <FormDatePicker
+              disabled={form.watch("membershipStatus") !== "deceased"}
               form={form}
               label="Memorial day"
               name="memorialDay"

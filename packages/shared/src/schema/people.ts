@@ -6,6 +6,7 @@ import {
   IMPORTANT_DATE_CATEGORY_VALUES,
   IMPORTANT_DATE_RECURRENCE_VALUES,
   MARITAL_STATUS_VALUES,
+  MEMBERSHIP_STATUS,
   MEMBERSHIP_STATUS_VALUES,
   SABBATH_SCHOOL_CLASS_VALUES,
 } from "../constants/people";
@@ -109,6 +110,16 @@ export const personInsertFormSchema = z
     {
       message: "Household is required for non-head of household",
       path: ["householdId"],
+    }
+  )
+  .refine(
+    // Membership Status = Deceased is the single source of truth for death;
+    // a Memorial Day is a dependent attribute and may only be present then.
+    (data) =>
+      !data.memorialDay || data.membershipStatus === MEMBERSHIP_STATUS.DECEASED,
+    {
+      message: "Memorial Day can only be set for a deceased Person",
+      path: ["memorialDay"],
     }
   );
 export type PersonInsertForm = z.infer<typeof personInsertFormSchema>;

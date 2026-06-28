@@ -76,4 +76,35 @@ describe("personInsertFormSchema", () => {
     const result = personInsertFormSchema.safeParse(validHead);
     expect(result.success).toBe(true);
   });
+
+  it("rejects a Memorial Day on a non-deceased Person (issue #3)", () => {
+    const result = personInsertFormSchema.safeParse({
+      ...validHead,
+      membershipStatus: "member",
+      memorialDay: "2024-05-01",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.path[0] === "memorialDay")).toBe(
+        true
+      );
+    }
+  });
+
+  it("allows a Memorial Day when the Person is deceased (issue #3)", () => {
+    const result = personInsertFormSchema.safeParse({
+      ...validHead,
+      membershipStatus: "deceased",
+      memorialDay: "2024-05-01",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("allows a deceased Person without a Memorial Day (issue #3)", () => {
+    const result = personInsertFormSchema.safeParse({
+      ...validHead,
+      membershipStatus: "deceased",
+    });
+    expect(result.success).toBe(true);
+  });
 });
