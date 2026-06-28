@@ -83,6 +83,8 @@ export const peopleTable = pgTable(
 
     // Personal Details
     occupation: varchar({ length: 255 }),
+    fathersName: varchar("fathers_name", { length: 255 }),
+    mothersName: varchar("mothers_name", { length: 255 }),
     maritalStatus: maritalStatusEnum("marital_status").notNull(),
     weddingDate: date("wedding_date"),
     memorialDay: date("memorial_day"),

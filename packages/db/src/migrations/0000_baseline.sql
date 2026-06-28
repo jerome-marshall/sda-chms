@@ -67,6 +67,8 @@ CREATE TABLE "people" (
 	"state" varchar(100),
 	"country" varchar(100),
 	"occupation" varchar(255),
+	"fathers_name" varchar(255),
+	"mothers_name" varchar(255),
 	"marital_status" "marital_status" NOT NULL,
 	"wedding_date" date,
 	"memorial_day" date,

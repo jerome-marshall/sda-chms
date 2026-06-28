@@ -22,6 +22,8 @@ const personFormToDbFields = (
   lastName: data.lastName ? toTitleCase(data.lastName) : data.lastName,
   phone: data.phone,
   occupation: data.occupation,
+  fathersName: data.fathersName,
+  mothersName: data.mothersName,
   maritalStatus: data.maritalStatus,
   membershipStatus: data.membershipStatus,
   dietaryPreference: data.dietaryPreference,

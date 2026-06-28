@@ -70,6 +70,8 @@ export const personInsertFormSchema = z
       .string({ error: errorMessages.country })
       .min(1, { error: errorMessages.country }),
     occupation: z.string({ error: errorMessages.occupation }).optional(),
+    fathersName: z.string().optional(),
+    mothersName: z.string().optional(),
     maritalStatus: z.enum(MARITAL_STATUS_VALUES, {
       error: errorMessages.maritalStatus,
     }),

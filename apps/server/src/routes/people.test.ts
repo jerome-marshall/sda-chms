@@ -20,6 +20,7 @@ const validHead = {
 
 /** The response fields these tests read. */
 interface PersonResponse {
+  fathersName: string | null;
   firstName: string;
   fullName: string;
   householdHead?: { phone: string | null };
@@ -27,6 +28,7 @@ interface PersonResponse {
   householdPhone?: string | null;
   id: string;
   isHeadOfHousehold: boolean;
+  mothersName: string | null;
   phone: string | null;
 }
 
@@ -114,6 +116,24 @@ describe("people routes (integration, PGlite)", () => {
     // The fallback the whole getPersonWithHead path exists to provide.
     expect(person.householdHead?.phone).toBe("9000000000");
     expect(person.householdPhone).toBe("9000000000");
+  });
+
+  it("POST /people stores and returns father's name and mother's name (issue #11)", async () => {
+    const res = await postPerson({
+      ...validHead,
+      fathersName: "Joseph Krishnamurthy",
+      mothersName: "Mary Krishnamurthy",
+    });
+    expect(res.status).toBe(201);
+    const person = await json<PersonResponse>(res);
+    expect(person.fathersName).toBe("Joseph Krishnamurthy");
+    expect(person.mothersName).toBe("Mary Krishnamurthy");
+
+    const detail = await json<PersonResponse>(
+      await app.request(`/people/${person.id}`)
+    );
+    expect(detail.fathersName).toBe("Joseph Krishnamurthy");
+    expect(detail.mothersName).toBe("Mary Krishnamurthy");
   });
 
   it("POST /people rejects invalid input with 400", async () => {

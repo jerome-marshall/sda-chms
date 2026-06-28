@@ -227,6 +227,10 @@ const PersonFormFields = ({
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormInput form={form} label="Occupation" name="occupation" />
           </FieldGroup>
+          <FieldGroup className="grid grid-cols-2 gap-4">
+            <FormInput form={form} label="Father's name" name="fathersName" />
+            <FormInput form={form} label="Mother's name" name="mothersName" />
+          </FieldGroup>
         </FieldSet>
 
         <Separator />

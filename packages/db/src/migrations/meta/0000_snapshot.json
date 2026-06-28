@@ -1,5 +1,5 @@
 {
-  "id": "b6621562-9971-4884-9dfa-c386dd162aef",
+  "id": "82d000c1-9135-4f84-930e-381301c1d88a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -416,6 +416,18 @@
         },
         "occupation": {
           "name": "occupation",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fathers_name": {
+          "name": "fathers_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mothers_name": {
+          "name": "mothers_name",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false

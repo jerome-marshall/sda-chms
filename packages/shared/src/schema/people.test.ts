@@ -58,4 +58,22 @@ describe("personInsertFormSchema", () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it("accepts a father's name and mother's name (issue #11)", () => {
+    const result = personInsertFormSchema.safeParse({
+      ...validHead,
+      fathersName: "Joseph Krishnamurthy",
+      mothersName: "Mary Krishnamurthy",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.fathersName).toBe("Joseph Krishnamurthy");
+      expect(result.data.mothersName).toBe("Mary Krishnamurthy");
+    }
+  });
+
+  it("allows omitting father's and mother's name", () => {
+    const result = personInsertFormSchema.safeParse(validHead);
+    expect(result.success).toBe(true);
+  });
 });

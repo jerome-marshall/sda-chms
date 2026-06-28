@@ -35,6 +35,8 @@ export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
   maritalStatus: person.maritalStatus,
   weddingDate: toOptional(person.weddingDate),
   occupation: toOptional(person.occupation),
+  fathersName: toOptional(person.fathersName),
+  mothersName: toOptional(person.mothersName),
   householdId: toOptional(person.householdId),
   householdRole:
     person.householdRole ?? ("" as PersonInsertForm["householdRole"]),

@@ -126,6 +126,21 @@ export function OverviewSection({ person }: OverviewSectionProps) {
             value={formatDate(person.weddingDate)}
           />
         )}
+        {(person.fathersName || person.mothersName) && <Separator />}
+        {person.fathersName && (
+          <DetailRow
+            icon={User}
+            label="Father's Name"
+            value={person.fathersName}
+          />
+        )}
+        {person.mothersName && (
+          <DetailRow
+            icon={User}
+            label="Mother's Name"
+            value={person.mothersName}
+          />
+        )}
         <Separator />
         <DetailRow
           icon={Home}
