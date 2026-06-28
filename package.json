@@ -34,14 +34,17 @@
     "db:studio": "turbo -F @sda-chms/db db:studio",
     "db:generate": "turbo -F @sda-chms/db db:generate",
     "db:migrate": "turbo -F @sda-chms/db db:migrate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "sandcastle": "bun .sandcastle/main.ts",
+    "sandcastle:pr-comments": "bun .sandcastle/address-comments.ts"
   },
   "dependencies": {
+    "@sda-chms/env": "workspace:*",
     "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@sda-chms/env": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@ai-hero/sandcastle": "^0.10.0",
     "@biomejs/biome": "2.5.1",
     "@playwright/test": "^1.61.1",
     "@sda-chms/config": "workspace:*",
