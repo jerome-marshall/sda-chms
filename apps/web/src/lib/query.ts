@@ -12,6 +12,7 @@ export const queryKeys = {
   person: (id: string) => ["people", id],
   groups: () => ["groups"],
   households: () => ["households"],
+  relationships: (personId: string) => ["relationships", personId],
 };
 
 /** Pre-built query option objects for use in loaders and hooks — ensures key/fetcher consistency. */
@@ -35,5 +36,15 @@ export const queryOptions = {
     tsQueryOptions({
       queryKey: queryKeys.households(),
       queryFn: () => fetchApi(apiClient.households.$get()),
+    }),
+  relationships: (personId: string) =>
+    tsQueryOptions({
+      queryKey: queryKeys.relationships(personId),
+      queryFn: () =>
+        fetchApi(
+          apiClient.relationships.person[":personId"].$get({
+            param: { personId },
+          })
+        ),
     }),
 };

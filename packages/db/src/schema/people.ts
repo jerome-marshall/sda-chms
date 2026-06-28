@@ -3,6 +3,7 @@ import {
   HOUSEHOLD_ROLE_VALUES,
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS_VALUES,
+  RELATIONSHIP_TYPE_VALUES,
   SABBATH_SCHOOL_CLASS_VALUES,
 } from "@sda-chms/shared/constants/people";
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
@@ -46,6 +47,11 @@ export const householdRoleEnum = pgEnum(
 export const sabbathSchoolClassEnum = pgEnum(
   "sabbath_school_class",
   SABBATH_SCHOOL_CLASS_VALUES
+);
+
+export const relationshipTypeEnum = pgEnum(
+  "relationship_type",
+  RELATIONSHIP_TYPE_VALUES
 );
 
 // ============================================================================
@@ -231,6 +237,41 @@ export const positionHistoryTable = pgTable("position_history", {
 });
 
 // ============================================================================
+// RELATIONSHIPS
+// ============================================================================
+
+/**
+ * An explicit, stored kinship link between two People (ADR-0003). A single row
+ * captures the link in one direction — `relatedPerson` is `type` of `person`
+ * (e.g. `{ personId: B, relatedPersonId: A, type: "parent" }` means "A is B's
+ * parent"). The reciprocal view (B is A's child) is derived on read, not stored,
+ * so a link lives in exactly one row and is removed by deleting that row.
+ * Independent of Household: the two People need not share one.
+ */
+export const relationshipsTable = pgTable(
+  "relationships",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    personId: uuid("person_id")
+      .notNull()
+      .references(() => peopleTable.id, { onDelete: "cascade" }),
+    relatedPersonId: uuid("related_person_id")
+      .notNull()
+      .references(() => peopleTable.id, { onDelete: "cascade" }),
+    type: relationshipTypeEnum().notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    // One link of a given type per ordered pair — re-adding the same link is a no-op error.
+    uniqueIndex("unique_relationship").on(
+      table.personId,
+      table.relatedPersonId,
+      table.type
+    ),
+  ]
+);
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -242,7 +283,26 @@ export const peopleRelations = relations(peopleTable, ({ one, many }) => ({
   departments: many(peopleDepartmentsTable),
   groups: many(peopleGroupsTable),
   positionHistory: many(positionHistoryTable),
+  // Links where this person is the subject; the reciprocal side is derived on read.
+  relationships: many(relationshipsTable, { relationName: "person" }),
+  relatedTo: many(relationshipsTable, { relationName: "relatedPerson" }),
 }));
+
+export const relationshipsRelations = relations(
+  relationshipsTable,
+  ({ one }) => ({
+    person: one(peopleTable, {
+      fields: [relationshipsTable.personId],
+      references: [peopleTable.id],
+      relationName: "person",
+    }),
+    relatedPerson: one(peopleTable, {
+      fields: [relationshipsTable.relatedPersonId],
+      references: [peopleTable.id],
+      relationName: "relatedPerson",
+    }),
+  })
+);
 
 export const householdsRelations = relations(householdsTable, ({ many }) => ({
   members: many(peopleTable),
@@ -318,6 +378,10 @@ export const peopleSelectSchemaDb = createSelectSchema(peopleTable);
 export const peopleInsertSchemaDb = createInsertSchema(peopleTable);
 export const householdsSelectSchemaDb = createSelectSchema(householdsTable);
 export const householdsInsertSchemaDb = createInsertSchema(householdsTable);
+export const relationshipsSelectSchemaDb =
+  createSelectSchema(relationshipsTable);
+export const relationshipsInsertSchemaDb =
+  createInsertSchema(relationshipsTable);
 
 // ============================================================================
 // Types
@@ -326,3 +390,5 @@ export type PeopleInsertDb = z.infer<typeof peopleInsertSchemaDb>;
 export type PeopleSelectDb = z.infer<typeof peopleSelectSchemaDb>;
 export type HouseholdsSelectDb = z.infer<typeof householdsSelectSchemaDb>;
 export type HouseholdsInsertDb = z.infer<typeof householdsInsertSchemaDb>;
+export type RelationshipsSelectDb = z.infer<typeof relationshipsSelectSchemaDb>;
+export type RelationshipsInsertDb = z.infer<typeof relationshipsInsertSchemaDb>;

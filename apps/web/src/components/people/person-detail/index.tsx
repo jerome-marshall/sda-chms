@@ -4,6 +4,7 @@ import { ChurchSection } from "./church-section";
 import { NotesSection } from "./notes-section";
 import { OverviewSection } from "./overview-section";
 import { ProfileHeader } from "./profile-header";
+import { RelationshipsSection } from "./relationships-section";
 
 interface PersonDetailProps {
   person: PersonDetail;
@@ -15,6 +16,10 @@ export default function PersonDetailPage({ person }: PersonDetailProps) {
       <ProfileHeader person={person} />
 
       <OverviewSection person={person} />
+
+      <Separator className="my-8" />
+
+      <RelationshipsSection person={person} />
 
       <Separator className="my-8" />
 

@@ -19,3 +19,11 @@ export type PersonDetail = ExtractClientResponseData<
 export type PersonCreated = ExtractClientResponseData<
   Awaited<ReturnType<typeof apiClient.people.$post>>
 >;
+
+/** A person's relationships, resolved from that person's perspective. */
+export type Relationships = ExtractClientResponseData<
+  Awaited<
+    ReturnType<(typeof apiClient.relationships.person)[":personId"]["$get"]>
+  >
+>;
+export type Relationship = Relationships[number];
