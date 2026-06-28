@@ -1,5 +1,5 @@
 {
-  "id": "82d000c1-9135-4f84-930e-381301c1d88a",
+  "id": "5e47910f-1095-485d-9183-609b6cd85580",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -535,35 +535,7 @@
           "default": true
         }
       },
-      "indexes": {
-        "unique_person_identity": {
-          "name": "unique_person_identity",
-          "columns": [
-            {
-              "expression": "first_name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "last_name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "date_of_birth",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "people_household_id_households_id_fk": {
           "name": "people_household_id_households_id_fk",
@@ -581,6 +553,11 @@
           "name": "people_email_unique",
           "nullsNotDistinct": false,
           "columns": ["email"]
+        },
+        "unique_person_identity": {
+          "name": "unique_person_identity",
+          "nullsNotDistinct": true,
+          "columns": ["first_name", "last_name", "date_of_birth"]
         }
       },
       "policies": {},

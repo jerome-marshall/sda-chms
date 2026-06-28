@@ -15,7 +15,7 @@ import {
   pgTable,
   text,
   timestamp,
-  uniqueIndex,
+  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -119,12 +119,14 @@ export const peopleTable = pgTable(
     isActive: boolean("is_active").notNull().default(true),
   },
   (table) => [
-    // Unique constraint on name + date of birth to prevent duplicate entries
-    uniqueIndex("unique_person_identity").on(
-      table.firstName,
-      table.lastName,
-      table.dateOfBirth
-    ),
+    // Unique constraint on name + date of birth to prevent duplicate entries.
+    // NULLS NOT DISTINCT (Postgres 15+) makes null last_name / date_of_birth
+    // compare equal, so partial-data People (e.g. visitors with no DOB) can't be
+    // duplicated — Postgres's default treats nulls as distinct, which silently
+    // let these through (issue #2).
+    unique("unique_person_identity")
+      .on(table.firstName, table.lastName, table.dateOfBirth)
+      .nullsNotDistinct(),
   ]
 );
 

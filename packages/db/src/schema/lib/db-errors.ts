@@ -1,8 +1,23 @@
 import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
-import { DatabaseError } from "pg";
+
+/**
+ * The structural shape of a Postgres driver error. Both `pg`'s `DatabaseError`
+ * (production) and PGlite's `DatabaseError` (tests) expose these fields but are
+ * distinct classes — matching by shape rather than `instanceof` keeps the same
+ * error mapping working under both drivers.
+ */
+interface PostgresError {
+  code?: string;
+  column?: string;
+  constraint?: string;
+  message: string;
+}
+
+const isPostgresError = (error: unknown): error is PostgresError =>
+  error instanceof Error && "code" in error && "constraint" in error;
 
 // Defines the shape of the error handler functions
-type ErrorHandler = (error: DatabaseError) => {
+type ErrorHandler = (error: PostgresError) => {
   message: string;
   constraint: string | null;
   httpCode: number;
@@ -12,7 +27,10 @@ type ErrorHandler = (error: DatabaseError) => {
 const PostgresErrorHandlers: Record<string, ErrorHandler> = {
   // Unique violation - resource already exists
   "23505": (error) => ({
-    message: "A duplicate entry was found for a unique field.",
+    message:
+      error.constraint === "unique_person_identity"
+        ? "This person may already exist — someone with the same name and date of birth is already recorded."
+        : "A duplicate entry was found for a unique field.",
     constraint: error.constraint || null,
     httpCode: 409, // Conflict
   }),
@@ -100,10 +118,7 @@ export interface DbErrorResult {
  * @returns An object with the main error message, constraint name (if applicable), and HTTP status code.
  */
 export function getDbErrorMessage(error: unknown): DbErrorResult {
-  if (
-    error instanceof DrizzleQueryError &&
-    error.cause instanceof DatabaseError
-  ) {
+  if (error instanceof DrizzleQueryError && isPostgresError(error.cause)) {
     const originalError = error.cause;
     const handler = PostgresErrorHandlers[originalError.code ?? "default"];
 
