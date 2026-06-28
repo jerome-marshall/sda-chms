@@ -134,6 +134,11 @@ export const peopleTable = pgTable(
 
 export const householdsTable = pgTable("households", {
   id: uuid().primaryKey().defaultRandom(),
+  // Stored, user-set display/grouping label for the family (ADR-0001).
+  // Independent of any member's lastName so blended families and kept
+  // surnames are represented without contortion. Nullable: existing rows
+  // fall back to a head-derived name until backfilled/edited.
+  familyName: varchar("family_name", { length: 255 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
