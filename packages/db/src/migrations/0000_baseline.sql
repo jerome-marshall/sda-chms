@@ -2,6 +2,7 @@ CREATE TYPE "public"."gender" AS ENUM('male', 'female', 'other');--> statement-b
 CREATE TYPE "public"."household_role" AS ENUM('head', 'spouse', 'child', 'other');--> statement-breakpoint
 CREATE TYPE "public"."marital_status" AS ENUM('single', 'married', 'divorced', 'widowed', 'separated');--> statement-breakpoint
 CREATE TYPE "public"."membership_status" AS ENUM('member', 'regular_attendee', 'visitor', 'inactive', 'moved', 'deceased');--> statement-breakpoint
+CREATE TYPE "public"."relationship_type" AS ENUM('parent', 'child', 'spouse', 'sibling', 'grandparent', 'grandchild', 'step_parent', 'step_child', 'step_sibling', 'half_sibling', 'other');--> statement-breakpoint
 CREATE TYPE "public"."sabbath_school_class" AS ENUM('beginner', 'kindergarten', 'primary', 'junior', 'earliteen', 'youth', 'young_adult', 'adult');--> statement-breakpoint
 CREATE TABLE "departments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -109,6 +110,14 @@ CREATE TABLE "positions" (
 	CONSTRAINT "positions_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
+CREATE TABLE "relationships" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"person_id" uuid NOT NULL,
+	"related_person_id" uuid NOT NULL,
+	"type" "relationship_type" NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "people_departments" ADD CONSTRAINT "people_departments_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "people_departments" ADD CONSTRAINT "people_departments_department_id_departments_id_fk" FOREIGN KEY ("department_id") REFERENCES "public"."departments"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "people_groups" ADD CONSTRAINT "people_groups_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -117,4 +126,7 @@ ALTER TABLE "people" ADD CONSTRAINT "people_household_id_households_id_fk" FOREI
 ALTER TABLE "position_history" ADD CONSTRAINT "position_history_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "position_history" ADD CONSTRAINT "position_history_position_id_positions_id_fk" FOREIGN KEY ("position_id") REFERENCES "public"."positions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "positions" ADD CONSTRAINT "positions_department_id_departments_id_fk" FOREIGN KEY ("department_id") REFERENCES "public"."departments"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "unique_person_identity" ON "people" USING btree ("first_name","last_name","date_of_birth");
+ALTER TABLE "relationships" ADD CONSTRAINT "relationships_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "relationships" ADD CONSTRAINT "relationships_related_person_id_people_id_fk" FOREIGN KEY ("related_person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "unique_person_identity" ON "people" USING btree ("first_name","last_name","date_of_birth");--> statement-breakpoint
+CREATE UNIQUE INDEX "unique_relationship" ON "relationships" USING btree ("person_id","related_person_id","type");

@@ -7,6 +7,7 @@ import {
   IMPORTANT_DATE_RECURRENCE_VALUES,
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS_VALUES,
+  RELATIONSHIP_TYPE_VALUES,
   SABBATH_SCHOOL_CLASS_VALUES,
 } from "../constants/people";
 
@@ -116,3 +117,22 @@ export type PersonInsertForm = z.infer<typeof personInsertFormSchema>;
 /** Zod schema for the "edit person" form — same fields as insert, validated on both client and server. */
 export const personUpdateFormSchema = personInsertFormSchema;
 export type PersonUpdateForm = z.infer<typeof personUpdateFormSchema>;
+
+/**
+ * Zod schema for creating a Relationship (ADR-0003). The link is stored as a
+ * single row "relatedPerson is `type` of person"; the reciprocal is derived on
+ * read. A Person cannot be linked to themselves.
+ */
+export const relationshipCreateSchema = z
+  .object({
+    personId: z.string().min(1, { error: "Person is required" }),
+    relatedPersonId: z.string().min(1, { error: "Related person is required" }),
+    type: z.enum(RELATIONSHIP_TYPE_VALUES, {
+      error: "Pick a relationship type",
+    }),
+  })
+  .refine((data) => data.personId !== data.relatedPersonId, {
+    message: "A person cannot be related to themselves",
+    path: ["relatedPersonId"],
+  });
+export type RelationshipCreate = z.infer<typeof relationshipCreateSchema>;
