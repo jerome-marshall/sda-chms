@@ -140,4 +140,22 @@ describe("people routes (integration, PGlite)", () => {
     const res = await postPerson({ firstName: "" });
     expect(res.status).toBe(400);
   });
+
+  it("POST /people rejects a Memorial Day on a non-deceased Person (issue #3)", async () => {
+    const res = await postPerson({
+      ...validHead,
+      membershipStatus: "member",
+      memorialDay: "2024-05-01",
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("POST /people accepts a Memorial Day on a deceased Person (issue #3)", async () => {
+    const res = await postPerson({
+      ...validHead,
+      membershipStatus: "deceased",
+      memorialDay: "2024-05-01",
+    });
+    expect(res.status).toBe(201);
+  });
 });
