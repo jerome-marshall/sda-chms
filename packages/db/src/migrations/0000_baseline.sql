@@ -85,7 +85,8 @@ CREATE TABLE "people" (
 	"household_id" uuid,
 	"household_role" "household_role",
 	"is_active" boolean DEFAULT true NOT NULL,
-	CONSTRAINT "people_email_unique" UNIQUE("email")
+	CONSTRAINT "people_email_unique" UNIQUE("email"),
+	CONSTRAINT "unique_person_identity" UNIQUE NULLS NOT DISTINCT("first_name","last_name","date_of_birth")
 );
 --> statement-breakpoint
 CREATE TABLE "position_history" (
@@ -116,5 +117,4 @@ ALTER TABLE "people_groups" ADD CONSTRAINT "people_groups_group_id_groups_id_fk"
 ALTER TABLE "people" ADD CONSTRAINT "people_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "position_history" ADD CONSTRAINT "position_history_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "position_history" ADD CONSTRAINT "position_history_position_id_positions_id_fk" FOREIGN KEY ("position_id") REFERENCES "public"."positions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "positions" ADD CONSTRAINT "positions_department_id_departments_id_fk" FOREIGN KEY ("department_id") REFERENCES "public"."departments"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "unique_person_identity" ON "people" USING btree ("first_name","last_name","date_of_birth");
+ALTER TABLE "positions" ADD CONSTRAINT "positions_department_id_departments_id_fk" FOREIGN KEY ("department_id") REFERENCES "public"."departments"("id") ON DELETE set null ON UPDATE no action;
