@@ -36,16 +36,14 @@ export const useAddRelationship = ({
   });
 };
 
-/** Mutation hook for removing a relationship; invalidates the current person's list. */
+/** Mutation hook for removing a relationship; invalidates all relationship lists. */
 export const useRemoveRelationship = ({
-  personId,
   onSuccess,
   onError,
 }: {
-  personId: string;
   onSuccess?: () => void;
   onError?: (error: unknown) => void;
-}) => {
+} = {}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -54,9 +52,6 @@ export const useRemoveRelationship = ({
     onSuccess: () => {
       // The reciprocal side is unknown here, so refetch all relationship lists.
       queryClient.invalidateQueries({ queryKey: ["relationships"] });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.relationships(personId),
-      });
       onSuccess?.();
     },
     onError: (error) => onError?.(error),

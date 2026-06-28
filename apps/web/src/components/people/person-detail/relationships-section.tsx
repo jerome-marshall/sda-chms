@@ -21,21 +21,13 @@ import {
 } from "@/hooks/data/use-relationships";
 import type { PersonDetail } from "@/types/api";
 import { SectionCard } from "./section-card";
-import { formatLabel } from "./utils";
+import { formatLabel, getInitials } from "./utils";
 
 type RelationshipType = (typeof RELATIONSHIP_TYPE_VALUES)[number];
 
 interface RelationshipsSectionProps {
   person: PersonDetail;
 }
-
-const initials = (name: string) =>
-  name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 
 /** Lists a Person's relationships and lets the user add or remove them (ADR-0003). */
 export function RelationshipsSection({ person }: RelationshipsSectionProps) {
@@ -51,7 +43,7 @@ export function RelationshipsSection({ person }: RelationshipsSectionProps) {
       setType("");
     },
   });
-  const removeRelationship = useRemoveRelationship({ personId: person.id });
+  const removeRelationship = useRemoveRelationship();
 
   // Anyone but this person is a valid link target.
   const candidates = (people ?? []).filter((p) => p.id !== person.id);
@@ -86,7 +78,10 @@ export function RelationshipsSection({ person }: RelationshipsSectionProps) {
                   src={relationship.relatedPerson.photoUrl ?? undefined}
                 />
                 <AvatarFallback>
-                  {initials(relationship.relatedPerson.fullName)}
+                  {getInitials(
+                    relationship.relatedPerson.firstName,
+                    relationship.relatedPerson.lastName
+                  )}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
