@@ -89,11 +89,13 @@ export const personWithHeadDbToApi = (
     } as const;
   }
 
-  // Person is the head — no fallback needed, they always show their own info
+  // Person is the head — no fallback needed, they always show their own info.
+  // Surface the household's stored family name so the edit form can prefill it.
   if (personData.id === head.id) {
     return {
       ...personBase,
       isHeadOfHousehold: true as const,
+      householdFamilyName: household?.familyName ?? null,
       household: undefined,
     } as const;
   }

@@ -25,6 +25,7 @@ CREATE TABLE "groups" (
 --> statement-breakpoint
 CREATE TABLE "households" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"family_name" varchar(255),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

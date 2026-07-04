@@ -30,7 +30,7 @@ export const getAllPeopleWithHead = () =>
               limit: 1,
             },
           },
-          columns: {}, // household itself has no useful fields; we only need its members
+          columns: { familyName: true }, // stored family name, surfaced for the edit form
         },
       },
     });
@@ -47,12 +47,33 @@ export const insertPerson = (
     return person[0];
   }, "insertPerson");
 
-/** Creates an empty household row — the head member is linked to it after insertion. */
-export const insertHousehold = (trx: DbTransaction = getDb()) =>
+/** Creates a household row with an optional stored family name — the head member is linked to it after insertion. */
+export const insertHousehold = (
+  data: { familyName?: string | null } = {},
+  trx: DbTransaction = getDb()
+) =>
   withDbErrorHandling(async () => {
-    const household = await trx.insert(householdsTable).values({}).returning();
+    const household = await trx
+      .insert(householdsTable)
+      .values({ familyName: data.familyName ?? null })
+      .returning();
     return household[0];
   }, "insertHousehold");
+
+/** Updates a household's stored fields (currently just the family name) by ID. */
+export const updateHousehold = (
+  id: string,
+  data: { familyName?: string | null },
+  trx: DbTransaction = getDb()
+) =>
+  withDbErrorHandling(async () => {
+    const result = await trx
+      .update(householdsTable)
+      .set({ familyName: data.familyName ?? null })
+      .where(eq(householdsTable.id, id))
+      .returning();
+    return result[0];
+  }, "updateHousehold");
 
 /** Fetches all households with their member list (used to build the household selector on the add-person form). */
 export const getAllHouseholds = () =>
@@ -128,7 +149,7 @@ export const getPersonWithHeadById = (id: string) =>
               limit: 1,
             },
           },
-          columns: {}, // household itself has no useful fields; we only need its members
+          columns: { familyName: true }, // stored family name, surfaced for the edit form
         },
       },
     });

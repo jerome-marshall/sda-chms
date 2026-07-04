@@ -1,5 +1,5 @@
 {
-  "id": "5e47910f-1095-485d-9183-609b6cd85580",
+  "id": "f1cf4051-98d8-476b-96a7-5acd6a541cf7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -132,6 +132,12 @@
           "primaryKey": true,
           "notNull": true,
           "default": "gen_random_uuid()"
+        },
+        "family_name": {
+          "name": "family_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",

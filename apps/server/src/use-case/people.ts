@@ -11,6 +11,7 @@ import {
   getPersonWithHeadById,
   insertHousehold,
   insertPerson,
+  updateHousehold,
   updatePerson,
 } from "../data-access/people";
 import {
@@ -60,7 +61,10 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
     }
 
     if (!data.householdId) {
-      const household = await insertHousehold(trx);
+      const household = await insertHousehold(
+        { familyName: data.familyName },
+        trx
+      );
       if (!household) {
         throw new Error("Failed to create household");
       }
@@ -93,7 +97,10 @@ export const updatePersonUseCase = async (
     }
 
     if (!data.householdId) {
-      const household = await insertHousehold(trx);
+      const household = await insertHousehold(
+        { familyName: data.familyName },
+        trx
+      );
       if (!household) {
         throw new Error("Failed to create household");
       }
@@ -102,6 +109,15 @@ export const updatePersonUseCase = async (
     }
 
     await updatePerson(id, personData, trx);
+
+    // A head editing their own household can rename the family.
+    if (data.householdRole === "head") {
+      await updateHousehold(
+        data.householdId,
+        { familyName: data.familyName },
+        trx
+      );
+    }
   });
 
   const updated = await getPersonWithHeadById(id);
@@ -112,7 +128,12 @@ export const updatePersonUseCase = async (
   return personWithHeadDbToApi(updated);
 };
 
-/** Returns all households with head/member separation and a derived household name ("{head.firstName} {head.lastName} Family"). */
+/**
+ * Returns all households with head/member separation and a display name. The
+ * name is the household's stored `familyName` when set; households with none
+ * yet (legacy rows awaiting backfill) fall back to a head-derived
+ * "{head.firstName} {head.lastName} Family" label.
+ */
 export const getAllHouseholdUseCase = async () => {
   const householdsData = await getAllHouseholds();
   const households = householdsData.map((household) => {
@@ -123,11 +144,15 @@ export const getAllHouseholdUseCase = async () => {
       (member) => member.householdRole !== HOUSEHOLD_ROLE.HEAD
     );
 
+    const derivedName = `${head?.firstName} ${head?.lastName || ""} Family`
+      .replace(/\s+/g, " ")
+      .trim();
+
     return {
       ...household,
       head,
       members,
-      name: `${head?.firstName} ${head?.lastName || ""} Family`,
+      name: household.familyName?.trim() || derivedName,
     };
   });
 
