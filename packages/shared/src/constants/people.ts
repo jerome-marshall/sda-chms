@@ -107,6 +107,48 @@ export const RELATIONSHIP_TYPE_VALUES = [
   RELATIONSHIP_TYPE.OTHER,
 ] as const;
 
+export const RELATIONSHIP_TYPE_OPTIONS = [
+  { value: RELATIONSHIP_TYPE.PARENT, label: "Parent" },
+  { value: RELATIONSHIP_TYPE.CHILD, label: "Child" },
+  { value: RELATIONSHIP_TYPE.SPOUSE, label: "Spouse" },
+  { value: RELATIONSHIP_TYPE.SIBLING, label: "Sibling" },
+  { value: RELATIONSHIP_TYPE.GRANDPARENT, label: "Grandparent" },
+  { value: RELATIONSHIP_TYPE.GRANDCHILD, label: "Grandchild" },
+  { value: RELATIONSHIP_TYPE.STEP_PARENT, label: "Step-parent" },
+  { value: RELATIONSHIP_TYPE.STEP_CHILD, label: "Step-child" },
+  { value: RELATIONSHIP_TYPE.STEP_SIBLING, label: "Step-sibling" },
+  { value: RELATIONSHIP_TYPE.HALF_SIBLING, label: "Half-sibling" },
+  { value: RELATIONSHIP_TYPE.OTHER, label: "Other" },
+];
+
+/**
+ * The reciprocal of each relationship type — the type the link shows from the
+ * other person's perspective (ADR-0003 reciprocity rule). If A is B's `parent`,
+ * then from A's view B is their `child`. Symmetric types map to themselves.
+ */
+export const RELATIONSHIP_TYPE_RECIPROCAL: Record<
+  (typeof RELATIONSHIP_TYPE_VALUES)[number],
+  (typeof RELATIONSHIP_TYPE_VALUES)[number]
+> = {
+  [RELATIONSHIP_TYPE.PARENT]: RELATIONSHIP_TYPE.CHILD,
+  [RELATIONSHIP_TYPE.CHILD]: RELATIONSHIP_TYPE.PARENT,
+  [RELATIONSHIP_TYPE.GRANDPARENT]: RELATIONSHIP_TYPE.GRANDCHILD,
+  [RELATIONSHIP_TYPE.GRANDCHILD]: RELATIONSHIP_TYPE.GRANDPARENT,
+  [RELATIONSHIP_TYPE.STEP_PARENT]: RELATIONSHIP_TYPE.STEP_CHILD,
+  [RELATIONSHIP_TYPE.STEP_CHILD]: RELATIONSHIP_TYPE.STEP_PARENT,
+  [RELATIONSHIP_TYPE.SPOUSE]: RELATIONSHIP_TYPE.SPOUSE,
+  [RELATIONSHIP_TYPE.SIBLING]: RELATIONSHIP_TYPE.SIBLING,
+  [RELATIONSHIP_TYPE.STEP_SIBLING]: RELATIONSHIP_TYPE.STEP_SIBLING,
+  [RELATIONSHIP_TYPE.HALF_SIBLING]: RELATIONSHIP_TYPE.HALF_SIBLING,
+  [RELATIONSHIP_TYPE.OTHER]: RELATIONSHIP_TYPE.OTHER,
+};
+
+/** Returns the type a relationship shows from the related person's perspective. */
+export const getReciprocalRelationshipType = (
+  type: (typeof RELATIONSHIP_TYPE_VALUES)[number]
+): (typeof RELATIONSHIP_TYPE_VALUES)[number] =>
+  RELATIONSHIP_TYPE_RECIPROCAL[type];
+
 export const DIETARY_PREFERENCES = {
   VEGAN: "vegan",
   VEGETARIAN: "vegetarian",
