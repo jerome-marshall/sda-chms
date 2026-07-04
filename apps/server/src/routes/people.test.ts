@@ -197,4 +197,22 @@ describe("people routes (integration, PGlite)", () => {
     expect(body.code).toBe("DB_ERROR");
     expect(body.message.toLowerCase()).toContain("already exist");
   });
+
+  it("POST /people rejects a Memorial Day on a non-deceased Person (issue #3)", async () => {
+    const res = await postPerson({
+      ...validHead,
+      membershipStatus: "member",
+      memorialDay: "2024-05-01",
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("POST /people accepts a Memorial Day on a deceased Person (issue #3)", async () => {
+    const res = await postPerson({
+      ...validHead,
+      membershipStatus: "deceased",
+      memorialDay: "2024-05-01",
+    });
+    expect(res.status).toBe(201);
+  });
 });
