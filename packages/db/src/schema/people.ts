@@ -5,6 +5,7 @@ import {
   MEMBERSHIP_STATUS_VALUES,
   RELATIONSHIP_TYPE_VALUES,
   SABBATH_SCHOOL_CLASS_VALUES,
+  SPOUSE_STATE_VALUES,
 } from "@sda-chms/shared/constants/people";
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
 import { relations } from "drizzle-orm";
@@ -54,6 +55,8 @@ export const relationshipTypeEnum = pgEnum(
   "relationship_type",
   RELATIONSHIP_TYPE_VALUES
 );
+
+export const spouseStateEnum = pgEnum("spouse_state", SPOUSE_STATE_VALUES);
 
 // ============================================================================
 // CORE TABLES
@@ -267,6 +270,11 @@ export const relationshipsTable = pgTable(
       .notNull()
       .references(() => peopleTable.id, { onDelete: "cascade" }),
     type: relationshipTypeEnum().notNull(),
+    // Lifecycle state for a spouse link (ADR-0003): married → separated →
+    // divorced / widowed. Nullable because only spouse links carry a state; the
+    // link persists through every state change (divorce/death is a state, not a
+    // deletion). A Person may hold several spouse links in different states.
+    state: spouseStateEnum(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [

@@ -1,3 +1,4 @@
+import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
 import type { RelationshipCreate } from "@sda-chms/shared/schema/people";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, fetchApi } from "@/lib/api";
@@ -30,6 +31,42 @@ export const useAddRelationship = ({
       queryClient.invalidateQueries({
         queryKey: queryKeys.relationships(variables.relatedPersonId),
       });
+      onSuccess?.();
+    },
+    onError: (error) => onError?.(error),
+  });
+};
+
+/**
+ * Mutation hook for changing a spouse link's lifecycle state (ADR-0003). The link
+ * persists through the change; invalidates all relationship lists so both sides
+ * reflect the new state.
+ */
+export const useUpdateRelationshipState = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+} = {}) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      state,
+    }: {
+      id: string;
+      state: (typeof SPOUSE_STATE_VALUES)[number];
+    }) =>
+      fetchApi(
+        apiClient.relationships[":id"].$patch({
+          param: { id },
+          json: { state },
+        })
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["relationships"] });
       onSuccess?.();
     },
     onError: (error) => onError?.(error),

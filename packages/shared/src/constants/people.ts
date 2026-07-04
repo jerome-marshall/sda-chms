@@ -149,6 +149,32 @@ export const getReciprocalRelationshipType = (
 ): (typeof RELATIONSHIP_TYPE_VALUES)[number] =>
   RELATIONSHIP_TYPE_RECIPROCAL[type];
 
+/**
+ * The lifecycle a spouse Relationship carries (ADR-0003). A marriage moves
+ * married → separated → divorced / widowed and the link persists through all of
+ * them — only a legal divorce ends the marriage; separation and a partner's
+ * death are states of the link, not its deletion. Non-spouse relationships have
+ * no state (stored null).
+ */
+export const SPOUSE_STATE = {
+  MARRIED: "married",
+  SEPARATED: "separated",
+  DIVORCED: "divorced",
+  WIDOWED: "widowed",
+} as const;
+export const SPOUSE_STATE_VALUES = [
+  SPOUSE_STATE.MARRIED,
+  SPOUSE_STATE.SEPARATED,
+  SPOUSE_STATE.DIVORCED,
+  SPOUSE_STATE.WIDOWED,
+] as const;
+export const SPOUSE_STATE_OPTIONS = [
+  { value: SPOUSE_STATE.MARRIED, label: "Married" },
+  { value: SPOUSE_STATE.SEPARATED, label: "Separated" },
+  { value: SPOUSE_STATE.DIVORCED, label: "Divorced" },
+  { value: SPOUSE_STATE.WIDOWED, label: "Widowed" },
+];
+
 export const DIETARY_PREFERENCES = {
   VEGAN: "vegan",
   VEGETARIAN: "vegetarian",

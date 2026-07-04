@@ -4,6 +4,7 @@ CREATE TYPE "public"."marital_status" AS ENUM('single', 'married', 'divorced', '
 CREATE TYPE "public"."membership_status" AS ENUM('member', 'regular_attendee', 'visitor', 'inactive', 'moved', 'deceased');--> statement-breakpoint
 CREATE TYPE "public"."relationship_type" AS ENUM('parent', 'child', 'spouse', 'sibling', 'grandparent', 'grandchild', 'step_parent', 'step_child', 'step_sibling', 'half_sibling', 'other');--> statement-breakpoint
 CREATE TYPE "public"."sabbath_school_class" AS ENUM('beginner', 'kindergarten', 'primary', 'junior', 'earliteen', 'youth', 'young_adult', 'adult');--> statement-breakpoint
+CREATE TYPE "public"."spouse_state" AS ENUM('married', 'separated', 'divorced', 'widowed');--> statement-breakpoint
 CREATE TABLE "departments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
@@ -117,6 +118,7 @@ CREATE TABLE "relationships" (
 	"person_id" uuid NOT NULL,
 	"related_person_id" uuid NOT NULL,
 	"type" "relationship_type" NOT NULL,
+	"state" "spouse_state",
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint

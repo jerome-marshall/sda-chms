@@ -1,5 +1,5 @@
 {
-  "id": "a3464833-9915-4694-b532-a75ad45273c6",
+  "id": "60db8b1d-43a0-4a5c-bdcb-164a185c7153",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -751,6 +751,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "state": {
+          "name": "state",
+          "type": "spouse_state",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -873,6 +880,11 @@
         "young_adult",
         "adult"
       ]
+    },
+    "public.spouse_state": {
+      "name": "spouse_state",
+      "schema": "public",
+      "values": ["married", "separated", "divorced", "widowed"]
     }
   },
   "schemas": {},

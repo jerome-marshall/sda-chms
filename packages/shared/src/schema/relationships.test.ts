@@ -65,4 +65,31 @@ describe("relationshipCreateSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("accepts a lifecycle state on a spouse link", () => {
+    const result = relationshipCreateSchema.safeParse({
+      ...valid,
+      type: "spouse",
+      state: "divorced",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a lifecycle state on a non-spouse link", () => {
+    const result = relationshipCreateSchema.safeParse({
+      ...valid,
+      type: "parent",
+      state: "married",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an unknown lifecycle state", () => {
+    const result = relationshipCreateSchema.safeParse({
+      ...valid,
+      type: "spouse",
+      state: "engaged",
+    });
+    expect(result.success).toBe(false);
+  });
 });
