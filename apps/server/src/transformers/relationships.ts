@@ -54,10 +54,6 @@ export const relationshipDbToApi = (row: RelationshipRow, personId: string) => {
   return {
     id: row.id,
     type,
-    // Non-spouse links carry no state. For a spouse link, widowhood is reflected
-    // when the partner (relatedPerson from this perspective) is deceased — unless
-    // the marriage already ended in divorce (ADR-0003). Otherwise the stored
-    // state stands.
     state: resolveSpouseState(type, row.state, relatedPerson.membershipStatus),
     relatedPerson: {
       id: relatedPerson.id,
