@@ -30,7 +30,7 @@ export const getAllPeopleWithHouseholdUseCase = async () => {
   return peopleWithHouseholdDbToApi(people);
 };
 
-/** Returns a single person without household head fallback (used internally). */
+/** Returns a single person without the Household's shared contact fields (used internally). */
 export const getPersonByIdUseCase = async (id: string) => {
   const person = await getPersonById(id);
   if (!person) {

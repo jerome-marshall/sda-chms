@@ -18,23 +18,7 @@ const CONTACT_FIELDS = [
   "preferredVisitingTime",
 ] as const;
 
-/**
- * One-time backfill for ADR-0001 (issue #6): move the shared contact details
- * from People onto the Household they belong to.
- *
- * Before this change, non-Head members fell back to the *Head's* Person contact
- * fields. Now the Household owns those fields and a Person's own value is an
- * override. This script, run once against a populated DB:
- *
- * 1. Seeds each Household's contact fields from its Head member (only where the
- *    Household has no value yet — idempotent, safe to re-run).
- * 2. Clears each member's own contact field where it equals the Household's, so
- *    only genuinely different per-Person values remain as overrides.
- *
- * No data is lost: values that differ from the Household default are preserved
- * on the Person as overrides; everything else resolves via the effective-value
- * rule (`person ?? household`).
- */
+/** A row (Household or Person) narrowed to just the shared contact fields. */
 type ContactRow = Record<(typeof CONTACT_FIELDS)[number], string | null>;
 
 /** The Household contact fields to seed from the Head where the Household has none yet. */
@@ -59,6 +43,23 @@ function duplicatesToClear(member: ContactRow, effective: ContactRow) {
   return clear;
 }
 
+/**
+ * One-time backfill for ADR-0001 (issue #6): move the shared contact details
+ * from People onto the Household they belong to.
+ *
+ * Before this change, non-Head members fell back to the *Head's* Person contact
+ * fields. Now the Household owns those fields and a Person's own value is an
+ * override. This script, run once against a populated DB:
+ *
+ * 1. Seeds each Household's contact fields from its Head member (only where the
+ *    Household has no value yet — idempotent, safe to re-run).
+ * 2. Clears each member's own contact field where it equals the Household's, so
+ *    only genuinely different per-Person values remain as overrides.
+ *
+ * No data is lost: values that differ from the Household default are preserved
+ * on the Person as overrides; everything else resolves via the effective-value
+ * rule (`person ?? household`).
+ */
 async function backfillHouseholdContact() {
   console.log("Backfilling household-owned contact details (ADR-0001)...\n");
 

@@ -73,7 +73,7 @@ const HOUSEHOLD_FIELD: Record<HouseholdInfoKey, keyof Person> = {
   addressLine2: "householdAddressLine2",
   phone: "householdPhone",
   preferredVisitingTime: "householdPreferredVisitingTime",
-} as Record<HouseholdInfoKey, keyof Person>;
+};
 
 /**
  * Resolves a Person's effective value for a shared contact field: their own if

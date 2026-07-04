@@ -10,12 +10,12 @@ export type People = ExtractClientResponseData<
 >;
 export type Person = People[number];
 
-/** Single person view — includes household head fields for the contact fallback. */
+/** Single person view — includes the Household's shared contact fields for the effective-value rule (ADR-0001). */
 export type PersonDetail = ExtractClientResponseData<
   Awaited<ReturnType<(typeof apiClient.people)[":id"]["$get"]>>
 >;
 
-/** Minimal person shape returned by the POST /people endpoint (no household head data). */
+/** Minimal person shape returned by the POST /people endpoint (no household contact fields). */
 export type PersonCreated = ExtractClientResponseData<
   Awaited<ReturnType<typeof apiClient.people.$post>>
 >;
