@@ -7,11 +7,11 @@ import type {
   PersonUpdateForm,
 } from "@sda-chms/shared/schema/people";
 import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
-import type { getAllPeopleWithHead } from "../data-access/people";
+import type { getAllPeopleWithHousehold } from "../data-access/people";
 
 // Inferred from the data-access return type so it stays in sync with the query
-type PersonWithHouseholdHeadDb = Awaited<
-  ReturnType<typeof getAllPeopleWithHead>
+type PersonWithHouseholdDb = Awaited<
+  ReturnType<typeof getAllPeopleWithHousehold>
 >[number];
 
 /** Shared field mapping used by both insert and update transformers. */
@@ -65,60 +65,61 @@ export const personDbToApi = (personData: PeopleSelectDb) => ({
 });
 
 /**
- * Transforms a person + household head DB record into the API shape.
- * Applies the head-of-household fallback: non-heads get the head's contact
- * fields so the UI can display them when the member has none of their own.
+ * Transforms a person + their Household DB record into the API shape (ADR-0001).
+ * Surfaces the Household's shared contact fields (`household*`) alongside the
+ * person's own so every reader can resolve the effective value — the person's
+ * own if set, otherwise the Household's. No head-of-household fallback remains.
  */
-export const personWithHeadDbToApi = (
-  personData: PersonWithHouseholdHeadDb
+export const personWithHouseholdDbToApi = (
+  personData: PersonWithHouseholdDb
 ) => {
   const { household, ...personDataWithoutHousehold } = personData;
-  const head = household?.members[0];
-  const personBase = {
+  return {
     ...personDataWithoutHousehold,
     fullName: `${personData.firstName} ${personData.lastName ?? ""}`.trim(),
     age: calculateAge(personData.dateOfBirth),
-  };
-
-  // No head found (data integrity gap) — no fallback fields available
-  if (!head) {
-    return {
-      ...personBase,
-      isHeadOfHousehold: personData.householdRole === "head",
-      household: undefined,
-    } as const;
-  }
-
-  // Person is the head — no fallback needed, they always show their own info.
-  // Surface the household's stored family name so the edit form can prefill it.
-  if (personData.id === head.id) {
-    return {
-      ...personBase,
-      isHeadOfHousehold: true as const,
-      householdFamilyName: household?.familyName ?? null,
-      household: undefined,
-    } as const;
-  }
-
-  // Non-head member — include the head's contact fields for UI fallback
-  return {
-    ...personBase,
-    isHeadOfHousehold: false as const,
-    householdHead: head,
-    householdAddressLine1: head.addressLine1,
-    householdAddressLine2: head.addressLine2,
-    householdCity: head.city,
-    householdState: head.state,
-    householdCountry: head.country,
-    householdPreferredVisitingTime: head.preferredVisitingTime,
-    householdPhone: head.phone,
+    isHeadOfHousehold: personData.householdRole === "head",
+    // The Household's shared contact details, inherited unless the person
+    // overrides with their own value of the same name.
+    householdFamilyName: household?.familyName ?? null,
+    householdAddressLine1: household?.addressLine1 ?? null,
+    householdAddressLine2: household?.addressLine2 ?? null,
+    householdCity: household?.city ?? null,
+    householdState: household?.state ?? null,
+    householdCountry: household?.country ?? null,
+    householdPhone: household?.phone ?? null,
+    householdPreferredVisitingTime: household?.preferredVisitingTime ?? null,
     household: undefined, // strip the raw join from the API response
   };
 };
 
-/** Batch-transforms a list of person + household head records for the people list API. */
-export const peopleWithHeadDbToApi = (data: PersonWithHouseholdHeadDb[]) =>
-  data.map(personWithHeadDbToApi);
+/** Batch-transforms a list of person + household records for the people list API. */
+export const peopleWithHouseholdDbToApi = (data: PersonWithHouseholdDb[]) =>
+  data.map(personWithHouseholdDbToApi);
+
+/** The shared contact fields the Household owns; pulled off a person form to store on the Household. */
+export const householdContactFromForm = (
+  data: PersonInsertForm | PersonUpdateForm
+) => ({
+  addressLine1: data.addressLine1 || null,
+  addressLine2: data.addressLine2 || null,
+  city: data.city || null,
+  state: data.state || null,
+  country: data.country || null,
+  phone: data.phone || null,
+  preferredVisitingTime: data.preferredVisitingTime || null,
+});
+
+/** The person columns that mirror the Household's shared contact fields, cleared so a Head inherits from the Household. */
+export const NULL_PERSON_CONTACT = {
+  addressLine1: null,
+  addressLine2: null,
+  city: null,
+  state: null,
+  country: null,
+  phone: null,
+  preferredVisitingTime: null,
+} as const;
 
 /** Maps the client-submitted update form data to the DB shape without overriding isActive. */
 export const personUpdateApiToDb = (

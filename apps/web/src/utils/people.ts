@@ -15,16 +15,19 @@ export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
   gender: person.gender ?? ("" as PersonInsertForm["gender"]),
   dateOfBirth: person.dateOfBirth ?? "",
   photoUrl: toOptional(person.photoUrl),
-  // Contact
-  phone: toOptional(person.phone),
+  // Contact — prefill with the effective value (own, else the Household's) so
+  // editing a Head shows the shared details and saving doesn't wipe them.
+  phone: toOptional(person.phone ?? person.householdPhone),
   email: toOptional(person.email),
-  preferredVisitingTime: toOptional(person.preferredVisitingTime),
+  preferredVisitingTime: toOptional(
+    person.preferredVisitingTime ?? person.householdPreferredVisitingTime
+  ),
   // Address
-  addressLine1: person.addressLine1 ?? "",
-  addressLine2: toOptional(person.addressLine2),
-  city: person.city ?? "",
-  state: person.state ?? "",
-  country: person.country ?? "",
+  addressLine1: person.addressLine1 ?? person.householdAddressLine1 ?? "",
+  addressLine2: toOptional(person.addressLine2 ?? person.householdAddressLine2),
+  city: person.city ?? person.householdCity ?? "",
+  state: person.state ?? person.householdState ?? "",
+  country: person.country ?? person.householdCountry ?? "",
   // Church membership
   membershipStatus: person.membershipStatus,
   dateJoinedChurch: toOptional(person.dateJoinedChurch),
@@ -38,10 +41,7 @@ export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
   fathersName: toOptional(person.fathersName),
   mothersName: toOptional(person.mothersName),
   householdId: toOptional(person.householdId),
-  familyName:
-    "householdFamilyName" in person
-      ? toOptional(person.householdFamilyName)
-      : undefined,
+  familyName: toOptional(person.householdFamilyName),
   householdRole:
     person.householdRole ?? ("" as PersonInsertForm["householdRole"]),
   // Preferences
@@ -54,7 +54,7 @@ export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
   importantDates: person.importantDates ?? [],
 });
 
-/** Contact fields eligible for head-of-household fallback. */
+/** Shared contact fields a Person inherits from their Household unless overridden (ADR-0001). */
 type HouseholdInfoKey =
   | "city"
   | "state"
@@ -64,33 +64,38 @@ type HouseholdInfoKey =
   | "phone"
   | "preferredVisitingTime";
 
-type PersonWithHouseholdHead = Person & {
-  householdHead: Partial<Record<HouseholdInfoKey, string | null | undefined>>;
-};
-
-/** Type guard: checks whether the person record includes household head data for fallback. */
-const hasHouseholdHead = (person: Person): person is PersonWithHouseholdHead =>
-  "householdHead" in person &&
-  typeof person.householdHead === "object" &&
-  person.householdHead !== null;
+/** Maps a person's own contact field to the matching `household*` field on the API record. */
+const HOUSEHOLD_FIELD: Record<HouseholdInfoKey, keyof Person> = {
+  city: "householdCity",
+  state: "householdState",
+  country: "householdCountry",
+  addressLine1: "householdAddressLine1",
+  addressLine2: "householdAddressLine2",
+  phone: "householdPhone",
+  preferredVisitingTime: "householdPreferredVisitingTime",
+} as Record<HouseholdInfoKey, keyof Person>;
 
 /**
- * Returns a contact field for a person, falling back to the household head's
- * value when the person has none. Heads never fall back.
+ * Resolves a Person's effective value for a shared contact field: their own if
+ * set, otherwise the Household's (ADR-0001). No head special-casing — a head
+ * inherits from their Household like any other member.
  */
 export function getInfoOrFromHousehold(person: Person, key: HouseholdInfoKey) {
-  // Heads always use their own info; non-heads use theirs if available
-  if (person.isHeadOfHousehold || person[key]) {
+  // The person's own value overrides the household default.
+  if (person[key]) {
     return { data: person[key], isfromHousehold: false };
   }
 
-  // No household head attached — nothing to fall back to
-  if (!hasHouseholdHead(person)) {
-    return { data: undefined, isfromHousehold: false };
+  // Fall back to the Household's shared value when the person has none.
+  const householdValue = person[HOUSEHOLD_FIELD[key]] as
+    | string
+    | null
+    | undefined;
+  if (householdValue) {
+    return { data: householdValue, isfromHousehold: true };
   }
 
-  // Fall back to the head's value
-  return { data: person.householdHead[key], isfromHousehold: true };
+  return { data: undefined, isfromHousehold: false };
 }
 
 /** A person is deceased when their membership status says so. */

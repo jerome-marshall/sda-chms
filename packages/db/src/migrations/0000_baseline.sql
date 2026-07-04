@@ -27,6 +27,13 @@ CREATE TABLE "groups" (
 CREATE TABLE "households" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"family_name" varchar(255),
+	"address_line_1" varchar(255),
+	"address_line_2" varchar(255),
+	"city" varchar(100),
+	"state" varchar(100),
+	"country" varchar(100),
+	"phone" varchar(50),
+	"preferred_visiting_time" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

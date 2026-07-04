@@ -6,14 +6,14 @@ import { Hono } from "hono";
 import { jsonValidator } from "../lib/validator";
 import {
   addPersonUseCase,
-  getAllPeopleWithHeadUseCase,
-  getPersonWithHeadByIdUseCase,
+  getAllPeopleWithHouseholdUseCase,
+  getPersonWithHouseholdByIdUseCase,
   updatePersonUseCase,
 } from "../use-case/people";
 
 const app = new Hono()
   .get("/", async (c) => {
-    const people = await getAllPeopleWithHeadUseCase();
+    const people = await getAllPeopleWithHouseholdUseCase();
     return c.json(people, 200);
   })
   .post("/", jsonValidator(personInsertFormSchema), async (c) => {
@@ -23,7 +23,7 @@ const app = new Hono()
   })
   .get("/:id", async (c) => {
     const id = c.req.param("id");
-    const person = await getPersonWithHeadByIdUseCase(id);
+    const person = await getPersonWithHouseholdByIdUseCase(id);
     return c.json(person, 200);
   })
   .put("/:id", jsonValidator(personUpdateFormSchema), async (c) => {

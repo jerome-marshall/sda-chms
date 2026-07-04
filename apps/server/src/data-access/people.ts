@@ -1,37 +1,30 @@
 import { type DbTransaction, eq, getDb } from "@sda-chms/db";
 import {
+  type HouseholdsInsertDb,
   householdsTable,
   type PeopleInsertDb,
   peopleTable,
 } from "@sda-chms/db/schema/people";
 import { withDbErrorHandling } from "../lib/errors";
 
-/** Fetches all people with their household head's contact fields for the head-of-household fallback. */
-export const getAllPeopleWithHead = () =>
+/** The Household's own columns surfaced alongside each Person for the effective-value rule (ADR-0001). */
+const householdContactColumns = {
+  familyName: true,
+  addressLine1: true,
+  addressLine2: true,
+  city: true,
+  state: true,
+  country: true,
+  phone: true,
+  preferredVisitingTime: true,
+} as const;
+
+/** Fetches all people with their Household's shared contact fields for the effective-value rule. */
+export const getAllPeopleWithHousehold = () =>
   withDbErrorHandling(async () => {
     const people = await getDb().query.peopleTable.findMany({
       with: {
-        household: {
-          with: {
-            members: {
-              where: (member, { eq }) => eq(member.householdRole, "head"),
-              columns: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                addressLine1: true,
-                addressLine2: true,
-                city: true,
-                state: true,
-                country: true,
-                preferredVisitingTime: true,
-                phone: true,
-              },
-              limit: 1,
-            },
-          },
-          columns: { familyName: true }, // stored family name, surfaced for the edit form
-        },
+        household: { columns: householdContactColumns },
       },
     });
     return people;
@@ -47,29 +40,44 @@ export const insertPerson = (
     return person[0];
   }, "insertPerson");
 
-/** Creates a household row with an optional stored family name — the head member is linked to it after insertion. */
+/** The Household's stored fields set on create/update: the family name plus the shared contact details (ADR-0001). */
+export type HouseholdWritableFields = Partial<
+  Pick<
+    HouseholdsInsertDb,
+    | "familyName"
+    | "addressLine1"
+    | "addressLine2"
+    | "city"
+    | "state"
+    | "country"
+    | "phone"
+    | "preferredVisitingTime"
+  >
+>;
+
+/** Creates a household row with its stored fields — the head member is linked to it after insertion. */
 export const insertHousehold = (
-  data: { familyName?: string | null } = {},
+  data: HouseholdWritableFields = {},
   trx: DbTransaction = getDb()
 ) =>
   withDbErrorHandling(async () => {
     const household = await trx
       .insert(householdsTable)
-      .values({ familyName: data.familyName ?? null })
+      .values(data)
       .returning();
     return household[0];
   }, "insertHousehold");
 
-/** Updates a household's stored fields (currently just the family name) by ID. */
+/** Updates a household's stored fields (family name + shared contact details) by ID. */
 export const updateHousehold = (
   id: string,
-  data: { familyName?: string | null },
+  data: HouseholdWritableFields,
   trx: DbTransaction = getDb()
 ) =>
   withDbErrorHandling(async () => {
     const result = await trx
       .update(householdsTable)
-      .set({ familyName: data.familyName ?? null })
+      .set(data)
       .where(eq(householdsTable.id, id))
       .returning();
     return result[0];
@@ -124,34 +132,14 @@ export const updatePerson = (
     return result[0];
   }, "updatePerson");
 
-/** Fetches a single person with their household head's contact fields for the head-of-household fallback. */
-export const getPersonWithHeadById = (id: string) =>
+/** Fetches a single person with their Household's shared contact fields for the effective-value rule. */
+export const getPersonWithHouseholdById = (id: string) =>
   withDbErrorHandling(async () => {
     const person = await getDb().query.peopleTable.findFirst({
       where: (table, { eq }) => eq(table.id, id),
       with: {
-        household: {
-          with: {
-            members: {
-              where: (member, { eq }) => eq(member.householdRole, "head"),
-              columns: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                addressLine1: true,
-                addressLine2: true,
-                city: true,
-                state: true,
-                country: true,
-                preferredVisitingTime: true,
-                phone: true,
-              },
-              limit: 1,
-            },
-          },
-          columns: { familyName: true }, // stored family name, surfaced for the edit form
-        },
+        household: { columns: householdContactColumns },
       },
     });
     return person;
-  }, "getPersonWithHeadById");
+  }, "getPersonWithHouseholdById");

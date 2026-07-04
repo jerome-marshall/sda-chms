@@ -6,26 +6,28 @@ import type {
 } from "@sda-chms/shared/schema/people";
 import {
   getAllHouseholds,
-  getAllPeopleWithHead,
+  getAllPeopleWithHousehold,
   getPersonById,
-  getPersonWithHeadById,
+  getPersonWithHouseholdById,
   insertHousehold,
   insertPerson,
   updateHousehold,
   updatePerson,
 } from "../data-access/people";
 import {
-  peopleWithHeadDbToApi,
+  householdContactFromForm,
+  NULL_PERSON_CONTACT,
+  peopleWithHouseholdDbToApi,
   personApiToDb,
   personDbToApi,
   personUpdateApiToDb,
-  personWithHeadDbToApi,
+  personWithHouseholdDbToApi,
 } from "../transformers/people";
 
-/** Returns all people with household head fallback fields for the people list view. */
-export const getAllPeopleWithHeadUseCase = async () => {
-  const people = await getAllPeopleWithHead();
-  return peopleWithHeadDbToApi(people);
+/** Returns all people with their Household's shared contact fields for the people list view. */
+export const getAllPeopleWithHouseholdUseCase = async () => {
+  const people = await getAllPeopleWithHousehold();
+  return peopleWithHouseholdDbToApi(people);
 };
 
 /** Returns a single person without household head fallback (used internally). */
@@ -38,14 +40,14 @@ export const getPersonByIdUseCase = async (id: string) => {
   return personDbToApi(person);
 };
 
-/** Retrieves a person by ID with household head data for the contact fallback. */
-export const getPersonWithHeadByIdUseCase = async (id: string) => {
-  const person = await getPersonWithHeadById(id);
+/** Retrieves a person by ID with their Household's shared contact fields for the effective-value rule. */
+export const getPersonWithHouseholdByIdUseCase = async (id: string) => {
+  const person = await getPersonWithHouseholdById(id);
   if (!person) {
     throw new Error("Person not found");
   }
 
-  return personWithHeadDbToApi(person);
+  return personWithHouseholdDbToApi(person);
 };
 
 /**
@@ -61,14 +63,20 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
     }
 
     if (!data.householdId) {
+      // The head defines the household: their contact details seed the
+      // Household's shared values and are cleared on the person, who then
+      // inherits them (no duplication — ADR-0001).
       const household = await insertHousehold(
-        { familyName: data.familyName },
+        { familyName: data.familyName, ...householdContactFromForm(data) },
         trx
       );
       if (!household) {
         throw new Error("Failed to create household");
       }
-      return insertPerson({ ...personData, householdId: household.id }, trx);
+      return insertPerson(
+        { ...personData, ...NULL_PERSON_CONTACT, householdId: household.id },
+        trx
+      );
     }
 
     return insertPerson(personData, trx);
@@ -98,34 +106,41 @@ export const updatePersonUseCase = async (
 
     if (!data.householdId) {
       const household = await insertHousehold(
-        { familyName: data.familyName },
+        { familyName: data.familyName, ...householdContactFromForm(data) },
         trx
       );
       if (!household) {
         throw new Error("Failed to create household");
       }
-      await updatePerson(id, { ...personData, householdId: household.id }, trx);
+      await updatePerson(
+        id,
+        { ...personData, ...NULL_PERSON_CONTACT, householdId: household.id },
+        trx
+      );
       return;
     }
 
-    await updatePerson(id, personData, trx);
-
-    // A head editing their own household can rename the family.
+    // A head editing their own household updates the shared family name and
+    // contact details on the Household; their own contact columns stay cleared
+    // so they keep inheriting the shared values (ADR-0001).
     if (data.householdRole === "head") {
+      await updatePerson(id, { ...personData, ...NULL_PERSON_CONTACT }, trx);
       await updateHousehold(
         data.householdId,
-        { familyName: data.familyName },
+        { familyName: data.familyName, ...householdContactFromForm(data) },
         trx
       );
+    } else {
+      await updatePerson(id, personData, trx);
     }
   });
 
-  const updated = await getPersonWithHeadById(id);
+  const updated = await getPersonWithHouseholdById(id);
   if (!updated) {
     throw new Error("Person not found");
   }
 
-  return personWithHeadDbToApi(updated);
+  return personWithHouseholdDbToApi(updated);
 };
 
 /**

@@ -25,7 +25,6 @@ interface PersonResponse {
   fathersName: string | null;
   firstName: string;
   fullName: string;
-  householdHead?: { phone: string | null };
   householdId: string | null;
   householdPhone?: string | null;
   id: string;
@@ -94,15 +93,19 @@ describe("people routes (integration, PGlite)", () => {
     expect(person.isHeadOfHousehold).toBe(true);
   });
 
-  it("GET /people/:id falls a non-head's missing contact back to the household head", async () => {
-    // Head carries the contact info; the child carries none of its own.
+  it("GET /people/:id falls a member's missing contact back to the Household (ADR-0001)", async () => {
+    // The head defines the household's shared phone; the child carries none.
     const head = await json<PersonResponse>(
       await postPerson({ ...validHead, phone: "9000000000" })
     );
     const child = await json<PersonResponse>(
       await postPerson({
-        ...validHead,
         firstName: "li",
+        gender: "male",
+        dateOfBirth: "2012-01-01",
+        maritalStatus: "single",
+        membershipStatus: "member",
+        dietaryPreference: "none",
         householdRole: "child",
         householdId: head.householdId,
       })
@@ -115,8 +118,7 @@ describe("people routes (integration, PGlite)", () => {
     expect(person.fullName).toBe("Li");
     expect(person.isHeadOfHousehold).toBe(false);
     expect(person.phone).toBeFalsy();
-    // The fallback the whole getPersonWithHead path exists to provide.
-    expect(person.householdHead?.phone).toBe("9000000000");
+    // The effective value falls back to the Household, not the Head person.
     expect(person.householdPhone).toBe("9000000000");
   });
 

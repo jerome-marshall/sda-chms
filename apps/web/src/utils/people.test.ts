@@ -4,7 +4,7 @@ import { getInfoOrFromHousehold, isDeceased } from "./people";
 
 /** The fields these utilities actually read — cast to Person for the call sites. */
 interface PersonLike {
-  householdHead?: { phone?: string | null } | null;
+  householdPhone?: string | null;
   isHeadOfHousehold?: boolean;
   membershipStatus?: string;
   memorialDay?: string | null;
@@ -38,25 +38,27 @@ describe("getInfoOrFromHousehold", () => {
     expect(isfromHousehold).toBe(false);
   });
 
-  it("never falls back to the household for a head of household", () => {
+  it("falls back to the Household even for a head of household (ADR-0001)", () => {
+    // The old head special-case is gone — a head inherits the household's
+    // shared value like any other member when they have none of their own.
     const { data, isfromHousehold } = getInfoOrFromHousehold(
       asPerson({
         isHeadOfHousehold: true,
         phone: null,
-        householdHead: { phone: "999" },
+        householdPhone: "999",
       }),
       "phone"
     );
-    expect(data).toBeNull();
-    expect(isfromHousehold).toBe(false);
+    expect(data).toBe("999");
+    expect(isfromHousehold).toBe(true);
   });
 
-  it("falls back to the household head when a non-head has no own value", () => {
+  it("falls back to the Household when a person has no own value", () => {
     const { data, isfromHousehold } = getInfoOrFromHousehold(
       asPerson({
         isHeadOfHousehold: false,
         phone: null,
-        householdHead: { phone: "999" },
+        householdPhone: "999",
       }),
       "phone"
     );
@@ -64,14 +66,14 @@ describe("getInfoOrFromHousehold", () => {
     expect(isfromHousehold).toBe(true);
   });
 
-  it("treats a non-head's empty-string own value as absent and falls back", () => {
+  it("treats an empty-string own value as absent and falls back", () => {
     // Documents the `||` behavior in the impl: any falsy own value (""/0), not
-    // just null, is treated as "no value" and resolves to the household head's.
+    // just null, is treated as "no value" and resolves to the household's.
     const { data, isfromHousehold } = getInfoOrFromHousehold(
       asPerson({
         isHeadOfHousehold: false,
         phone: "",
-        householdHead: { phone: "999" },
+        householdPhone: "999",
       }),
       "phone"
     );
@@ -79,7 +81,7 @@ describe("getInfoOrFromHousehold", () => {
     expect(isfromHousehold).toBe(true);
   });
 
-  it("returns nothing when a non-head has no own value and no household head", () => {
+  it("returns nothing when a person has no own value and no household value", () => {
     const { data, isfromHousehold } = getInfoOrFromHousehold(
       asPerson({ isHeadOfHousehold: false, phone: null }),
       "phone"

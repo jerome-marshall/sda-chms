@@ -148,6 +148,20 @@ export const householdsTable = pgTable("households", {
   // surnames are represented without contortion. Nullable: existing rows
   // fall back to a head-derived name until backfilled/edited.
   familyName: varchar("family_name", { length: 255 }),
+
+  // Shared contact details owned by the Household (ADR-0001). A member's
+  // effective value for any of these is their own if set, otherwise the
+  // Household's — the per-Person columns of the same name are overrides.
+  // This replaces the old "fall back to the Head's value" logic. Nullable so
+  // the same shapes as the Person columns line up for the effective-value rule.
+  addressLine1: varchar("address_line_1", { length: 255 }),
+  addressLine2: varchar("address_line_2", { length: 255 }),
+  city: varchar({ length: 100 }),
+  state: varchar({ length: 100 }),
+  country: varchar({ length: 100 }),
+  phone: varchar({ length: 50 }),
+  preferredVisitingTime: text("preferred_visiting_time"),
+
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()

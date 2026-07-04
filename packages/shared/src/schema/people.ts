@@ -58,19 +58,18 @@ export const personInsertFormSchema = z
     photoUrl: z.url().optional(),
     phone: z.string({ error: errorMessages.phone }).optional(),
     email: z.email().optional(),
+    // Shared contact details are owned by the Household (ADR-0001) and inherited
+    // by members without an override, so they are optional on the Person form —
+    // only the Household needs a value, entered once via the Head.
     addressLine1: z
-      .string({ error: errorMessages.addressLine1 })
-      .min(3, { error: errorMessages.addressLine1 }),
+      .string()
+      .min(3, { error: errorMessages.addressLine1 })
+      .optional()
+      .or(z.literal("")),
     addressLine2: z.string().optional(),
-    city: z
-      .string({ error: errorMessages.city })
-      .min(1, { error: errorMessages.city }),
-    state: z
-      .string({ error: errorMessages.state })
-      .min(1, { error: errorMessages.state }),
-    country: z
-      .string({ error: errorMessages.country })
-      .min(1, { error: errorMessages.country }),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    country: z.string().optional(),
     occupation: z.string({ error: errorMessages.occupation }).optional(),
     fathersName: z.string().optional(),
     mothersName: z.string().optional(),
