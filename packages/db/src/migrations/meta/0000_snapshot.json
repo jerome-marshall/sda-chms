@@ -793,6 +793,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "state": {
+          "name": "state",
+          "type": "spouse_state",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -915,6 +922,11 @@
         "young_adult",
         "adult"
       ]
+    },
+    "public.spouse_state": {
+      "name": "spouse_state",
+      "schema": "public",
+      "values": ["married", "separated", "divorced", "widowed"]
     }
   },
   "schemas": {},

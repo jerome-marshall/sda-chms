@@ -1,4 +1,9 @@
-import { getReciprocalRelationshipType } from "@sda-chms/shared/constants/people";
+import {
+  getReciprocalRelationshipType,
+  MEMBERSHIP_STATUS,
+  RELATIONSHIP_TYPE,
+  SPOUSE_STATE,
+} from "@sda-chms/shared/constants/people";
 import type { getRelationshipsForPerson } from "../data-access/relationships";
 
 // Inferred from the data-access query so it stays in sync with the columns selected.
@@ -10,6 +15,28 @@ type RelatedPerson = RelationshipRow["person"];
 
 const fullName = (person: RelatedPerson) =>
   `${person.firstName} ${person.lastName ?? ""}`.trim();
+
+/**
+ * The lifecycle state shown for a link from one person's perspective. Only spouse
+ * links have a state. Widowhood is derived: if the partner is deceased and the
+ * marriage did not end in divorce, the state reads `widowed` regardless of the
+ * stored value; otherwise the stored state stands.
+ */
+const resolveSpouseState = (
+  type: RelationshipRow["type"],
+  storedState: RelationshipRow["state"],
+  partnerMembershipStatus: RelatedPerson["membershipStatus"]
+) => {
+  if (type !== RELATIONSHIP_TYPE.SPOUSE) {
+    return null;
+  }
+  const partnerDeceased =
+    partnerMembershipStatus === MEMBERSHIP_STATUS.DECEASED;
+  if (partnerDeceased && storedState !== SPOUSE_STATE.DIVORCED) {
+    return SPOUSE_STATE.WIDOWED;
+  }
+  return storedState;
+};
 
 /**
  * Resolves a stored relationship row into the link as seen from `personId`.
@@ -27,6 +54,7 @@ export const relationshipDbToApi = (row: RelationshipRow, personId: string) => {
   return {
     id: row.id,
     type,
+    state: resolveSpouseState(type, row.state, relatedPerson.membershipStatus),
     relatedPerson: {
       id: relatedPerson.id,
       firstName: relatedPerson.firstName,

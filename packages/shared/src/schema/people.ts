@@ -8,8 +8,10 @@ import {
   MARITAL_STATUS_VALUES,
   MEMBERSHIP_STATUS,
   MEMBERSHIP_STATUS_VALUES,
+  RELATIONSHIP_TYPE,
   RELATIONSHIP_TYPE_VALUES,
   SABBATH_SCHOOL_CLASS_VALUES,
+  SPOUSE_STATE_VALUES,
 } from "../constants/people";
 
 const errorMessages = {
@@ -143,9 +145,28 @@ export const relationshipCreateSchema = z
     type: z.enum(RELATIONSHIP_TYPE_VALUES, {
       error: "Pick a relationship type",
     }),
+    // Lifecycle state carried by a spouse link (ADR-0003). Optional on create —
+    // a spouse link with no explicit state defaults to `married` server-side.
+    state: z.enum(SPOUSE_STATE_VALUES).optional(),
   })
   .refine((data) => data.personId !== data.relatedPersonId, {
     message: "A person cannot be related to themselves",
     path: ["relatedPersonId"],
-  });
+  })
+  .refine(
+    (data) => data.type === RELATIONSHIP_TYPE.SPOUSE || data.state == null,
+    {
+      message: "Only a spouse relationship can carry a lifecycle state",
+      path: ["state"],
+    }
+  );
 export type RelationshipCreate = z.infer<typeof relationshipCreateSchema>;
+
+/**
+ * Zod schema for changing a spouse Relationship's lifecycle state (ADR-0003).
+ * The link persists through the change — a divorce/death is a state, not a delete.
+ */
+export const relationshipUpdateSchema = z.object({
+  state: z.enum(SPOUSE_STATE_VALUES, { error: "Pick a lifecycle state" }),
+});
+export type RelationshipUpdate = z.infer<typeof relationshipUpdateSchema>;

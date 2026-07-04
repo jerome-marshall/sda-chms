@@ -3,14 +3,19 @@ import {
   type RelationshipsInsertDb,
   relationshipsTable,
 } from "@sda-chms/db/schema/people";
+import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
 import { withDbErrorHandling } from "../lib/errors";
 
-/** The person columns surfaced for each side of a relationship. */
+/**
+ * The person columns surfaced for each side of a relationship. `membershipStatus`
+ * lets the transformer reflect widowhood when a spouse's partner is deceased.
+ */
 const relatedPersonColumns = {
   id: true,
   firstName: true,
   lastName: true,
   photoUrl: true,
+  membershipStatus: true,
 } as const;
 
 /** Inserts a relationship row (one direction; the reciprocal is derived on read). */
@@ -44,6 +49,20 @@ export const getRelationshipsForPerson = (personId: string) =>
     });
     return rows;
   }, "getRelationshipsForPerson");
+
+/** Updates a spouse link's lifecycle state, returning the updated row (empty if none). */
+export const updateRelationshipState = (
+  id: string,
+  state: (typeof SPOUSE_STATE_VALUES)[number]
+) =>
+  withDbErrorHandling(async () => {
+    const rows = await getDb()
+      .update(relationshipsTable)
+      .set({ state })
+      .where(eq(relationshipsTable.id, id))
+      .returning();
+    return rows[0];
+  }, "updateRelationshipState");
 
 /** Deletes a relationship row by id, returning the deleted row (empty if none). */
 export const deleteRelationship = (id: string) =>
