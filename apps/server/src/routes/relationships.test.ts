@@ -21,6 +21,7 @@ const validHead = {
 interface PersonResponse {
   householdId: string | null;
   id: string;
+  maritalStatus: string;
 }
 
 interface RelationshipItem {
@@ -275,6 +276,190 @@ describe("relationships routes (integration, PGlite)", () => {
       // From ann's perspective her partner is deceased → widowed.
       const list = await json<RelationshipItem[]>(await listFor(a.id));
       expect(list[0]?.state).toBe("widowed");
+    });
+  });
+
+  describe("Marital Status follows the spouse link (ADR-0003, issue #8)", () => {
+    const getPerson = (id: string) => app.request(`/people/${id}`);
+
+    const patchState = (id: string, state: string) =>
+      app.request(`/relationships/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state }),
+      });
+
+    const putPerson = (
+      id: string,
+      householdId: string,
+      overrides: Record<string, unknown> = {}
+    ) =>
+      app.request(`/people/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...validHead,
+          householdId,
+          ...overrides,
+        }),
+      });
+
+    it("sets both People's Marital Status from a new spouse link", async () => {
+      const { a, b } = await seedTwoPeople();
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("single");
+
+      await postRelationship({
+        personId: a.id,
+        relatedPersonId: b.id,
+        type: "spouse",
+      });
+
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("married");
+      expect(
+        (await json<PersonResponse>(await getPerson(b.id))).maritalStatus
+      ).toBe("married");
+    });
+
+    it("updates Marital Status when the spouse link's state changes", async () => {
+      const { a, b } = await seedTwoPeople();
+      const created = await json<{ id: string }>(
+        await postRelationship({
+          personId: a.id,
+          relatedPersonId: b.id,
+          type: "spouse",
+          state: "married",
+        })
+      );
+
+      const patched = await patchState(created.id, "separated");
+      expect(patched.status).toBe(200);
+
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("separated");
+      expect(
+        (await json<PersonResponse>(await getPerson(b.id))).maritalStatus
+      ).toBe("separated");
+    });
+
+    it("lets Marital Status be set manually when no spouse link exists", async () => {
+      const { a } = await seedTwoPeople();
+      const res = await putPerson(a.id, a.householdId ?? "", {
+        maritalStatus: "divorced",
+      });
+      expect(res.status).toBe(200);
+      expect((await json<PersonResponse>(res)).maritalStatus).toBe("divorced");
+    });
+
+    it("rejects a manual Marital Status that contradicts the governing spouse link", async () => {
+      const { a, b } = await seedTwoPeople();
+      await postRelationship({
+        personId: a.id,
+        relatedPersonId: b.id,
+        type: "spouse",
+        state: "married",
+      });
+
+      const res = await putPerson(a.id, a.householdId ?? "", {
+        maritalStatus: "single",
+      });
+      expect(res.status).toBe(400);
+      const body = await json<{ message: string }>(res);
+      expect(body.message.toLowerCase()).toContain("spouse");
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("married");
+    });
+
+    it("follows the current marriage when a Person has several spouse links", async () => {
+      const { a, b } = await seedTwoPeople();
+      const c = await json<PersonResponse>(
+        await postPerson({ ...validHead, firstName: "cara" })
+      );
+
+      const first = await json<{ id: string }>(
+        await postRelationship({
+          personId: a.id,
+          relatedPersonId: b.id,
+          type: "spouse",
+          state: "married",
+        })
+      );
+      await patchState(first.id, "divorced");
+      await postRelationship({
+        personId: a.id,
+        relatedPersonId: c.id,
+        type: "spouse",
+        state: "married",
+      });
+
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("married");
+    });
+
+    it("sets Marital Status to widowed when the partner is deceased", async () => {
+      const a = await json<PersonResponse>(
+        await postPerson({ ...validHead, firstName: "ann" })
+      );
+      const dead = await json<PersonResponse>(
+        await postPerson({
+          ...validHead,
+          firstName: "sam",
+          membershipStatus: "deceased",
+        })
+      );
+      await postRelationship({
+        personId: a.id,
+        relatedPersonId: dead.id,
+        type: "spouse",
+        state: "married",
+      });
+
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("widowed");
+    });
+
+    it("updates the surviving spouse when the partner is marked deceased", async () => {
+      const { a, b } = await seedTwoPeople();
+      await postRelationship({
+        personId: a.id,
+        relatedPersonId: b.id,
+        type: "spouse",
+        state: "married",
+      });
+
+      const res = await putPerson(b.id, b.householdId ?? "", {
+        firstName: "ben",
+        membershipStatus: "deceased",
+        maritalStatus: "married",
+      });
+      expect(res.status).toBe(200);
+
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("widowed");
+    });
+
+    it("does not change Marital Status for a non-spouse relationship", async () => {
+      const { a, b } = await seedTwoPeople();
+      await postRelationship({
+        personId: b.id,
+        relatedPersonId: a.id,
+        type: "parent",
+      });
+
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("single");
+      expect(
+        (await json<PersonResponse>(await getPerson(b.id))).maritalStatus
+      ).toBe("single");
     });
   });
 });

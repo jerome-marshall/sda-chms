@@ -17,6 +17,7 @@ import { formatDate } from "@/lib/format";
 import type { PersonDetail } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 import { Separator } from "../../ui/separator";
+import { RelationshipsSection } from "./relationships-section";
 import { DetailRow, SectionCard } from "./section-card";
 import { formatLabel, getAddress } from "./utils";
 
@@ -147,6 +148,11 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           label="Household Role"
           value={formatLabel(person.householdRole)}
         />
+        <Separator />
+        <p className="text-muted-foreground text-xs uppercase tracking-wide">
+          Relationships
+        </p>
+        <RelationshipsSection embedded person={person} />
       </SectionCard>
 
       <SectionCard

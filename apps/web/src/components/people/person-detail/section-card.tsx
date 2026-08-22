@@ -48,6 +48,7 @@ export function DetailRow({
 }
 
 interface SectionCardProps {
+  action?: React.ReactNode;
   children: React.ReactNode;
   description?: string;
   title: string;
@@ -55,6 +56,7 @@ interface SectionCardProps {
 
 /** Card wrapper used to group related detail rows under a titled section. */
 export function SectionCard({
+  action,
   title,
   description,
   children,
@@ -62,8 +64,13 @@ export function SectionCard({
   return (
     <Card className="gap-0">
       <CardHeader className="gap-1 border-b">
-        <CardTitle>{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
+        <div className="flex items-start justify-between gap-2">
+          <div className="grid gap-1">
+            <CardTitle>{title}</CardTitle>
+            {description && <CardDescription>{description}</CardDescription>}
+          </div>
+          {action}
+        </div>
       </CardHeader>
       <CardContent className="grid gap-3 pt-6">{children}</CardContent>
     </Card>

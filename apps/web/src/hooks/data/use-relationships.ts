@@ -31,6 +31,7 @@ export const useAddRelationship = ({
       queryClient.invalidateQueries({
         queryKey: queryKeys.relationships(variables.relatedPersonId),
       });
+      queryClient.invalidateQueries({ queryKey: queryKeys.people() });
       onSuccess?.();
     },
     onError: (error) => onError?.(error),
@@ -67,6 +68,7 @@ export const useUpdateRelationshipState = ({
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["relationships"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.people() });
       onSuccess?.();
     },
     onError: (error) => onError?.(error),
@@ -89,6 +91,7 @@ export const useRemoveRelationship = ({
     onSuccess: () => {
       // The reciprocal side is unknown here, so refetch all relationship lists.
       queryClient.invalidateQueries({ queryKey: ["relationships"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.people() });
       onSuccess?.();
     },
     onError: (error) => onError?.(error),

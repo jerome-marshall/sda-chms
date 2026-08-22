@@ -4,6 +4,7 @@ import type {
   PersonInsertForm,
   PersonUpdateForm,
 } from "@sda-chms/shared/schema/people";
+import { HTTPException } from "hono/http-exception";
 import {
   getAllHouseholds,
   getAllPeopleWithHousehold,
@@ -23,6 +24,10 @@ import {
   personUpdateApiToDb,
   personWithHouseholdDbToApi,
 } from "../transformers/people";
+import {
+  getGoverningMaritalStatus,
+  syncMaritalStatusForPeople,
+} from "./marital-status";
 
 /** Returns all people with their Household's shared contact fields for the people list view. */
 export const getAllPeopleWithHouseholdUseCase = async () => {
@@ -97,6 +102,16 @@ export const updatePersonUseCase = async (
   id: string,
   data: PersonUpdateForm
 ) => {
+  // A governing spouse link is the source of truth (ADR-0003); a manual value
+  // that disagrees is rejected so the two cannot drift (issue #8).
+  const governingMaritalStatus = await getGoverningMaritalStatus(id);
+  if (governingMaritalStatus && data.maritalStatus !== governingMaritalStatus) {
+    throw new HTTPException(400, {
+      message:
+        "Marital Status follows the spouse Relationship and cannot contradict it",
+    });
+  }
+
   const personData = personUpdateApiToDb(data);
 
   await createTransaction(async (trx) => {
@@ -117,13 +132,10 @@ export const updatePersonUseCase = async (
         { ...personData, ...NULL_PERSON_CONTACT, householdId: household.id },
         trx
       );
-      return;
-    }
-
-    // A head editing their own household updates the shared family name and
-    // contact details on the Household; their own contact columns stay cleared
-    // so they keep inheriting the shared values (ADR-0001).
-    if (data.householdRole === "head") {
+    } else if (data.householdRole === "head") {
+      // A head editing their own household updates the shared family name and
+      // contact details on the Household; their own contact columns stay cleared
+      // so they keep inheriting the shared values (ADR-0001).
       await updatePerson(id, { ...personData, ...NULL_PERSON_CONTACT }, trx);
       await updateHousehold(
         data.householdId,
@@ -133,6 +145,10 @@ export const updatePersonUseCase = async (
     } else {
       await updatePerson(id, personData, trx);
     }
+
+    // Membership Status changes (especially to Deceased) can flip a partner's
+    // derived widowhood, so both sides are re-synced after the write.
+    await syncMaritalStatusForPeople([id], trx);
   });
 
   const updated = await getPersonWithHouseholdById(id);

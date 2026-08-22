@@ -54,7 +54,12 @@ grandparent, grandchild, step-parent, step-child, step-sibling, half-sibling, or
 other — entered explicitly and stored, independent of Household (related People need
 not share a Household, and Household members need not be related). A **spouse**
 Relationship carries a lifecycle — married, separated, divorced, widowed — and
-persists through all of them; only a legal divorce ends the marriage.
+persists through all of them; only a legal divorce ends the marriage. When a spouse
+Relationship exists, its state is the source of truth for that Person's Marital
+Status; with no spouse link (e.g. the spouse is not in the directory), Marital
+Status is set manually. If several spouse links exist, the current one governs —
+an ongoing marriage (married / separated) over a past one, then the most recently
+created.
 _Avoid_: Household Role (that's a slot within one family unit, not a link); deriving
 spouse from Head/Spouse roles (it is stored, not derived)
 

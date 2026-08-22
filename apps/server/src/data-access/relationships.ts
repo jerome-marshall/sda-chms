@@ -1,9 +1,12 @@
-import { eq, getDb } from "@sda-chms/db";
+import { type DbTransaction, eq, getDb } from "@sda-chms/db";
 import {
   type RelationshipsInsertDb,
   relationshipsTable,
 } from "@sda-chms/db/schema/people";
-import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
+import {
+  RELATIONSHIP_TYPE,
+  type SPOUSE_STATE_VALUES,
+} from "@sda-chms/shared/constants/people";
 import { withDbErrorHandling } from "../lib/errors";
 
 /**
@@ -19,12 +22,12 @@ const relatedPersonColumns = {
 } as const;
 
 /** Inserts a relationship row (one direction; the reciprocal is derived on read). */
-export const insertRelationship = (data: RelationshipsInsertDb) =>
+export const insertRelationship = (
+  data: RelationshipsInsertDb,
+  trx: DbTransaction = getDb()
+) =>
   withDbErrorHandling(async () => {
-    const rows = await getDb()
-      .insert(relationshipsTable)
-      .values(data)
-      .returning();
+    const rows = await trx.insert(relationshipsTable).values(data).returning();
     return rows[0];
   }, "insertRelationship");
 
@@ -53,10 +56,11 @@ export const getRelationshipsForPerson = (personId: string) =>
 /** Updates a spouse link's lifecycle state, returning the updated row (empty if none). */
 export const updateRelationshipState = (
   id: string,
-  state: (typeof SPOUSE_STATE_VALUES)[number]
+  state: (typeof SPOUSE_STATE_VALUES)[number],
+  trx: DbTransaction = getDb()
 ) =>
   withDbErrorHandling(async () => {
-    const rows = await getDb()
+    const rows = await trx
       .update(relationshipsTable)
       .set({ state })
       .where(eq(relationshipsTable.id, id))
@@ -65,11 +69,39 @@ export const updateRelationshipState = (
   }, "updateRelationshipState");
 
 /** Deletes a relationship row by id, returning the deleted row (empty if none). */
-export const deleteRelationship = (id: string) =>
+export const deleteRelationship = (id: string, trx: DbTransaction = getDb()) =>
   withDbErrorHandling(async () => {
-    const rows = await getDb()
+    const rows = await trx
       .delete(relationshipsTable)
       .where(eq(relationshipsTable.id, id))
       .returning();
     return rows[0];
   }, "deleteRelationship");
+
+/**
+ * Fetches every spouse link that touches any of the given people, with both
+ * sides' membership status so widowhood (and Marital Status) can be resolved.
+ */
+export const getSpouseLinksForPeople = (
+  personIds: string[],
+  trx: DbTransaction = getDb()
+) =>
+  withDbErrorHandling(async () => {
+    if (personIds.length === 0) {
+      return [];
+    }
+    return await trx.query.relationshipsTable.findMany({
+      where: (table, { and, eq: eqOp, or, inArray }) =>
+        and(
+          eqOp(table.type, RELATIONSHIP_TYPE.SPOUSE),
+          or(
+            inArray(table.personId, personIds),
+            inArray(table.relatedPersonId, personIds)
+          )
+        ),
+      with: {
+        person: { columns: { id: true, membershipStatus: true } },
+        relatedPerson: { columns: { id: true, membershipStatus: true } },
+      },
+    });
+  }, "getSpouseLinksForPeople");

@@ -31,6 +31,43 @@ import { formatLabel, getInitials } from "./utils";
 type RelationshipType = (typeof RELATIONSHIP_TYPE_VALUES)[number];
 type SpouseState = (typeof SPOUSE_STATE_VALUES)[number];
 
+/** Spouse lifecycle control — a select in edit mode, a label on the detail page. */
+function SpouseStateControl({
+  editable,
+  onChange,
+  relationshipId,
+  state,
+}: {
+  editable: boolean;
+  onChange: (id: string, state: SpouseState) => void;
+  relationshipId: string;
+  state: SpouseState;
+}) {
+  if (!editable) {
+    return (
+      <p className="text-muted-foreground text-sm">{formatLabel(state)}</p>
+    );
+  }
+
+  return (
+    <Select
+      onValueChange={(value) => onChange(relationshipId, value as SpouseState)}
+      value={state}
+    >
+      <SelectTrigger aria-label="Spouse lifecycle state">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {SPOUSE_STATE_OPTIONS.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 /**
  * The Household Role whose holder is the likely spouse of a given role: a Head's
  * Spouse and vice versa. Any other role (or none) has no spouse pre-fill.
@@ -44,11 +81,19 @@ const COMPLEMENTARY_SPOUSE_ROLE: Record<
 };
 
 interface RelationshipsSectionProps {
+  /** When true, the user can add, change, and remove links. Detail view is read-only. */
+  editable?: boolean;
+  /** Render the list without its own card, for nesting inside Marital & Family. */
+  embedded?: boolean;
   person: PersonDetail;
 }
 
-/** Lists a Person's relationships and lets the user add or remove them (ADR-0003). */
-export function RelationshipsSection({ person }: RelationshipsSectionProps) {
+/** Lists a Person's relationships; editing is reserved for edit mode (ADR-0003). */
+export function RelationshipsSection({
+  editable = false,
+  embedded = false,
+  person,
+}: RelationshipsSectionProps) {
   const { data: relationships } = useRelationships(person.id);
   const { data: people } = usePeople();
 
@@ -108,11 +153,8 @@ export function RelationshipsSection({ person }: RelationshipsSectionProps) {
     });
   };
 
-  return (
-    <SectionCard
-      description="Family links to other people, independent of household"
-      title="Relationships"
-    >
+  const body = (
+    <div className="grid gap-3">
       {relationships && relationships.length > 0 ? (
         <ul className="grid gap-2">
           {relationships.map((relationship) => (
@@ -141,36 +183,30 @@ export function RelationshipsSection({ person }: RelationshipsSectionProps) {
               </div>
               {relationship.type === RELATIONSHIP_TYPE.SPOUSE &&
               relationship.state ? (
-                <Select
-                  onValueChange={(value) =>
+                <SpouseStateControl
+                  editable={editable}
+                  onChange={(id, nextState) =>
                     updateRelationshipState.mutate({
-                      id: relationship.id,
-                      state: value as SpouseState,
+                      id,
+                      state: nextState,
                     })
                   }
-                  value={relationship.state}
-                >
-                  <SelectTrigger aria-label="Spouse lifecycle state">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SPOUSE_STATE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  relationshipId={relationship.id}
+                  state={relationship.state}
+                />
               ) : null}
-              <Button
-                aria-label={`Remove ${relationship.relatedPerson.fullName}`}
-                disabled={removeRelationship.isPending}
-                onClick={() => removeRelationship.mutate(relationship.id)}
-                size="icon"
-                variant="ghost"
-              >
-                <Trash2 className="size-4" />
-              </Button>
+              {editable ? (
+                <Button
+                  aria-label={`Remove ${relationship.relatedPerson.fullName}`}
+                  disabled={removeRelationship.isPending}
+                  onClick={() => removeRelationship.mutate(relationship.id)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -181,7 +217,7 @@ export function RelationshipsSection({ person }: RelationshipsSectionProps) {
         </div>
       )}
 
-      {spousePrefill ? (
+      {editable && spousePrefill ? (
         <div className="flex items-center justify-between gap-2 rounded-lg border border-dashed p-2">
           <p className="text-muted-foreground text-xs">
             {spousePrefill.fullName} is this household's{" "}
@@ -203,64 +239,81 @@ export function RelationshipsSection({ person }: RelationshipsSectionProps) {
         </div>
       ) : null}
 
-      <div className="grid gap-2 border-t pt-4 sm:grid-cols-[1fr_1fr_auto]">
-        <Select
-          onValueChange={(value) => setRelatedPersonId(value ?? "")}
-          value={relatedPersonId}
-        >
-          <SelectTrigger aria-label="Related person">
-            <SelectValue placeholder="Select a person" />
-          </SelectTrigger>
-          <SelectContent>
-            {candidates.map((candidate) => (
-              <SelectItem key={candidate.id} value={candidate.id}>
-                {candidate.fullName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          onValueChange={(value) => setType((value as RelationshipType) ?? "")}
-          value={type}
-        >
-          <SelectTrigger aria-label="Relationship type">
-            <SelectValue placeholder="Relationship type" />
-          </SelectTrigger>
-          <SelectContent>
-            {RELATIONSHIP_TYPE_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Button disabled={!canSubmit} onClick={handleAdd} type="button">
-          Add
-        </Button>
-
-        {isSpouse ? (
+      {editable ? (
+        <div className="grid gap-2 border-t pt-4 sm:grid-cols-[1fr_1fr_auto]">
           <Select
-            onValueChange={(value) => setState(value as SpouseState)}
-            value={state}
+            onValueChange={(value) => setRelatedPersonId(value ?? "")}
+            value={relatedPersonId}
           >
-            <SelectTrigger
-              aria-label="Spouse lifecycle state"
-              className="sm:col-span-3"
-            >
-              <SelectValue placeholder="Lifecycle state" />
+            <SelectTrigger aria-label="Related person">
+              <SelectValue placeholder="Select a person" />
             </SelectTrigger>
             <SelectContent>
-              {SPOUSE_STATE_OPTIONS.map((option) => (
+              {candidates.map((candidate) => (
+                <SelectItem key={candidate.id} value={candidate.id}>
+                  {candidate.fullName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            onValueChange={(value) =>
+              setType((value as RelationshipType) ?? "")
+            }
+            value={type}
+          >
+            <SelectTrigger aria-label="Relationship type">
+              <SelectValue placeholder="Relationship type" />
+            </SelectTrigger>
+            <SelectContent>
+              {RELATIONSHIP_TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        ) : null}
-      </div>
+
+          <Button disabled={!canSubmit} onClick={handleAdd} type="button">
+            Add
+          </Button>
+
+          {isSpouse ? (
+            <Select
+              onValueChange={(value) => setState(value as SpouseState)}
+              value={state}
+            >
+              <SelectTrigger
+                aria-label="Spouse lifecycle state"
+                className="sm:col-span-3"
+              >
+                <SelectValue placeholder="Lifecycle state" />
+              </SelectTrigger>
+              <SelectContent>
+                {SPOUSE_STATE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+
+  if (embedded) {
+    return body;
+  }
+
+  return (
+    <SectionCard
+      description="Family links to other people, independent of household"
+      title="Relationships"
+    >
+      {body}
     </SectionCard>
   );
 }

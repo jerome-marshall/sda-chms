@@ -14,6 +14,7 @@ import { useRouter } from "@tanstack/react-router";
 import { CalendarPlus, Trash2 } from "lucide-react";
 import { type UseFormReturn, useFieldArray } from "react-hook-form";
 import { useHouseholds } from "@/hooks/data/use-households";
+import type { PersonDetail } from "@/types/api";
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
 import FormSelect from "../form/select";
@@ -26,12 +27,17 @@ import {
   FieldSet,
 } from "../ui/field";
 import { Separator } from "../ui/separator";
+import { RelationshipsSection } from "./person-detail/relationships-section";
 
 interface PersonFormFieldsProps {
   form: UseFormReturn<PersonInsertForm>;
   formId?: string;
   isSubmitting?: boolean;
+  /** When a spouse Relationship governs Marital Status, the field is read-only. */
+  maritalStatusLocked?: boolean;
   onSubmit: (data: PersonInsertForm) => void;
+  /** Present on edit (not add) so relationships can be managed in edit mode. */
+  person?: PersonDetail;
   submitLabel: string;
 }
 
@@ -41,6 +47,8 @@ const PersonFormFields = ({
   onSubmit,
   submitLabel,
   isSubmitting,
+  maritalStatusLocked = false,
+  person,
   formId = "person-form",
 }: PersonFormFieldsProps) => {
   const router = useRouter();
@@ -185,9 +193,14 @@ const PersonFormFields = ({
 
         <FieldSet>
           <FieldLegend>Marital and Family</FieldLegend>
-          <FieldDescription>Family and household details.</FieldDescription>
+          <FieldDescription>
+            {maritalStatusLocked
+              ? "Marital Status follows the spouse Relationship."
+              : "Family and household details."}
+          </FieldDescription>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <FormSelect
+              disabled={maritalStatusLocked}
               form={form}
               label="Marital status"
               name="maritalStatus"
@@ -249,6 +262,11 @@ const PersonFormFields = ({
             <FormInput form={form} label="Father's name" name="fathersName" />
             <FormInput form={form} label="Mother's name" name="mothersName" />
           </FieldGroup>
+          {person ? (
+            <FieldGroup>
+              <RelationshipsSection editable embedded person={person} />
+            </FieldGroup>
+          ) : null}
         </FieldSet>
 
         <Separator />

@@ -8,7 +8,10 @@ export const Route = createFileRoute("/people/$peopleId/edit")({
   staticData: { breadcrumb: "Edit" },
   // ensureQueryData blocks navigation until data is ready, complementing the parent prefetch
   loader: async ({ params, context: { queryClient } }) => {
-    await queryClient.ensureQueryData(queryOptions.person(params.peopleId));
+    await Promise.all([
+      queryClient.ensureQueryData(queryOptions.person(params.peopleId)),
+      queryClient.ensureQueryData(queryOptions.relationships(params.peopleId)),
+    ]);
   },
 });
 

@@ -9,9 +9,10 @@ export const Route = createFileRoute("/people/$peopleId")({
   component: RouteComponent,
   // Loads person data at the parent level so both detail and edit pages can use it
   loader: async ({ params, context: { queryClient } }) => {
-    const person = await queryClient.ensureQueryData(
-      queryOptions.person(params.peopleId)
-    );
+    const [person] = await Promise.all([
+      queryClient.ensureQueryData(queryOptions.person(params.peopleId)),
+      queryClient.ensureQueryData(queryOptions.relationships(params.peopleId)),
+    ]);
     return { person };
   },
   staticData: {
