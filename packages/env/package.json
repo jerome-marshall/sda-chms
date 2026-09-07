@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
     "@sda-chms/config": "workspace:*"
   }
 }

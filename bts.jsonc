@@ -8,7 +8,7 @@
   "database": "postgres",
   "orm": "drizzle",
   "backend": "hono",
-  "runtime": "bun",
+  "runtime": "node",
   "frontend": [
     "tanstack-router"
   ],
@@ -20,7 +20,7 @@
   "examples": [],
   "auth": "none",
   "payments": "none",
-  "packageManager": "bun",
+  "packageManager": "pnpm",
   "dbSetup": "none",
   "api": "none",
   "webDeploy": "none",

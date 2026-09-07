@@ -1,20 +1,14 @@
 {
   "name": "sda-chms",
   "private": true,
-  "workspaces": {
-    "packages": [
-      "apps/*",
-      "packages/*"
-    ],
-    "catalog": {
-      "dotenv": "^17.4.2",
-      "zod": "^4.4.3",
-      "typescript": "^6.0.3",
-      "@types/bun": "^1.3.14",
-      "drizzle-orm": "^0.45.2",
-      "hono": "^4.12.27",
-      "@faker-js/faker": "^10.5.0"
-    }
+  "packageManager": "pnpm@10.15.0",
+  "catalog": {
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3",
+    "typescript": "^6.0.3",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.27",
+    "@faker-js/faker": "^10.5.0"
   },
   "type": "module",
   "scripts": {
@@ -35,8 +29,8 @@
     "db:generate": "turbo -F @sda-chms/db db:generate",
     "db:migrate": "turbo -F @sda-chms/db db:migrate",
     "prepare": "husky",
-    "sandcastle": "bun .sandcastle/main.ts",
-    "sandcastle:pr-comments": "bun .sandcastle/address-comments.ts"
+    "sandcastle": "pnpm exec tsx .sandcastle/main.ts",
+    "sandcastle:pr-comments": "pnpm exec tsx .sandcastle/address-comments.ts"
   },
   "dependencies": {
     "@sda-chms/env": "workspace:*",
@@ -49,13 +43,13 @@
     "@playwright/test": "^1.61.1",
     "@sda-chms/config": "workspace:*",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.8",
     "turbo": "^2.10.0",
     "typescript": "catalog:",
     "ultracite": "7.8.3",
     "vitest": "^4.1.9"
-  },
-  "packageManager": "bun@1.3.13"
+  }
 }

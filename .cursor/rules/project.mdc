@@ -28,16 +28,16 @@ Workspace packages are imported as `@sda-chms/db`, `@sda-chms/shared`, `@sda-chm
 - NEVER use the `any` type — use `unknown` with type guards
 - ALL validation MUST use Zod schemas from `@sda-chms/shared`
 - ALL database access MUST go through the data-access layer — never query the DB directly from routes or use cases
-- ALWAYS use Bun as runtime and package manager — never npm, yarn, or pnpm
-- ALWAYS run `bun x ultracite fix` before committing to ensure lint/format compliance
+- ALWAYS use pnpm as package manager — never npm, yarn, or Bun package commands
+- ALWAYS run `pnpm exec ultracite fix` before committing to ensure lint/format compliance
 
 ## Conventions
 
 - **File naming**: kebab-case for all files (e.g., `add-person-form.tsx`, `use-people.ts`)
 - **Path aliases**: `@/` maps to `apps/web/src/`, `@sda-chms/*` for workspace packages
 - **Imports**: Use `@/` alias in the web app, `@sda-chms/*` for cross-package imports, relative imports only within the same feature folder
-- **Formatting/linting**: Biome via Ultracite — `bun x ultracite fix` to auto-fix, `bun x ultracite check` to verify
-- **Turborepo tasks**: `bun run dev` (all apps), `bun run build`, `bun run db:push`, `bun run db:generate`, `bun run db:migrate`, `bun run db:seed`, `bun run db:studio`
+- **Formatting/linting**: Biome via Ultracite — `pnpm exec ultracite fix` to auto-fix, `pnpm exec ultracite check` to verify
+- **Turborepo tasks**: `pnpm dev` (all apps), `pnpm build`, `pnpm db:push`, `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:seed`, `pnpm db:studio`
 
 ## Documentation
 
@@ -53,7 +53,7 @@ When writing or editing code, follow these documentation rules:
 ## Avoid
 
 - Don't create new utility functions without checking `@/lib/utils` or `@sda-chms/shared/utils` first
-- Don't use npm/yarn/pnpm commands — always use `bun`
+- Don't use npm/yarn/Bun package commands — always use `pnpm`
 - Don't apply Next.js patterns — this project uses Vite + Hono, not Next.js
 - Don't add barrel files (index files that re-export everything) — import directly from source
 
