@@ -9,15 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExampleRouteImport } from './routes/example'
 import { Route as PeopleRouteRouteImport } from './routes/people/route'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as PeopleIndexRouteImport } from './routes/people/index'
-import { Route as PeopleAddRouteImport } from './routes/people/add'
 import { Route as PeoplePeopleIdRouteRouteImport } from './routes/people/$peopleId/route'
+import { Route as PeopleAddRouteImport } from './routes/people/add'
 import { Route as PeoplePeopleIdIndexRouteImport } from './routes/people/$peopleId/index'
 import { Route as PeoplePeopleIdEditRouteImport } from './routes/people/$peopleId/edit'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExampleRoute = ExampleRouteImport.update({
   id: '/example',
   path: '/example',
@@ -28,24 +33,19 @@ const PeopleRouteRoute = PeopleRouteRouteImport.update({
   path: '/people',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PeopleIndexRoute = PeopleIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PeopleRouteRoute,
 } as any)
-const PeopleAddRoute = PeopleAddRouteImport.update({
-  id: '/add',
-  path: '/add',
-  getParentRoute: () => PeopleRouteRoute,
-} as any)
 const PeoplePeopleIdRouteRoute = PeoplePeopleIdRouteRouteImport.update({
   id: '/$peopleId',
   path: '/$peopleId',
+  getParentRoute: () => PeopleRouteRoute,
+} as any)
+const PeopleAddRoute = PeopleAddRouteImport.update({
+  id: '/add',
+  path: '/add',
   getParentRoute: () => PeopleRouteRoute,
 } as any)
 const PeoplePeopleIdIndexRoute = PeoplePeopleIdIndexRouteImport.update({
@@ -127,6 +127,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/example': {
       id: '/example'
       path: '/example'
@@ -141,13 +148,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PeopleRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/people/': {
       id: '/people/'
       path: '/'
@@ -155,18 +155,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PeopleIndexRouteImport
       parentRoute: typeof PeopleRouteRoute
     }
-    '/people/add': {
-      id: '/people/add'
-      path: '/add'
-      fullPath: '/people/add'
-      preLoaderRoute: typeof PeopleAddRouteImport
-      parentRoute: typeof PeopleRouteRoute
-    }
     '/people/$peopleId': {
       id: '/people/$peopleId'
       path: '/$peopleId'
       fullPath: '/people/$peopleId'
       preLoaderRoute: typeof PeoplePeopleIdRouteRouteImport
+      parentRoute: typeof PeopleRouteRoute
+    }
+    '/people/add': {
+      id: '/people/add'
+      path: '/add'
+      fullPath: '/people/add'
+      preLoaderRoute: typeof PeopleAddRouteImport
       parentRoute: typeof PeopleRouteRoute
     }
     '/people/$peopleId/': {
