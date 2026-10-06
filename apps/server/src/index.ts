@@ -1,3 +1,4 @@
+import { serve } from "@hono/node-server";
 import { env } from "@sda-chms/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -30,3 +31,12 @@ const routes = app
 
 export default app;
 export type THonoApp = typeof routes;
+
+// Only bind a port when run directly (`tsx watch src/index.ts` / `node
+// dist/index.js`). Test files import the app and drive it via `app.request()`,
+// so serving on import would steal :3000 from the dev server and fail.
+if (import.meta.main) {
+  serve({ fetch: app.fetch, port: 3000 }, (info) => {
+    console.log(`Server is running on http://localhost:${info.port}`);
+  });
+}
