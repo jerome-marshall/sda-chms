@@ -24,6 +24,7 @@
     "import-people": "tsx ./scripts/import-people.ts"
   },
   "dependencies": {
+    "@hono/node-server": "^2.1.1",
     "@hono/zod-validator": "^0.8.0",
     "@sda-chms/db": "workspace:*",
     "@sda-chms/env": "workspace:*",
