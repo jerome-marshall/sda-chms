@@ -1,4 +1,4 @@
-import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
+import { DrizzleError } from "drizzle-orm";
 
 /**
  * The structural shape of a Postgres driver error. Both `pg`'s `DatabaseError`
@@ -15,6 +15,24 @@ interface PostgresError {
 
 const isPostgresError = (error: unknown): error is PostgresError =>
   error instanceof Error && "code" in error && "constraint" in error;
+
+/** The `cause` of a wrapped error, when it has one. */
+const errorCause = (error: unknown): unknown =>
+  error !== null && typeof error === "object" && "cause" in error
+    ? (error as { cause?: unknown }).cause
+    : undefined;
+
+/**
+ * True for Drizzle failures from any copy of drizzle-orm in the graph.
+ * Neither `instanceof` nor the wrapper's `name` survives the split module
+ * graph (dev and production bundle drizzle separately, and the worker
+ * runtime can rewrap the failure in a plain Error) — but the `Drizzle`
+ * name prefix and drizzle's fixed `Failed query:` message prefix do.
+ */
+export const isDrizzleErrorLike = (error: unknown): boolean =>
+  error instanceof Error &&
+  (error.name.startsWith("Drizzle") ||
+    error.message.startsWith("Failed query:"));
 
 // Defines the shape of the error handler functions
 type ErrorHandler = (error: PostgresError) => {
@@ -118,26 +136,39 @@ export interface DbErrorResult {
  * @returns An object with the main error message, constraint name (if applicable), and HTTP status code.
  */
 export function getDbErrorMessage(error: unknown): DbErrorResult {
-  if (error instanceof DrizzleQueryError && isPostgresError(error.cause)) {
-    const originalError = error.cause;
-    const handler = PostgresErrorHandlers[originalError.code ?? "default"];
+  // Match on the Postgres cause first: the wrapper's class identity (and
+  // even its `name`) does not survive the split dev/prod module graphs, but
+  // the driver cause keeps its `code` and `constraint` in every environment.
+  const cause = errorCause(error);
+  let pgError: PostgresError | null = null;
+  if (isPostgresError(cause)) {
+    pgError = cause;
+  } else if (isPostgresError(error)) {
+    pgError = error;
+  }
+  if (pgError) {
+    const handler = PostgresErrorHandlers[pgError.code ?? "default"];
 
     if (handler) {
-      return handler(originalError);
+      return handler(pgError);
     }
 
     // Default case for any other unhandled DatabaseError
     return {
-      message: `A database error occurred: ${originalError.message}`,
+      message: `A database error occurred: ${pgError.message}`,
       constraint: null,
       httpCode: 500,
     };
   }
 
-  // Fallback for generic Drizzle errors or other Error instances
+  // Fallback for generic Drizzle errors or other Error instances. A Drizzle
+  // failure always carries the raw SQL statement in its message, so it must
+  // never reach the response body — the real error stays in the server log.
   if (error instanceof DrizzleError || error instanceof Error) {
     return {
-      message: error.message || "An unexpected error occurred.",
+      message: isDrizzleErrorLike(error)
+        ? "An unexpected database error occurred."
+        : (error.message ?? "An unexpected error occurred."),
       constraint: null,
       httpCode: 500,
     };

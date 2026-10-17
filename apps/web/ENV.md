@@ -6,9 +6,9 @@ example lives here instead of in a file).
 
 ## Required variables
 
-| Variable     | Used by | Example                                                 |
-| ------------ | ------- | ------------------------------------------------------- |
-| DATABASE_URL | server  | `postgres://postgres:postgres@localhost:55432/sda_chms` |
+| Variable     | Used by | Example                                                |
+| ------------ | ------- | ------------------------------------------------------ |
+| DATABASE_URL | server  | `postgres://postgres:password@localhost:5432/sda_chms` |
 
 ## Local setup
 
@@ -25,8 +25,8 @@ in `public` first, so only ever point it at a throwaway database.
 
 ## CI
 
-CI writes `apps/web/.env` from the `DATABASE_URL` secret before any Void
-command runs:
+CI writes `apps/web/.env` from its own `DATABASE_URL` (the Postgres
+service container — no secret is involved) before any Void command runs:
 
 ```bash
 printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > apps/web/.env

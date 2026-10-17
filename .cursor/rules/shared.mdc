@@ -23,7 +23,7 @@ src/
 - One file per domain (e.g., `people.ts`)
 - Always export both the Zod schema and its inferred type together
 - Use `z.infer<typeof schema>` for the type export
-- These are form/API-level schemas — DB-level schemas live in `@sda-chms/db`
+- These are form/API-level schemas — DB-level schemas live in `apps/web/db`
 - Include `.refine()` for cross-field validation rules
 - Use descriptive error messages via the `error` option on each field
 

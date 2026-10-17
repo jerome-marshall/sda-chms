@@ -1367,6 +1367,17 @@ async function insertAccumulated(
  * database Void provisions — never production.
  */
 export default defineSeed<typeof schema>(async ({ db }) => {
+  const host = (db as unknown as { $client?: { host?: unknown } }).$client
+    ?.host;
+  if (
+    typeof host !== "string" ||
+    (!["localhost", "127.0.0.1", "::1"].includes(host) &&
+      process.env.SEED_ALLOW_REMOTE !== "true")
+  ) {
+    throw new Error(
+      `Refusing to seed non-local database host "${typeof host === "string" ? host : "unknown"}". Seeding is for local development; set SEED_ALLOW_REMOTE=true to override.`
+    );
+  }
   const target = Number.parseInt(process.env.SEED_COUNT ?? "100", 10);
   console.log(`Seeding ~${target} people across family households...`);
 

@@ -37,6 +37,11 @@ jobs:
       - name: Static check (lint + format + types)
         run: vp check
 
+      - name: Drift gate (schema must match committed migrations)
+        run: |
+          pnpm --dir apps/web exec void db generate
+          git diff --exit-code -- apps/web/db
+
       - name: Unit + integration tests
         run: vp test run
 
@@ -80,14 +85,6 @@ jobs:
 
       - name: Apply migrations
         run: pnpm --dir apps/web exec void db migrate
-
-      - name: Migration status (drift gate input)
-        run: pnpm --dir apps/web exec void db status
-
-      - name: Drift gate (schema must match committed migrations)
-        run: |
-          pnpm --dir apps/web exec void db generate
-          git diff --exit-code -- apps/web/db
 
       - name: Seed throwaway database
         run: SEED_COUNT=20 pnpm --dir apps/web exec void db seed --yes

@@ -81,10 +81,35 @@ const compareRouteSpecificity = (
 };
 
 /**
+ * Void's middleware order, ported from its `parseMiddlewareDefinitions`:
+ * files with a numeric `NN.` prefix run first in ascending numeric order,
+ * files without one run last, and `_`-prefixed files are not middleware at
+ * all. Exported so a unit test pins it — the helper cannot silently diverge
+ * when a second middleware lands.
+ */
+const middlewareOrderOf = (filePath: string): number => {
+  const file = filePath.split("/").pop() ?? "";
+  if (file.startsWith("_")) {
+    return Number.NaN;
+  }
+  const match = /^(?<order>\d+)\./u.exec(file);
+  const order = match?.groups?.order;
+  return order === undefined
+    ? Number.POSITIVE_INFINITY
+    : Number.parseInt(order, 10);
+};
+
+export const sortMiddlewareFiles = (filePaths: string[]): string[] =>
+  filePaths
+    .filter((filePath) => !Number.isNaN(middlewareOrderOf(filePath)))
+    .toSorted((a, b) => middlewareOrderOf(a) - middlewareOrderOf(b));
+
+/**
  * Builds a test app from the real route files. Void types handlers against
  * an extended context (`CloudContext` carries `rewrite`/`originalUrl` /
- * `isRewritten`), which a bare `new Hono()` does not provide — the cast is
- * confined to this seam and changes nothing at runtime.
+ * `isRewritten`), which a bare `new Hono()` does not provide — the helper
+ * avoids the mismatch by invoking handlers through `Function`, which changes
+ * nothing at runtime.
  */
 export const createTestApp = (): Hono => {
   const app = new Hono();
@@ -93,7 +118,7 @@ export const createTestApp = (): Hono => {
     import.meta.glob("../middleware/*.ts", {
       eager: true,
     });
-  for (const filePath of Object.keys(middlewareModules).toSorted()) {
+  for (const filePath of sortMiddlewareFiles(Object.keys(middlewareModules))) {
     const middleware = middlewareModules[filePath]?.default;
     if (typeof middleware === "function") {
       app.use(async (c, next) => {

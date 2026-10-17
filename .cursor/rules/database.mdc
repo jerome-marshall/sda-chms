@@ -51,7 +51,7 @@ Tables that support soft deletes include:
 ## Migration Commands
 
 - Never hand-write SQL for schema changes; use `void db generate` from `apps/web`, then apply with `void db migrate`
-- `void db status` is the drift gate — it must report no drift and no pending migrations
+- The drift gate is `void db generate` plus `git diff --exit-code` — a schema change with no regenerated migration fails it (`void db status` only reports applied vs pending)
 - `void db seed --yes` wipes `public` and reseeds from `db/seed.ts` — throwaway databases only
 
 ## Canonical Example

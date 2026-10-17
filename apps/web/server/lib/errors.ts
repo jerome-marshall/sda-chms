@@ -1,7 +1,6 @@
-import { getDbErrorMessage } from "@schema";
+import { getDbErrorMessage, isDrizzleErrorLike } from "@schema";
 import type { ApiErrorBody } from "@sda-chms/shared/types/errors";
 import { DbError } from "@sda-chms/shared/utils/errors";
-import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { z } from "zod";
@@ -50,23 +49,25 @@ export const mapErrorToBody = (err: unknown): MappedError => {
     };
   }
 
+  // A Drizzle failure carries the raw SQL statement in its message, so it
+  // must never reach the response body — the real error stays server-side.
+  if (err instanceof Error && !isDrizzleErrorLike(err)) {
+    return {
+      status: 500,
+      body: { code: "HTTP_ERROR", message: err.message, details: err },
+    };
+  }
+
   return {
     status: 500,
     body: {
       code: "HTTP_ERROR",
-      message: err instanceof Error ? err.message : "Unknown error",
+      message: isDrizzleErrorLike(err)
+        ? "Internal Server Error"
+        : "Unknown error",
       details: err,
     },
   };
-};
-
-/** Global Hono error handler — normalizes all errors into a consistent ApiErrorBody JSON response. */
-export const errorHandler = (err: Error, c: Context): Response => {
-  const { status, body } = mapErrorToBody(err);
-
-  console.error(`🔴 ${body.code} ${body.message}`);
-
-  return c.json<ApiErrorBody>(body, status);
 };
 
 /** Wraps a data-access operation, catching raw DB errors and re-throwing them as DbError with a user-friendly message. */

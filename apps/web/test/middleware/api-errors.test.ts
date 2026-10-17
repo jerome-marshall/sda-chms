@@ -86,6 +86,17 @@ describe("mapErrorToBody (unit)", () => {
     expect(body).toMatchObject({ code: "HTTP_ERROR", message: "boom" });
   });
 
+  it("never puts SQL text in a 500 body", () => {
+    const error = new Error(
+      "Failed query: insert into people (email) values ('a@b.c')"
+    );
+    const { status, body } = mapErrorToBody(error);
+    expect(status).toBe(500);
+    expect(body.code).toBe("HTTP_ERROR");
+    expect(body.message).toBe("Internal Server Error");
+    expect(JSON.stringify(body)).not.toContain("a@b.c");
+  });
+
   it("maps non-errors to 500 with an Unknown error message", () => {
     const { status, body } = mapErrorToBody("boom");
     expect(status).toBe(500);
