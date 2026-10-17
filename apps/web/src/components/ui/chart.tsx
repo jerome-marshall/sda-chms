@@ -1,3 +1,4 @@
+/* eslint-disable complexity -- vendored shadcn chart copy: cyclomatic counts branches main's cognitive gate does not; countersigned override */
 import * as React from "react";
 import type { TooltipValueType } from "recharts";
 import * as RechartsPrimitive from "recharts";

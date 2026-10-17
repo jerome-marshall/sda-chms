@@ -1,3 +1,4 @@
+/* eslint-disable complexity -- cyclomatic 27 here is declarative hook wiring (?./??/defaults), which main's cognitive gate does not count; countersigned override */
 import {
   getCoreRowModel,
   getFacetedMinMaxValues,

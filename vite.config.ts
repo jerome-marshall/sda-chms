@@ -124,9 +124,9 @@ export default defineConfig({
       // main-parity unicorn/no-useless-undefined then flags; the main rule
       // wins and consistent-return stays off.
       "typescript/consistent-return": "off",
-      // The repo's most intricate UI logic sits at 28 today; the gate
-      // stays to catch future growth past that, not to force a rewrite.
-      complexity: ["error", 30],
+      // Main had a cognitive-complexity cap of 20; Oxlint only offers
+      // cyclomatic complexity, set to the same value.
+      complexity: ["error", 20],
       // The repo validates at boundaries with Zod and narrows with `as`
       // casts afterwards. Removing every assertion would restructure
       // dozens of call sites, so the no-unsafe family stays off.

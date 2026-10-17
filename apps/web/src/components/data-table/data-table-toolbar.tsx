@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable complexity -- vendored data-table example copy: cyclomatic counts branches main's cognitive gate does not; countersigned override */
 import type { Column, Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import { useCallback, useMemo } from "react";
