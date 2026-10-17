@@ -1,7 +1,14 @@
 import { setTestDb } from "@sda-chms/db";
 import type { PeopleInsertDb } from "@sda-chms/db/schema/people";
 import { createTestDb, type TestDb } from "@sda-chms/db/test-db";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
 import { insertPerson } from "../data-access/people";
 import app from "../index";
 

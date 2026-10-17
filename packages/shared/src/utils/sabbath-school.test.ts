@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { SABBATH_SCHOOL_CLASS } from "../constants/people";
 import { getSabbathSchoolClass } from "./sabbath-school";
 

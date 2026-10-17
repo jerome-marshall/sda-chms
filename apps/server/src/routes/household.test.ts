@@ -1,6 +1,13 @@
 import { setTestDb } from "@sda-chms/db";
 import { createTestDb, type TestDb } from "@sda-chms/db/test-db";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
 import app from "../index";
 
 /** A head that defines a new household. */
