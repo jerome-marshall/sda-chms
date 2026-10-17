@@ -202,6 +202,7 @@ function FieldError({
         {uniqueErrors.map(
           (error, index) =>
             error?.message && (
+              // eslint-disable-next-line react/no-array-index-key -- <we need to use a unique key here>
               <li key={`field-error-${index}`}>{error.message}</li>
             )
         )}

@@ -50,6 +50,7 @@ export function DashboardCardSkeleton({
       <CardContent className="flex-1 p-0">
         <div className="divide-y divide-border/40">
           {Array.from({ length: rows }).map((_, i) => (
+            // eslint-disable-next-line react/no-array-index-key -- static skeleton rows have no meaningful key
             <div className="flex items-center gap-3 px-4 py-3" key={i}>
               <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
               <div className="flex-1 space-y-1.5">

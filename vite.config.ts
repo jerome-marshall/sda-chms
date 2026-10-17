@@ -52,6 +52,17 @@ export default defineConfig({
       "import/no-namespace": "warn",
       "oxc/no-barrel-file": "warn",
       "react/no-danger": "warn",
+      // Main-parity errors: these were errors under ultracite/biome on
+      // main (react correctness plus the hook rules), so they stay errors.
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "error",
+      "react/jsx-key": "error",
+      "react/no-array-index-key": "error",
+      "react/button-has-type": "error",
+      "react/no-children-prop": "error",
+      "react/jsx-no-duplicate-props": "error",
+      "react/no-render-return-value": "error",
+      "react/void-dom-elements-no-children": "error",
       // House-style conflicts: the repo predates these Ultracite Oxlint
       // rules and follows the opposite convention throughout. Fixing them
       // would rewrite every file, so they stay off (see trail for the
