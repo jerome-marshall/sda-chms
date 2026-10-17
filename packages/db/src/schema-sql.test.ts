@@ -13,7 +13,7 @@ import { generateSchemaStatements } from "./schema-sql";
  * migration) would drift silently and only surface in production.
  *
  * This locks the two together: if they diverge, regenerate the baseline with
- * `bun run db:generate`.
+ * `pnpm db:generate`.
  */
 const migrationPath = new URL("migrations/0000_baseline.sql", import.meta.url);
 

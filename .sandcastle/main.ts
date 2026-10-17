@@ -18,10 +18,10 @@
 // work. Issues that already have an open PR are skipped so work isn't duplicated.
 //
 // To address review comments you leave on a PR, run:
-//   bun run sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
+//   pnpm sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
 //
 // Usage:
-//   bun run sandcastle
+//   pnpm sandcastle
 
 import { claudeCode, createSandbox, Output, run } from "@ai-hero/sandcastle";
 import { z } from "zod";
@@ -243,7 +243,7 @@ for (const { issue, pr } of completed) {
     const body =
       `${lead}Closes #${issue.id}\n\n` +
       "_Automated by Sandcastle (implement → review). Leave review comments, " +
-      "then run `bun run sandcastle:pr-comments <PR>` to have them addressed._";
+      "then run `pnpm sandcastle:pr-comments <PR>` to have them addressed._";
 
     const url = createPr(issue.branch, title, body);
     console.log(`  ✓ ${issue.id} → ${url}`);
@@ -255,6 +255,6 @@ for (const { issue, pr } of completed) {
 }
 
 console.log(
-  "\nAll done. Review and merge the PR(s) above. Re-run `bun run sandcastle` " +
+  "\nAll done. Review and merge the PR(s) above. Re-run `pnpm sandcastle` " +
     "after merging to pick up newly unblocked issues."
 );

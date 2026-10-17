@@ -50,11 +50,11 @@ Tables that support soft deletes include:
 
 ## Migration Commands
 
-- `bun run db:generate` — generate migration files from schema changes
-- `bun run db:migrate` — apply pending migrations
-- `bun run db:push` — push schema directly (dev only, skips migration files)
-- `bun run db:studio` — open Drizzle Studio for visual DB inspection
-- `bun run db:seed` — run seed script at `src/seed.ts`
+- `pnpm db:generate` — generate migration files from schema changes
+- `pnpm db:migrate` — apply pending migrations
+- `pnpm db:push` — push schema directly (dev only, skips migration files)
+- `pnpm db:studio` — open Drizzle Studio for visual DB inspection
+- `vp -C packages/db run db:seed` — run seed script at `packages/db/src/seed.ts`
 
 ## Canonical Example
 

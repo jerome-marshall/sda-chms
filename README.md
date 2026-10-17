@@ -9,11 +9,10 @@ This project was created with [Better-T-Stack](https://github.com/AmanVarshney01
 - **TailwindCSS** - Utility-first CSS for rapid UI development
 - **shadcn/ui** - Reusable UI components
 - **Hono** - Lightweight, performant server framework
-- **Bun** - Runtime environment
+- **Node.js** - Runtime environment
 - **Drizzle** - TypeScript-first ORM
 - **PostgreSQL** - Database engine
-- **Biome** - Linting and formatting
-- **Turborepo** - Optimized monorepo build system
+- **Vite+** - Unified toolchain (dev, build, test, lint, format, tasks)
 
 ## Getting Started
 
@@ -58,11 +57,10 @@ sda-chms/
 
 ## Available Scripts
 
-- `pnpm dev`: Start all applications in development mode
+- `pnpm dev`: Start web (3001) and server (3000) together
 - `pnpm build`: Build all applications
-- `pnpm dev:web`: Start only the web application
-- `pnpm dev:server`: Start only the server
+- `vpr dev:web` / `vpr dev:server`: Start only one tier
 - `pnpm check-types`: Check TypeScript types across all apps
 - `pnpm db:push`: Push schema changes to database
 - `pnpm db:studio`: Open database studio UI
-- `pnpm check`: Run Biome formatting and linting
+- `pnpm check`: Run `vp check --fix` (format, lint, type check)
