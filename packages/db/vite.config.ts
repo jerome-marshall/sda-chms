@@ -1,4 +1,5 @@
 import { defineConfig } from "vite-plus";
+
 import { testInclude, workspaceDeps } from "../../vitest.shared";
 
 export default defineConfig({

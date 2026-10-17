@@ -1,8 +1,11 @@
 import path from "node:path";
+
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
+
+import { testInclude, workspaceDeps } from "../../vitest.shared";
 
 export default defineConfig({
   plugins: lazyPlugins(() => [tailwindcss(), tanstackRouter({}), react()]),
@@ -21,5 +24,15 @@ export default defineConfig({
   preview: {
     port: 3001,
     strictPort: true,
+  },
+  test: {
+    name: "web",
+    environment: "jsdom",
+    include: testInclude,
+    setupFiles: ["./vitest.setup.ts"],
+    env: {
+      VITE_SERVER_URL: "http://localhost:3000",
+    },
+    server: { deps: workspaceDeps },
   },
 });
