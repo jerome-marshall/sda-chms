@@ -16,7 +16,7 @@
     "db:studio": "vp run -r db:studio",
     "db:generate": "vp run -r db:generate",
     "db:migrate": "vp run -r db:migrate",
-    "prepare": "vp config --hooks-dir .vite-hooks",
+    "prepare": "node scripts/prepare.mjs",
     "sandcastle": "pnpm exec tsx .sandcastle/main.ts",
     "sandcastle:pr-comments": "pnpm exec tsx .sandcastle/address-comments.ts"
   },
