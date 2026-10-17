@@ -120,9 +120,10 @@ export default defineConfig({
       // await sequentially on purpose (ordering and failure semantics
       // matter); Promise.all would change behavior.
       "no-await-in-loop": "off",
-      // consistent-return requires explicit `return undefined`, which
-      // unicorn/no-useless-undefined then flags; explicitness wins.
-      "unicorn/no-useless-undefined": "off",
+      // consistent-return requires explicit `return undefined`, which the
+      // main-parity unicorn/no-useless-undefined then flags; the main rule
+      // wins and consistent-return stays off.
+      "typescript/consistent-return": "off",
       // The repo's most intricate UI logic sits at 28 today; the gate
       // stays to catch future growth past that, not to force a rewrite.
       complexity: ["error", 30],

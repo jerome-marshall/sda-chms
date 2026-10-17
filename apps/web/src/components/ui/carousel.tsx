@@ -96,7 +96,7 @@ function Carousel({
 
   React.useEffect(() => {
     if (!emblaApi) {
-      return undefined;
+      return;
     }
     onSelect(emblaApi);
     emblaApi.on("reInit", onSelect);
