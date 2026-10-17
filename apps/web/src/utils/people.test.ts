@@ -13,7 +13,7 @@ interface PersonLike {
   memorialDay?: string | null;
   phone?: string | null;
 }
-const asPerson = (person: PersonLike): Person => person as unknown as Person;
+const asPerson = (person: PersonLike): Person => person as Person;
 
 describe(isDeceased, () => {
   it("is true when membership status is deceased", () => {

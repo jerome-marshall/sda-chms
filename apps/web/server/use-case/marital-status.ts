@@ -1,5 +1,3 @@
-import { getDb } from "@sda-chms/db";
-import type { DbTransaction } from "@sda-chms/db";
 import {
   isPartnerDeceased,
   maritalStatusFromSpouseState,
@@ -9,6 +7,8 @@ import type { SpouseLinkForMaritalStatus } from "@sda-chms/shared/utils/marital-
 
 import { updatePerson } from "../data-access/people";
 import { getSpouseLinksForPeople } from "../data-access/relationships";
+import type { DbTransaction } from "../db";
+import { getDb } from "../db";
 
 type SpouseLinkRow = Awaited<
   ReturnType<typeof getSpouseLinksForPeople>

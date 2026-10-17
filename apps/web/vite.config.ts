@@ -47,10 +47,20 @@ export default defineConfig({
     },
     // Mirrors what voidPlugin provides in dev/build, which does not run under
     // Vitest: the PGlite stand-in for void/db and the schema barrel for @schema.
-    alias: {
-      "void/db": path.resolve(import.meta.dirname, "./test/void-db.ts"),
-      "@schema": path.resolve(import.meta.dirname, "./db/schema.ts"),
-    },
+    alias: [
+      {
+        find: /^@schema\/(?<subpath>.+)$/u,
+        replacement: `${path.resolve(import.meta.dirname, "./db/schema")}/$<subpath>`,
+      },
+      {
+        find: "@schema",
+        replacement: path.resolve(import.meta.dirname, "./db/schema.ts"),
+      },
+      {
+        find: "void/db",
+        replacement: path.resolve(import.meta.dirname, "./test/void-db.ts"),
+      },
+    ],
     server: { deps: workspaceDeps },
   },
 });

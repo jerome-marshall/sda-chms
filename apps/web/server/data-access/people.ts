@@ -1,11 +1,9 @@
-import { eq, getDb } from "@sda-chms/db";
-import type { DbTransaction } from "@sda-chms/db";
-import { householdsTable, peopleTable } from "@sda-chms/db/schema/people";
-import type {
-  HouseholdsInsertDb,
-  PeopleInsertDb,
-} from "@sda-chms/db/schema/people";
+import { householdsTable, peopleTable } from "@schema/people";
+import type { HouseholdsInsertDb, PeopleInsertDb } from "@schema/people";
+import { eq } from "void/db";
 
+import type { DbTransaction } from "../db";
+import { getDb } from "../db";
 import { withDbErrorHandling } from "../lib/errors";
 
 /** The Household's own columns surfaced alongside each Person for the effective-value rule (ADR-0001). */

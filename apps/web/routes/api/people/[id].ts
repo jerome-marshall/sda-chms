@@ -1,10 +1,11 @@
-import {
-  getPersonWithHouseholdByIdUseCase,
-  updatePersonUseCase,
-} from "@sda-chms/server/use-case/people";
 import { personUpdateFormSchema } from "@sda-chms/shared/schema/people";
 import { defineHandler } from "void/handler";
 import { z } from "zod";
+
+import {
+  getPersonWithHouseholdByIdUseCase,
+  updatePersonUseCase,
+} from "../../../server/use-case/people";
 
 const paramsSchema = z.object({ id: z.string().min(1) });
 

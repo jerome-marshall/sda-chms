@@ -1,7 +1,4 @@
-import type {
-  PeopleInsertDb,
-  PeopleSelectDb,
-} from "@sda-chms/db/schema/people";
+import type { PeopleInsertDb, PeopleSelectDb } from "@schema/people";
 import type {
   PersonInsertForm,
   PersonUpdateForm,

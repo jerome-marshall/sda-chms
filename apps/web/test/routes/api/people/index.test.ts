@@ -1,19 +1,10 @@
-import { setTestDb } from "@sda-chms/db";
-import type { PeopleInsertDb } from "@sda-chms/db/schema/people";
-import { createTestDb } from "@sda-chms/db/test-db";
-import type { TestDb } from "@sda-chms/db/test-db";
-import { insertPerson } from "@sda-chms/server/data-access/people";
+import type { PeopleInsertDb } from "@schema/people";
 import type { Hono } from "hono";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "vite-plus/test";
+import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
+import { insertPerson } from "../../../../server/data-access/people";
 import { createTestApp } from "../../../routes";
+import { resetDb } from "../../../void-db";
 
 /** A bare person row for direct data-access inserts (no household needed). */
 const minimalPerson = (
@@ -57,22 +48,14 @@ interface PersonResponse {
 const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
 describe("POST /api/people (integration, PGlite)", () => {
-  let testDb: TestDb;
   let app: Hono;
 
-  beforeAll(async () => {
-    testDb = await createTestDb();
-    setTestDb(testDb.db);
+  beforeAll(() => {
     app = createTestApp();
   });
 
   beforeEach(async () => {
-    await testDb.reset();
-  });
-
-  afterAll(async () => {
-    setTestDb(null);
-    await testDb.close();
+    await resetDb();
   });
 
   const postPerson = (body: unknown) =>

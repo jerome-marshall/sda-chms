@@ -1,10 +1,11 @@
-import { eq, getDb } from "@sda-chms/db";
-import type { DbTransaction } from "@sda-chms/db";
-import { relationshipsTable } from "@sda-chms/db/schema/people";
-import type { RelationshipsInsertDb } from "@sda-chms/db/schema/people";
+import { relationshipsTable } from "@schema/people";
+import type { RelationshipsInsertDb } from "@schema/people";
 import { RELATIONSHIP_TYPE } from "@sda-chms/shared/constants/people";
 import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
+import { eq } from "void/db";
 
+import type { DbTransaction } from "../db";
+import { getDb } from "../db";
 import { withDbErrorHandling } from "../lib/errors";
 
 /**

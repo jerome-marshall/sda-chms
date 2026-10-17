@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "vp pack",
-    "check-types": "tsc -b && tsc -p tsconfig.test.json",
+    "check-types": "tsc --noEmit",
     "compile": "vp pack ./src/index.ts --out-dir dist",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.mjs",

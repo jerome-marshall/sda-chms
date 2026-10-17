@@ -1,9 +1,10 @@
+import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
+import { defineHandler } from "void/handler";
+
 import {
   addPersonUseCase,
   getAllPeopleWithHouseholdUseCase,
-} from "@sda-chms/server/use-case/people";
-import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
-import { defineHandler } from "void/handler";
+} from "../../../server/use-case/people";
 
 export const GET = defineHandler(() => getAllPeopleWithHouseholdUseCase());
 

@@ -4,13 +4,13 @@ import {
 } from "@sda-chms/shared/schema/people";
 import { Hono } from "hono";
 
-import { jsonValidator } from "../lib/validator";
 import {
   addRelationshipUseCase,
   getPersonRelationshipsUseCase,
   removeRelationshipUseCase,
   updateRelationshipStateUseCase,
-} from "../use-case/relationships";
+} from "../../../web/server/use-case/relationships";
+import { jsonValidator } from "../lib/validator";
 
 const app = new Hono()
   .post("/", jsonValidator(relationshipCreateSchema), async (c) => {

@@ -1,4 +1,3 @@
-import { createTransaction } from "@sda-chms/db";
 import {
   RELATIONSHIP_TYPE,
   SPOUSE_STATE,
@@ -12,6 +11,7 @@ import {
   insertRelationship,
   updateRelationshipState,
 } from "../data-access/relationships";
+import { createTransaction } from "../db";
 import { relationshipsDbToApi } from "../transformers/relationships";
 import { syncMaritalStatusForPeople } from "./marital-status";
 

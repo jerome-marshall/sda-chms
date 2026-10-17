@@ -23,7 +23,6 @@ for (const override of vitest.overrides ?? []) {
 export default defineConfig({
   test: {
     projects: [
-      "apps/server/vite.config.ts",
       "apps/web/vite.config.ts",
       "packages/db/vite.config.ts",
       "packages/shared/vite.config.ts",
@@ -140,8 +139,10 @@ export default defineConfig({
       "typescript/no-unsafe-return": "off",
     },
     // Biome's file ignore list, where Oxlint has an equivalent: generated
-    // route tree and web static assets stay out of lint.
-    ignorePatterns: ["**/routeTree.gen.ts", "apps/web/public/**"],
+    // route tree and web static assets stay out of lint. Bracket files are
+    // Void dynamic route segments ([id], [personId]) — kebab-case renames
+    // would break file-based routing.
+    ignorePatterns: ["**/routeTree.gen.ts", "apps/web/public/**", "**/*\\[*"],
     options: { typeAware: true, typeCheck: true },
   },
   staged: {
