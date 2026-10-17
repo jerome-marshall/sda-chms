@@ -34,9 +34,7 @@ import {
 } from "./schema/people";
 import type { HouseholdsInsertDb, PeopleInsertDb } from "./schema/people";
 
-// ============================================================================
 // SOUTH INDIAN NAME DATA (Hosur, Tamil Nadu congregation)
-// ============================================================================
 
 const SOUTH_INDIAN_MALE_FIRST_NAMES = [
   "Arjun",
@@ -341,9 +339,7 @@ const VISITING_TIMES = [
   "Anytime",
 ];
 
-// ============================================================================
 // MINISTRY STRUCTURE SEED DATA (from CONTEXT.md domain language)
-// ============================================================================
 
 const SEED_GROUPS = [
   { name: "Choir", description: "Church choir for Sabbath worship services." },
@@ -426,9 +422,7 @@ const SEED_POSITIONS: { name: string; department: string | null }[] = [
   { name: "Hospitality Coordinator", department: "Hospitality" },
 ];
 
-// ============================================================================
 // HELPER FUNCTIONS
-// ============================================================================
 
 // Reference date: January 6, 2026. Built from numeric parts (local time) rather
 // than an ISO string (which parses as UTC) so age math lines up with the local
@@ -630,9 +624,7 @@ function childMembershipStatus(): MembershipStatus {
   ]);
 }
 
-// ============================================================================
 // FAMILY PLANNING (in-memory, then inserted)
-// ============================================================================
 
 type PersonDraft = Omit<PeopleInsertDb, "householdId"> & {
   householdId?: string;
@@ -1029,9 +1021,7 @@ function planVisitorFamily(): FamilyPlan {
   return { household: planHousehold(lastName), members };
 }
 
-// ============================================================================
 // SEED
-// ============================================================================
 
 type SeedDb = NodePgDatabase<typeof schema>;
 

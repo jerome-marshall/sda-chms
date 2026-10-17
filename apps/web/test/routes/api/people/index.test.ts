@@ -92,12 +92,11 @@ describe("POST /api/people (integration, PGlite)", () => {
     expect(res.status).toBe(400);
   });
 
-  // ── Duplicate-Person prevention (issue #2) ───────────────────────────────
-  // The unique index over (first_name, last_name, date_of_birth) must hold even
-  // when last_name / date_of_birth are null. Postgres treats nulls as distinct
-  // by default, so the guard needs NULLS NOT DISTINCT to catch partial-data
-  // duplicates. The user must see a clear "may already exist" 409, not a raw
-  // DB error. These three target data-access directly and move with it in the
+  // Duplicate-Person prevention (issue #2): the unique index over
+  // (first_name, last_name, date_of_birth) must hold even when last_name /
+  // date_of_birth are null. Postgres treats nulls as distinct by default, so
+  // the guard needs NULLS NOT DISTINCT to catch partial-data duplicates. The
+  // user must see a clear "may already exist" 409, not a raw DB error. These three target data-access directly and move with it in the
   // server-code commit; the HTTP 409 below stays here.
 
   it("blocks a second Person with the same first name and null last name + null DOB", async () => {

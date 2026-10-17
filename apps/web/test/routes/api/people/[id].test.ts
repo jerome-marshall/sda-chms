@@ -136,10 +136,9 @@ describe("GET /api/people/:id (integration, PGlite)", () => {
     expect(households[0]?.name).toBe("The Robinson-Smiths");
   });
 
-  // ── Household-owned contact details (ADR-0001) ───────────────────────────
-  // The Household owns the shared contact details (address, phone, preferred
-  // visiting time). A member's effective value is their own if set, otherwise
-  // the Household's.
+  // Household-owned contact details (ADR-0001): the Household owns the
+  // shared contact details (address, phone, preferred visiting time). A
+  // member's effective value is their own if set, otherwise the Household's.
 
   it("stores the head's contact details on the Household, not the head Person", async () => {
     const head = await json<PersonResponse>(
