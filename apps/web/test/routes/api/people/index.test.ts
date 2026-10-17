@@ -125,10 +125,20 @@ describe("POST /api/people (integration, PGlite)", () => {
     ).resolves.toBeTruthy();
   });
 
-  // (The HTTP-level 409 assertion waits for the error middleware in the
-  // middleware commit: until then a DbError thrown from a route has no
-  // ApiErrorBody mapping. The data-access duplicate tests above pin the
-  // DbError itself here.)
+  // (The HTTP-level 409 assertion needs the error middleware, which maps a
+  // DbError thrown from a route into ApiErrorBody.)
+
+  it("POST /api/people surfaces a clear 'may already exist' 409 for a duplicate", async () => {
+    // validHead has no last name; a second identical POST is a null-lastName
+    // duplicate — exactly the case the default index let through.
+    await postPerson(validHead);
+    const res = await postPerson(validHead);
+
+    expect(res.status).toBe(409);
+    const body = await json<{ code: string; message: string }>(res);
+    expect(body.code).toBe("DB_ERROR");
+    expect(body.message.toLowerCase()).toContain("already exist");
+  });
 
   it("POST /api/people rejects a Memorial Day on a non-deceased Person (issue #3)", async () => {
     const res = await postPerson({

@@ -198,10 +198,9 @@ describe("GET /api/relationships/person/:personId (integration, PGlite)", () => 
         maritalStatus: "single",
       });
       expect(res.status).toBe(400);
-      // Before the error middleware lands, the 400 body is the framework's
-      // plain-text response; the JSON ApiErrorBody shape arrives with it.
-      const text = await res.text();
-      expect(text.toLowerCase()).toContain("spouse");
+      const body = await json<{ code: string; message: string }>(res);
+      expect(body.code).toBe("HTTP_ERROR");
+      expect(body.message.toLowerCase()).toContain("spouse");
       expect(
         (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
       ).toBe("married");
