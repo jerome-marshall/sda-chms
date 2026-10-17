@@ -1,8 +1,9 @@
 import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
 import type { RelationshipCreate } from "@sda-chms/shared/schema/people";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetch } from "void/client";
 
-import { apiClient, fetchApi } from "@/lib/api";
+import { fetchApi } from "@/lib/api";
 import { queryKeys, queryOptions } from "@/lib/query";
 
 /** Fetches a person's relationships, resolved from that person's perspective. */
@@ -24,7 +25,9 @@ export const useAddRelationship = ({
 
   return useMutation({
     mutationFn: (data: RelationshipCreate) =>
-      fetchApi(apiClient.relationships.$post({ json: data })),
+      fetchApi(
+        fetch("/api/relationships", { method: "POST", body: data, retry: 0 })
+      ),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.relationships(variables.personId),
@@ -62,9 +65,11 @@ export const useUpdateRelationshipState = ({
       state: (typeof SPOUSE_STATE_VALUES)[number];
     }) =>
       fetchApi(
-        apiClient.relationships[":id"].$patch({
-          param: { id },
-          json: { state },
+        fetch("/api/relationships/:id", {
+          method: "PATCH",
+          params: { id },
+          body: { state },
+          retry: 0,
         })
       ),
     onSuccess: () => {
@@ -88,7 +93,13 @@ export const useRemoveRelationship = ({
 
   return useMutation({
     mutationFn: (id: string) =>
-      fetchApi(apiClient.relationships[":id"].$delete({ param: { id } })),
+      fetchApi(
+        fetch("/api/relationships/:id", {
+          method: "DELETE",
+          params: { id },
+          retry: 0,
+        })
+      ),
     onSuccess: () => {
       // The reciprocal side is unknown here, so refetch all relationship lists.
       void queryClient.invalidateQueries({ queryKey: ["relationships"] });

@@ -2,8 +2,9 @@ import {
   QueryClient,
   queryOptions as tsQueryOptions,
 } from "@tanstack/react-query";
+import { fetch } from "void/client";
 
-import { apiClient, fetchApi } from "./api";
+import { fetchApi } from "./api";
 
 export const queryClient = new QueryClient();
 
@@ -21,30 +22,32 @@ export const queryOptions = {
   people: () =>
     tsQueryOptions({
       queryKey: queryKeys.people(),
-      queryFn: () => fetchApi(apiClient.people.$get()),
+      queryFn: () => fetchApi(fetch("/api/people", { retry: 0 })),
     }),
   person: (id: string) =>
     tsQueryOptions({
       queryKey: queryKeys.person(id),
-      queryFn: () => fetchApi(apiClient.people[":id"].$get({ param: { id } })),
+      queryFn: () =>
+        fetchApi(fetch("/api/people/:id", { params: { id }, retry: 0 })),
     }),
   groups: () =>
     tsQueryOptions({
       queryKey: queryKeys.groups(),
-      queryFn: () => fetchApi(apiClient.groups.$get()),
+      queryFn: () => fetchApi(fetch("/api/groups", { retry: 0 })),
     }),
   households: () =>
     tsQueryOptions({
       queryKey: queryKeys.households(),
-      queryFn: () => fetchApi(apiClient.households.$get()),
+      queryFn: () => fetchApi(fetch("/api/households", { retry: 0 })),
     }),
   relationships: (personId: string) =>
     tsQueryOptions({
       queryKey: queryKeys.relationships(personId),
       queryFn: () =>
         fetchApi(
-          apiClient.relationships.person[":personId"].$get({
-            param: { personId },
+          fetch("/api/relationships/person/:personId", {
+            params: { personId },
+            retry: 0,
           })
         ),
     }),

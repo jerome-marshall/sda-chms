@@ -4,7 +4,6 @@ import ReactDOM from "react-dom/client";
 
 import type { BreadcrumbValue } from "./components/header";
 import Loader from "./components/loader";
-import { apiClient } from "./lib/api";
 import { queryClient } from "./lib/query";
 import { routeTree } from "./routeTree.gen";
 
@@ -18,7 +17,6 @@ const router = createRouter({
   defaultPendingComponent: () => <Loader />,
   context: {
     queryClient,
-    apiClient,
   },
 });
 
