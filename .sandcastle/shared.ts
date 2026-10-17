@@ -20,14 +20,15 @@ export const BASE_BRANCH = "main";
 const LOCAL_DB_URL = "postgresql://postgres:password@localhost:5432/sda_chms";
 
 // Hooks run inside the sandbox before the agent starts each iteration:
-//   1. bun install — fresh deps. This is a Bun workspace using the catalog:
-//      protocol, which npm cannot parse, so npm install is wrong here.
+//   1. pnpm install --frozen-lockfile — fresh deps. This is a pnpm workspace
+//      using the catalog: protocol, which npm cannot parse, so npm install
+//      is wrong here.
 //   2. start Postgres + ensure the E2E database exists, so headless Playwright
 //      E2E is runnable without docker-compose (there is no docker-in-docker).
 export const hooks = {
   sandbox: {
     onSandboxReady: [
-      { command: "bun install", timeoutMs: 300_000 },
+      { command: "pnpm install --frozen-lockfile", timeoutMs: 300_000 },
       // Start Postgres (needs root) and ensure the throwaway E2E database
       // exists. Trust auth on localhost (see Dockerfile) lets `createdb`
       // connect as the postgres role without a password; `|| true` makes it
@@ -43,8 +44,8 @@ export const hooks = {
 
 // NOTE: node_modules is intentionally NOT copied from the host. The host runs
 // macOS (darwin-arm64) and the sandbox runs Linux, so copied platform-specific
-// binaries would be invalid. `bun install` in the hook above builds a clean,
-// Linux-correct tree inside the sandbox instead.
+// binaries would be invalid. `pnpm install --frozen-lockfile` in the hook
+// above builds a clean, Linux-correct tree inside the sandbox instead.
 export const copyToWorktree: string[] = [];
 
 // Sandbox factory: Docker, with DATABASE_URL pinned to the in-sandbox Postgres.

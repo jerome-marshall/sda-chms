@@ -6,7 +6,7 @@
 // the branch (which updates the PR). It never merges — you still merge yourself.
 //
 // Usage:
-//   bun run sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
+//   pnpm sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
 
 import { claudeCode, createSandbox } from "@ai-hero/sandcastle";
 
@@ -25,7 +25,7 @@ const prs = process.argv
 
 if (prs.length === 0) {
   console.error(
-    "Usage: bun run sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]"
+    "Usage: pnpm sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]"
   );
   process.exit(1);
 }

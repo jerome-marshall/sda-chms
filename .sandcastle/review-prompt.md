@@ -51,8 +51,8 @@ Review the code changes on branch `{{BRANCH}}` and improve code clarity, consist
 If you find improvements to make:
 
 1. Make the changes directly on this branch
-2. Verify nothing is broken — run `bun run check-types`, `bun run test`, and
-   `bun run check` (this is a Bun + Turborepo monorepo; there is no `npm`). Do NOT
+2. Verify nothing is broken — run `pnpm check-types`, `pnpm test`, and
+   `pnpm check` (this is a pnpm + Vite+ monorepo; there is no `npm`). Do NOT
    point `DATABASE_URL` at any cloud/production database.
 3. Commit describing the refinements
 
