@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control -- <label component> */
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
