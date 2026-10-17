@@ -25,6 +25,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
 
+      - name: Write apps/web/.env
+        run: printf 'DATABASE_URL=%s\n' "postgresql://postgres:postgres@localhost:55432/sda_chms_ci" > apps/web/.env
+
+      - name: Void codegen
+        run: pnpm --dir apps/web exec void prepare
+
       - name: Type-check
         run: vp run check-types
 
@@ -32,12 +38,12 @@ jobs:
         run: vp check
 
       - name: Unit + integration tests
-        run: vp run test
+        run: vp test run
 
   # End-to-end tests against the real stack + a throwaway Postgres.
   # Heavier (real Postgres + browser), so run only on pushes to main — not on
-  # every PR. PRs get the fast `test` job; AFK agents run `pnpm test:e2e`
-  # locally before pushing. (`push` only fires on main per the trigger above.)
+  # every PR. PRs get the fast `test` job; the migration PR itself is proven
+  # with a local `pnpm test:e2e` before landing (see its trail).
   e2e:
     runs-on: ubuntu-latest
     needs: test
@@ -58,8 +64,6 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sda_chms_test
-      CORS_ORIGIN: http://localhost:3001
-      VITE_SERVER_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
 
@@ -68,11 +72,28 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
 
-      - name: Apply schema to Postgres
-        run: vp -C packages/db run db:apply-schema
+      - name: Write apps/web/.env
+        run: printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > apps/web/.env
 
-      - name: Seed minimal data
-        run: vp -C packages/db run db:seed 20
+      - name: Void codegen
+        run: pnpm --dir apps/web exec void prepare
+
+      - name: Apply migrations
+        run: pnpm --dir apps/web exec void db migrate
+
+      - name: Migration status (drift gate input)
+        run: pnpm --dir apps/web exec void db status
+
+      - name: Drift gate (schema must match committed migrations)
+        run: |
+          pnpm --dir apps/web exec void db generate
+          git diff --exit-code -- apps/web/db
+
+      - name: Seed throwaway database
+        run: SEED_COUNT=20 pnpm --dir apps/web exec void db seed --yes
+
+      - name: Production build
+        run: pnpm --dir apps/web run build
 
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
