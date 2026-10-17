@@ -22,11 +22,7 @@ for (const override of vitest.overrides ?? []) {
 
 export default defineConfig({
   test: {
-    projects: [
-      "apps/web/vite.config.ts",
-      "packages/db/vite.config.ts",
-      "packages/shared/vite.config.ts",
-    ],
+    projects: ["apps/web/vite.config.ts", "packages/shared/vite.config.ts"],
   },
   fmt: {
     ...oxfmtPreset,
@@ -150,17 +146,8 @@ export default defineConfig({
   },
   run: {
     tasks: {
-      // `dev` orchestration lives here (not in package.json scripts) so the
-      // two servers start together with one dependency graph. Script `dev`
-      // runs the `dev:servers` task; run one tier with `vpr dev:web` /
-      // `vpr dev:server`.
+      // Single dev server (API + SPA on one origin); the script `dev` runs it directly.
       "dev:web": { command: "vp -C apps/web run dev", cache: false },
-      "dev:server": { command: "vp -C apps/server run dev", cache: false },
-      "dev:servers": {
-        command: "echo web and server dev running",
-        dependsOn: ["dev:web", "dev:server"],
-        cache: false,
-      },
       // Local equivalent of the CI test job, steps in order.
       verify: ["vp run -r check-types", "vp check", "vp test run"],
     },

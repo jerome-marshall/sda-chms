@@ -44,9 +44,6 @@ importers:
 
   .:
     dependencies:
-      '@sda-chms/env':
-        specifier: workspace:*
-        version: link:packages/env
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
@@ -82,72 +79,20 @@ importers:
         specifier: 'catalog:'
         version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/ui@5.0.5(vitest@5.0.5))(esbuild@0.28.2)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@2.4.0))(playwright@1.63.0)(tsx@4.23.13)(typescript@6.0.3)(yaml@2.9.1)
 
-  apps/server:
-    dependencies:
-      '@hono/node-server':
-        specifier: ^2.1.1
-        version: 2.1.1(hono@4.13.13)
-      '@hono/zod-validator':
-        specifier: ^0.8.0
-        version: 0.8.0(hono@4.13.13)(zod@4.5.4)
-      '@sda-chms/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@sda-chms/env':
-        specifier: workspace:*
-        version: link:../../packages/env
-      '@sda-chms/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
-      dotenv:
-        specifier: 'catalog:'
-        version: 17.4.2
-      hono:
-        specifier: 'catalog:'
-        version: 4.13.13
-      udsv:
-        specifier: ^0.7.3
-        version: 0.7.3
-      zod:
-        specifier: 'catalog:'
-        version: 4.5.4
-    devDependencies:
-      '@electric-sql/pglite':
-        specifier: ^0.5.3
-        version: 0.5.8
-      '@sda-chms/config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@types/node':
-        specifier: 'catalog:'
-        version: 24.13.3
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vite:
-        specifier: 'catalog:'
-        version: '@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(typescript@6.0.3)(yaml@2.9.1)'
-      vite-plus:
-        specifier: 'catalog:'
-        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/ui@5.0.5(vitest@5.0.5))(esbuild@0.28.2)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@2.4.0))(playwright@1.63.0)(tsx@4.23.13)(typescript@6.0.3)(yaml@2.9.1)
-
   apps/web:
     dependencies:
       '@base-ui/react':
         specifier: ^1.6.0
         version: 1.8.0(@date-fns/tz@1.5.0)(@types/react@19.2.18)(date-fns@4.4.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@faker-js/faker':
+        specifier: 'catalog:'
+        version: 10.6.0
       '@fontsource-variable/inter':
         specifier: ^5.2.8
         version: 5.3.0
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(arktype@2.2.8)(react-hook-form@7.87.0(react@19.2.7))(valibot@1.5.0(typescript@6.0.3))(zod@4.5.4)
-      '@sda-chms/env':
-        specifier: workspace:*
-        version: link:../../packages/env
-      '@sda-chms/server':
-        specifier: workspace:*
-        version: link:../server
       '@sda-chms/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -202,6 +147,9 @@ importers:
       nuqs:
         specifier: ^2.8.9
         version: 2.10.1(@tanstack/react-router@1.170.33(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+      pg:
+        specifier: ^8.22.0
+        version: 8.23.1
       radix-ui:
         specifier: ^1.6.0
         version: 1.6.7(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -238,6 +186,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      udsv:
+        specifier: ^0.7.3
+        version: 0.7.3
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -254,9 +205,6 @@ importers:
       '@sda-chms/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@sda-chms/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@tanstack/react-query-devtools':
         specifier: ^5.101.1
         version: 5.102.8(@tanstack/react-query@5.102.8(react@19.2.7))(react@19.2.7)
@@ -310,71 +258,6 @@ importers:
         version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@26.4.1)(@vitest/ui@5.0.5(vitest@5.0.5))(esbuild@0.28.2)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@2.4.0))(playwright@1.63.0)(tsx@4.23.13)(typescript@6.0.3)(yaml@2.9.1)
 
   packages/config: {}
-
-  packages/db:
-    dependencies:
-      '@faker-js/faker':
-        specifier: 'catalog:'
-        version: 10.6.0
-      '@sda-chms/env':
-        specifier: workspace:*
-        version: link:../env
-      '@sda-chms/shared':
-        specifier: workspace:*
-        version: link:../shared
-      dotenv:
-        specifier: 'catalog:'
-        version: 17.4.2
-      drizzle-orm:
-        specifier: 'catalog:'
-        version: 0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@24.13.3))(pg@8.23.1)
-      drizzle-zod:
-        specifier: ^0.8.3
-        version: 0.8.3(drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@24.13.3))(pg@8.23.1))(zod@4.5.4)
-      pg:
-        specifier: ^8.22.0
-        version: 8.23.1
-      zod:
-        specifier: 'catalog:'
-        version: 4.5.4
-    devDependencies:
-      '@electric-sql/pglite':
-        specifier: ^0.5.3
-        version: 0.5.8
-      '@sda-chms/config':
-        specifier: workspace:*
-        version: link:../config
-      '@types/pg':
-        specifier: ^8.20.0
-        version: 8.23.1
-      drizzle-kit:
-        specifier: ^0.31.10
-        version: 0.31.10
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-
-  packages/env:
-    dependencies:
-      '@t3-oss/env-core':
-        specifier: ^0.13.11
-        version: 0.13.11(arktype@2.2.8)(typescript@6.0.3)(valibot@1.5.0(typescript@6.0.3))(zod@4.5.4)
-      dotenv:
-        specifier: 'catalog:'
-        version: 17.4.2
-      zod:
-        specifier: 'catalog:'
-        version: 4.5.4
-    devDependencies:
-      '@sda-chms/config':
-        specifier: workspace:*
-        version: link:../config
-      '@types/node':
-        specifier: 'catalog:'
-        version: 24.13.3
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
 
   packages/shared:
     dependencies:
@@ -1357,12 +1240,6 @@ packages:
     engines: {node: '>=20'}
     peerDependencies:
       hono: ^4
-
-  '@hono/zod-validator@0.8.0':
-    resolution: {integrity: sha512-5uS4S1/LKtZQYvD4BtpPUFkOv8d1wNxHHrChm26buMiEYc1FrHWvDUaKVBwkiVtvSExHSpLGDvcnpI2Copyj9w==}
-    peerDependencies:
-      hono: '>=4.10.0'
-      zod: ^3.25.0 || ^4.0.0
 
   '@hookform/resolvers@5.9.1':
     resolution: {integrity: sha512-7b7vsbraJxKgjVSA1Nur9tLwj539WGJUBLA7QNvXnFoT2pM5Z7G+6rlukk4B2/QrTZy6huRtH6wKeESPKuIr6w==}
@@ -3290,23 +3167,6 @@ packages:
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
-  '@t3-oss/env-core@0.13.11':
-    resolution: {integrity: sha512-sM7GYY+KL7H/Hl0BE0inWfk3nRHZOLhmVn7sHGxaZt9FAR6KqREXAE+6TqKfiavfXmpRxO/OZ2QgKRd+oiBYRQ==}
-    peerDependencies:
-      arktype: ^2.1.0
-      typescript: '>=5.0.0'
-      valibot: ^1.0.0-beta.7 || ^1.0.0
-      zod: ^3.24.0 || ^4.0.0
-    peerDependenciesMeta:
-      arktype:
-        optional: true
-      typescript:
-        optional: true
-      valibot:
-        optional: true
-      zod:
-        optional: true
-
   '@tailwindcss/node@4.3.3':
     resolution: {integrity: sha512-/T8IKEsf9VTU6tLjgC7+sv2mOPtQxzE2jMw7u4Tt40Tx+QSZxpzh95/H6cMKoja9XuW7iMdLJYBB0o9G1CaAgg==}
 
@@ -4457,10 +4317,6 @@ packages:
     peerDependencies:
       arktype: '>=2.0.0'
       drizzle-orm: '>=0.36.0'
-
-  drizzle-kit@0.31.10:
-    resolution: {integrity: sha512-7OZcmQUrdGI+DUNNsKBn1aW8qSoKuTH7d0mYgSP8bAzdFzKoovxEFnoGQp2dVs82EOJeYycqRtciopszwUf8bw==}
-    hasBin: true
 
   drizzle-kit@0.31.11:
     resolution: {integrity: sha512-YCYqxTLIB2OCqf6w9/Vef13baBVbwQIPcbT4Y56AfO6B9ajZhDhD8Jkveg/hJvT/iuMloKD/IYYkyMMNhr7Kqg==}
@@ -5762,9 +5618,6 @@ packages:
     resolution: {integrity: sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==}
     peerDependencies:
       pg: '>=8.0'
-
-  pg-protocol@1.16.0:
-    resolution: {integrity: sha512-sILXutLVjCLjcDuOmvhX5e2Z4cS5qG/6Bu3VkpFwdf/633ElGLpEh9bgmuI5I4sqKqkifQiGyiCcx1HdtrK7tg==}
 
   pg-protocol@1.16.1:
     resolution: {integrity: sha512-p9VOFMiHB/ZbJATetbg+99PxssTVSQRnyuPSQ67mN1+1KBOjZaZ83ZQzltnxPhJwSsC3nwVjJ10DVJlerbFzLg==}
@@ -7588,11 +7441,6 @@ snapshots:
     dependencies:
       hono: 4.13.13
 
-  '@hono/zod-validator@0.8.0(hono@4.13.13)(zod@4.5.4)':
-    dependencies:
-      hono: 4.13.13
-      zod: 4.5.4
-
   '@hookform/resolvers@5.9.1(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(arktype@2.2.8)(react-hook-form@7.87.0(react@19.2.7))(valibot@1.5.0(typescript@6.0.3))(zod@4.5.4)':
     dependencies:
       '@standard-schema/utils': 0.3.0
@@ -9124,13 +8972,6 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@t3-oss/env-core@0.13.11(arktype@2.2.8)(typescript@6.0.3)(valibot@1.5.0(typescript@6.0.3))(zod@4.5.4)':
-    optionalDependencies:
-      arktype: 2.2.8
-      typescript: 6.0.3
-      valibot: 1.5.0(typescript@6.0.3)
-      zod: 4.5.4
-
   '@tailwindcss/node@4.3.3':
     dependencies:
       '@jridgewell/remapping': 2.3.5
@@ -9460,8 +9301,9 @@ snapshots:
   '@types/pg@8.23.1':
     dependencies:
       '@types/node': 26.4.1
-      pg-protocol: 1.16.0
+      pg-protocol: 1.16.1
       pg-types: 2.2.0
+    optional: true
 
   '@types/react-dom@19.2.7(@types/react@19.2.18)':
     dependencies:
@@ -10204,30 +10046,12 @@ snapshots:
       arktype: 2.2.8
       drizzle-orm: 0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@26.4.1))(pg@8.23.1)
 
-  drizzle-kit@0.31.10:
-    dependencies:
-      '@drizzle-team/brocli': 0.10.2
-      '@esbuild-kit/esm-loader': 2.6.5
-      esbuild: 0.25.12
-      tsx: 4.23.13
-
   drizzle-kit@0.31.11:
     dependencies:
       '@drizzle-team/brocli': 0.10.2
       '@esbuild-kit/esm-loader': 2.6.5
       esbuild: 0.25.12
       tsx: 4.23.13
-
-  drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@24.13.3))(pg@8.23.1):
-    optionalDependencies:
-      '@cloudflare/workers-types': 5.20261016.1
-      '@electric-sql/pglite': 0.5.8
-      '@opentelemetry/api': 1.9.1
-      '@types/pg': 8.23.1
-      better-sqlite3: 13.0.3
-      kysely: 0.29.7
-      mysql2: 3.24.6(@types/node@24.13.3)
-      pg: 8.23.1
 
   drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@26.4.1))(pg@8.23.1):
     optionalDependencies:
@@ -10244,11 +10068,6 @@ snapshots:
     dependencies:
       drizzle-orm: 0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@26.4.1))(pg@8.23.1)
       valibot: 1.5.0(typescript@6.0.3)
-
-  drizzle-zod@0.8.3(drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@24.13.3))(pg@8.23.1))(zod@4.5.4):
-    dependencies:
-      drizzle-orm: 0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@24.13.3))(pg@8.23.1)
-      zod: 4.5.4
 
   drizzle-zod@0.8.3(drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@26.4.1))(pg@8.23.1))(zod@4.5.4):
     dependencies:
@@ -11166,18 +10985,6 @@ snapshots:
 
   ms@2.1.3: {}
 
-  mysql2@3.24.6(@types/node@24.13.3):
-    dependencies:
-      '@types/node': 24.13.3
-      aws-ssl-profiles: 1.1.2
-      generate-function: 2.3.1
-      iconv-lite: 0.7.3
-      long: 5.3.2
-      lru.min: 1.1.5
-      named-placeholders: 1.1.6
-      sql-escaper: 1.5.2
-    optional: true
-
   mysql2@3.24.6(@types/node@26.4.1):
     dependencies:
       '@types/node': 26.4.1
@@ -11565,8 +11372,6 @@ snapshots:
   pg-pool@3.14.0(pg@8.23.1):
     dependencies:
       pg: 8.23.1
-
-  pg-protocol@1.16.0: {}
 
   pg-protocol@1.16.1: {}
 

@@ -1,17 +1,23 @@
 import { readFileSync } from "node:fs";
 
-import { getDb } from "@sda-chms/db";
-import { householdsTable, peopleTable } from "@sda-chms/db/schema/people";
 import dotenv from "dotenv";
+import { drizzle } from "drizzle-orm/node-postgres";
 import { inferSchema, initParser } from "udsv";
 
+import * as schema from "../db/schema";
+import { householdsTable, peopleTable } from "../db/schema/people";
 import { groupByHousehold } from "./household-resolver";
 import { isValidRow, transformRow } from "./import-helpers";
 import type { CsvRow, ImportSummary } from "./import-helpers";
 
+// Local tooling, run from apps/web so `.env` resolves to the app's file.
 dotenv.config({ path: ".env" });
 
-const db = getDb();
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is not set — create apps/web/.env first");
+}
+const db = drizzle(databaseUrl, { schema });
 
 const csvPath =
   process.argv[2] ?? "~/Downloads/SDA Appavu Nagar Church Members Info.csv";

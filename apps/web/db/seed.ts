@@ -17,12 +17,10 @@ import type {
 } from "@sda-chms/shared/constants/people";
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
 import { getSabbathSchoolClass } from "@sda-chms/shared/utils/sabbath-school";
-import dotenv from "dotenv";
-import { count } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { defineSeed } from "void/seed";
 
-import * as schema from "./schema/index.js";
+import type * as schema from "./schema";
 import {
   departmentsTable,
   groupsTable,
@@ -33,8 +31,8 @@ import {
   positionHistoryTable,
   positionsTable,
   relationshipsTable,
-} from "./schema/people.js";
-import type { HouseholdsInsertDb, PeopleInsertDb } from "./schema/people.js";
+} from "./schema/people";
+import type { HouseholdsInsertDb, PeopleInsertDb } from "./schema/people";
 
 // ============================================================================
 // SOUTH INDIAN NAME DATA (Hosur, Tamil Nadu congregation)
@@ -1374,71 +1372,12 @@ async function insertAccumulated(
 }
 
 /**
- * Guard: this seed is additive. It mints fresh Households with random ids, so
- * running it into a database that already holds seeded People would pile up
- * duplicate families — People dedupe on identity, but Households have no
- * natural key to conflict on. Refuse a non-empty database unless
- * SEED_RESET=true, which clears the seed-managed rows first.
+ * Seeds ~100 people across family households. `void db seed --yes` wipes
+ * every object in `public` first, so this only ever runs against the local
+ * database Void provisions — never production.
  */
-async function assertSeedable(db: SeedDb): Promise<void> {
-  const [row] = await db.select({ value: count() }).from(peopleTable);
-  const peopleCount = row?.value ?? 0;
-  if (peopleCount === 0) {
-    return;
-  }
-
-  if (process.env.SEED_RESET !== "true") {
-    console.error(
-      `Refusing to seed: the database already holds ${peopleCount} People. ` +
-        "This seed is additive and would create duplicate Households. Seed a " +
-        "fresh database, or set SEED_RESET=true to delete existing " +
-        "People/Households (and their links) first."
-    );
-    process.exit(1);
-  }
-
-  console.log(
-    `SEED_RESET=true — clearing ${peopleCount} existing People and their Households...`
-  );
-  // FK-safe order: link/history rows before the People they reference, then the
-  // Households. (People → Households is ON DELETE SET NULL, so People go first.)
-  await db.delete(positionHistoryTable);
-  await db.delete(peopleDepartmentsTable);
-  await db.delete(peopleGroupsTable);
-  await db.delete(relationshipsTable);
-  await db.delete(peopleTable);
-  await db.delete(householdsTable);
-}
-
-async function seed() {
-  // Load env + open the connection lazily so importing this module (e.g. to unit
-  // test helpers) never requires a database.
-  dotenv.config({ path: "../../apps/server/.env" });
-
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) {
-    console.error("Error: DATABASE_URL environment variable is not set");
-    process.exit(1);
-  }
-
-  // Guard: never seed faker data into a non-local DB by accident. The active
-  // DATABASE_URL can resolve to a cloud/production host (e.g. Neon), so refuse
-  // anything that isn't localhost unless explicitly opted in.
-  const host = new URL(dbUrl).hostname;
-  const isLocalHost =
-    host === "localhost" || host === "127.0.0.1" || host === "::1";
-  if (!isLocalHost && process.env.SEED_ALLOW_REMOTE !== "true") {
-    console.error(
-      `Refusing to seed non-local database host "${host}". Seeding is for local development; set SEED_ALLOW_REMOTE=true to override.`
-    );
-    process.exit(1);
-  }
-
-  const db = drizzle(dbUrl, { schema });
-
-  await assertSeedable(db);
-
-  const target = Number.parseInt(process.argv[2] || "100", 10);
+export default defineSeed<typeof schema>(async ({ db }) => {
+  const target = Number.parseInt(process.env.SEED_COUNT ?? "100", 10);
   console.log(`Seeding ~${target} people across family households...`);
 
   const statics = await seedStaticTables(db);
@@ -1475,16 +1414,4 @@ async function seed() {
   console.log(`Group memberships:         ${acc.groupMemberships.length}`);
   console.log(`Department memberships:    ${acc.departmentMemberships.length}`);
   console.log(`Position history rows:     ${acc.positionHistory.length}`);
-
-  process.exit(0);
-}
-
-// tsx (unlike Bun) leaves `import.meta.main` undefined, so a main-module guard
-// would silently skip the seed — this module is only ever run as the `db:seed`
-// script and imported by nothing, so invoke directly.
-try {
-  await seed();
-} catch (error: unknown) {
-  console.error("Error seeding database:", error);
-  process.exit(1);
-}
+});

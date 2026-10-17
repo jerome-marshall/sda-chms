@@ -1,4 +1,4 @@
-import type { PeopleInsertDb } from "@schema/people";
+import type { PeopleInsertDb } from "@schema";
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 

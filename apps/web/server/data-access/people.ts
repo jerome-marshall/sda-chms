@@ -1,5 +1,5 @@
-import { householdsTable, peopleTable } from "@schema/people";
-import type { HouseholdsInsertDb, PeopleInsertDb } from "@schema/people";
+import { householdsTable, peopleTable } from "@schema";
+import type { HouseholdsInsertDb, PeopleInsertDb } from "@schema";
 import { eq } from "void/db";
 
 import type { DbTransaction } from "../db";

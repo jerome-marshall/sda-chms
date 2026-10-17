@@ -1,10 +1,11 @@
-import type { PeopleInsertDb } from "@sda-chms/db/schema/people";
 import {
   DIETARY_PREFERENCES_VALUES,
   GENDER_VALUES,
   MARITAL_STATUS_VALUES,
 } from "@sda-chms/shared/constants/people";
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
+
+import type { PeopleInsertDb } from "../db/schema/people";
 
 // ---------------------------------------------------------------------------
 // Types

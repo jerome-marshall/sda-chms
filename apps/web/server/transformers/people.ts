@@ -1,4 +1,4 @@
-import type { PeopleInsertDb, PeopleSelectDb } from "@schema/people";
+import type { PeopleInsertDb, PeopleSelectDb } from "@schema";
 import type {
   PersonInsertForm,
   PersonUpdateForm,

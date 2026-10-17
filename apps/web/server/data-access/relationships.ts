@@ -1,5 +1,5 @@
-import { relationshipsTable } from "@schema/people";
-import type { RelationshipsInsertDb } from "@schema/people";
+import { relationshipsTable } from "@schema";
+import type { RelationshipsInsertDb } from "@schema";
 import { RELATIONSHIP_TYPE } from "@sda-chms/shared/constants/people";
 import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
 import { eq } from "void/db";

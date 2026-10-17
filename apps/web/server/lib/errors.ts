@@ -1,4 +1,4 @@
-import { getDbErrorMessage } from "@schema/lib/db-errors";
+import { getDbErrorMessage } from "@schema";
 import type { ApiErrorBody } from "@sda-chms/shared/types/errors";
 import { DbError } from "@sda-chms/shared/utils/errors";
 import type { Context } from "hono";

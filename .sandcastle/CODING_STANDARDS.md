@@ -18,16 +18,15 @@ in `CONTEXT.md`, `docs/adr/`, and `docs/agents/` (read via `docs/agents/domain.m
 
 - No `any`, no unchecked casts, no non-null `!` to silence the compiler — model
   the types instead. `pnpm check-types` must pass.
-- Validate external input at the boundary. Environment access goes through the
-  `@sda-chms/env` schema — never read `process.env` directly or bypass it.
+- Validate external input at the boundary. Server env access goes through the
+  `apps/web/env.ts` schema (`void/env`) — never read `process.env` directly or bypass it.
 
 ## Testing
 
-- Server logic is covered by **integration tests** that exercise the real code
-  path against in-memory **PGlite**, injected via the `getDb`/`setTestDb` seam.
-  Do **not** mock the database.
-- Tests must never connect to a cloud/production database. `vp test` pins a dummy
-  `DATABASE_URL`; E2E uses the throwaway local Postgres only.
+- Server logic is covered by **integration tests** that mount the real Void
+  route files on bare Hono and exercise them against in-memory **PGlite**
+  through the `void/db` test alias. Do **not** mock the database.
+- Tests must never connect to a cloud/production database. E2E uses the throwaway local Postgres only.
 - Use descriptive test names that state the expected behaviour.
 - New or changed behaviour must come with a test (red-green-refactor).
 
@@ -35,7 +34,7 @@ in `CONTEXT.md`, `docs/adr/`, and `docs/agents/` (read via `docs/agents/domain.m
 
 - This is a Vite+ monorepo (`apps/*`, `packages/*`). Use `pnpm run` and `vp run`
   tasks, never `npm`/`yarn`. Shared `catalog:` versions are defined at the workspace root.
-- Persistence is Drizzle ORM; schema lives in the `@sda-chms/db` package. Schema
-  changes go through Drizzle, not ad-hoc SQL.
+- Persistence is Drizzle ORM; schema lives in `apps/web/db`. Schema
+  changes go through `void db generate`/`void db migrate`, not ad-hoc SQL.
 - Keep modules focused on a single responsibility; respect existing context/
   module boundaries documented in `CONTEXT.md` and the ADRs.
