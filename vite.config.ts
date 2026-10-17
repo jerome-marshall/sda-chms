@@ -98,6 +98,8 @@ export default defineConfig({
       "jsx-a11y/tabindex-no-positive": "error",
       // Main had useFocusableInteractive at warn, so this stays warn.
       "jsx-a11y/interactive-supports-focus": "warn",
+      // Main had useKeyWithClickEvents off, so this stays off.
+      "jsx-a11y/click-events-have-key-events": "off",
       // House-style conflicts: the repo predates these Ultracite Oxlint
       // rules and follows the opposite convention throughout. Fixing them
       // would rewrite every file, so they stay off (see trail for the
