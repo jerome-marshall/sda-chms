@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from "vite-plus/test";
 
 import type { Person } from "@/types/api";

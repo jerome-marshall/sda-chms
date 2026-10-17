@@ -61,3 +61,4 @@ dev-dist
 
 # Void generated code (void prepare)
 .void/
+.void-wrangler.jsonc

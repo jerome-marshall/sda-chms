@@ -52,7 +52,9 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.3",
     "@sda-chms/config": "workspace:*",
+    "@sda-chms/db": "workspace:*",
     "@tanstack/react-query-devtools": "^5.101.1",
     "@tanstack/react-router-devtools": "^1.167.0",
     "@tanstack/router-plugin": "^1.168.18",
