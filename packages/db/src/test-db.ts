@@ -66,7 +66,9 @@ export async function createTestDb(): Promise<TestDb> {
   return {
     db: asDatabase(db),
     client,
-    reset: () => client.exec(truncate).then(() => {}),
+    reset: async () => {
+      await client.exec(truncate);
+    },
     close: () => client.close(),
   };
 }

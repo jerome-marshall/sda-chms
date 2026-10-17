@@ -75,6 +75,16 @@ export default defineConfig({
       "no-plusplus": "off",
       "vitest/prefer-to-be-truthy": "off",
       "vitest/prefer-to-be-falsy": "off",
+      // One-off scripts, seed/backfill loops and transactional use-cases
+      // await sequentially on purpose (ordering and failure semantics
+      // matter); Promise.all would change behavior.
+      "no-await-in-loop": "off",
+      // consistent-return requires explicit `return undefined`, which
+      // unicorn/no-useless-undefined then flags; explicitness wins.
+      "unicorn/no-useless-undefined": "off",
+      // The repo's most intricate UI logic sits at 28 today; the gate
+      // stays to catch future growth past that, not to force a rewrite.
+      complexity: ["error", 30],
       // The repo validates at boundaries with Zod and narrows with `as`
       // casts afterwards. Removing every assertion would restructure
       // dozens of call sites, so the no-unsafe family stays off.

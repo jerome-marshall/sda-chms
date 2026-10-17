@@ -142,7 +142,7 @@ export function ImportantDatesCard() {
 
     return people
       .flatMap((person) => getEntriesForPerson(person, today))
-      .sort((a, b) => a.daysUntil - b.daysUntil);
+      .toSorted((a, b) => a.daysUntil - b.daysUntil);
   }, [people]);
 
   return (

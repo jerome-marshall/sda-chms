@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download, Plus } from "lucide-react";
 
-import PeopleList from "@/components/people/people-list";
+import { PeopleList } from "@/components/people/people-list";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

@@ -5,7 +5,10 @@ import { queryOptions } from "@/lib/query";
 export const Route = createFileRoute("/people")({
   component: RouteComponent,
   loader: ({ context: { queryClient } }) => {
-    queryClient.prefetchQuery(queryOptions.people());
+    // Prefetch failures resolve through the components' own queries.
+    void queryClient.query(queryOptions.people()).catch(() => {
+      // Components refetch on mount, so a failed prefetch is harmless.
+    });
   },
   staticData: {
     breadcrumb: "People",

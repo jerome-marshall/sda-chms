@@ -1,6 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { BarChart, Calendar, Church, CreditCard, Settings, Users2 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import {
+  BarChart,
+  Calendar,
+  Church,
+  CreditCard,
+  Settings,
+  Users2,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type * as React from "react";
 
 import {
@@ -59,9 +66,11 @@ const data: { navMain: NavItem[] } = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  ...sidebarProps
+}: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar variant="floating" {...props}>
+    <Sidebar variant="floating" {...sidebarProps}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

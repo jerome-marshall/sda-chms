@@ -1,17 +1,41 @@
 import { faker } from "@faker-js/faker";
-import { DIETARY_PREFERENCES_VALUES, GENDER_VALUES, HOUSEHOLD_ROLE, IMPORTANT_DATE_CATEGORY, IMPORTANT_DATE_RECURRENCE, MARITAL_STATUS, MEMBERSHIP_STATUS, RELATIONSHIP_TYPE, SPOUSE_STATE } from '@sda-chms/shared/constants/people';
-import type { MARITAL_STATUS_VALUES, MEMBERSHIP_STATUS_VALUES, SPOUSE_STATE_VALUES } from '@sda-chms/shared/constants/people';
+import {
+  DIETARY_PREFERENCES_VALUES,
+  GENDER_VALUES,
+  HOUSEHOLD_ROLE,
+  IMPORTANT_DATE_CATEGORY,
+  IMPORTANT_DATE_RECURRENCE,
+  MARITAL_STATUS,
+  MEMBERSHIP_STATUS,
+  RELATIONSHIP_TYPE,
+  SPOUSE_STATE,
+} from "@sda-chms/shared/constants/people";
+import type {
+  MARITAL_STATUS_VALUES,
+  MEMBERSHIP_STATUS_VALUES,
+  SPOUSE_STATE_VALUES,
+} from "@sda-chms/shared/constants/people";
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
 import { getSabbathSchoolClass } from "@sda-chms/shared/utils/sabbath-school";
 import dotenv from "dotenv";
 import { count } from "drizzle-orm";
-import { drizzle } from 'drizzle-orm/node-postgres';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { drizzle } from "drizzle-orm/node-postgres";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 // biome-ignore lint/performance/noNamespaceImport: <import schema>
 import * as schema from "./schema/index.js";
-import { departmentsTable, groupsTable, householdsTable, peopleDepartmentsTable, peopleGroupsTable, peopleTable, positionHistoryTable, positionsTable, relationshipsTable } from './schema/people.js';
-import type { HouseholdsInsertDb, PeopleInsertDb } from './schema/people.js';
+import {
+  departmentsTable,
+  groupsTable,
+  householdsTable,
+  peopleDepartmentsTable,
+  peopleGroupsTable,
+  peopleTable,
+  positionHistoryTable,
+  positionsTable,
+  relationshipsTable,
+} from "./schema/people.js";
+import type { HouseholdsInsertDb, PeopleInsertDb } from "./schema/people.js";
 
 // ============================================================================
 // SOUTH INDIAN NAME DATA (Hosur, Tamil Nadu congregation)
@@ -785,7 +809,7 @@ function rollChildAges(headAge: number, spouseAge: number): number[] {
   ]);
   return Array.from({ length: childCount }, () =>
     faker.number.int({ min: 0, max: maxChildAge })
-  ).sort((a, b) => b - a); // eldest first
+  ).toSorted((a, b) => b - a); // eldest first
 }
 
 interface CoupleMembership {
@@ -858,13 +882,14 @@ function planCoupleFamily(): FamilyPlan {
   const spouseFirst = getSouthIndianFirstName(spouseGender);
 
   const childAges = rollChildAges(headAge, spouseAge);
+  const eldestChildAge = childAges[0];
   const eldestChildDob =
-    childAges.length > 0 ? dobForAge(childAges[0] as number) : null;
+    eldestChildAge === undefined ? null : dobForAge(eldestChildAge);
 
   const membership = rollCoupleMembership(headAge, spouseAge);
 
   const weddingLatest =
-    eldestChildDob == null
+    eldestChildDob === null || eldestChildDob === undefined
       ? REFERENCE_DATE
       : new Date(eldestChildDob.getTime() - 270 * DAY_MS);
   const weddingDate = generateWeddingDate(headDob, weddingLatest);
@@ -986,7 +1011,7 @@ function planVisitorFamily(): FamilyPlan {
       ]
     : [faker.number.int({ min: 20, max: 55 })];
 
-  ages.forEach((age, index) => {
+  for (const [index, age] of ages.entries()) {
     const gender = index === 0 ? pick(GENDER_VALUES) : "female";
     const dob = dobForAge(age);
     const draft = basePersonDraft({
@@ -1002,7 +1027,7 @@ function planVisitorFamily(): FamilyPlan {
     draft.householdRole =
       index === 0 ? HOUSEHOLD_ROLE.HEAD : HOUSEHOLD_ROLE.SPOUSE;
     members.push({ draft, dob, role: index === 0 ? "head" : "spouse" });
-  });
+  }
 
   return { household: planHousehold(lastName), members };
 }
@@ -1317,9 +1342,9 @@ function collectFamilyMemberships(
 ): void {
   // Teens and adults only.
   for (let i = 0; i < plan.members.length; i += 1) {
-    const member = plan.members[i] as FamilyMember;
+    const member = plan.members[i];
     const personId = result.memberIds[i];
-    if (!personId || ageOn(member.dob) < 13) {
+    if (!member || !personId || ageOn(member.dob) < 13) {
       continue;
     }
     collectGroupMemberships(personId, statics, acc);
@@ -1458,7 +1483,9 @@ async function seed() {
 // tsx (unlike Bun) leaves `import.meta.main` undefined, so a main-module guard
 // would silently skip the seed — this module is only ever run as the `db:seed`
 // script and imported by nothing, so invoke directly.
-seed().catch((error: unknown) => {
+try {
+  await seed();
+} catch (error: unknown) {
   console.error("Error seeding database:", error);
   process.exit(1);
-});
+}

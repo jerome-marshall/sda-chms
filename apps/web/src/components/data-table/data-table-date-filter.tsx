@@ -23,7 +23,7 @@ function getIsDateRange(value: DateSelection): value is DateRange {
 
 function parseAsDate(timestamp: number | string | undefined): Date | undefined {
   if (!timestamp) {
-    return;
+    return undefined;
   }
 
   const numericTimestamp =

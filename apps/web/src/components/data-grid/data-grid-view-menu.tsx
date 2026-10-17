@@ -38,8 +38,7 @@ export function DataGridViewMenu<TData>({
       table
         .getAllColumns()
         .filter(
-          (column) =>
-            column.accessorFn !== undefined && column.getCanHide()
+          (column) => column.accessorFn !== undefined && column.getCanHide()
         ),
     [table]
   );

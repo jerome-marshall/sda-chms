@@ -18,8 +18,8 @@ export function formatLabel(value: string | null | undefined): string {
     return "—";
   }
   return value
-    .replaceAll('_', " ")
-    .replaceAll(/\b\w/g, (char) => char.toUpperCase());
+    .replaceAll("_", " ")
+    .replaceAll(/\b\w/gu, (char) => char.toUpperCase());
 }
 
 /** Maps a membership status to its Tailwind color classes for badge styling. */

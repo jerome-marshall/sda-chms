@@ -1,5 +1,5 @@
-import { flexRender } from '@tanstack/react-table';
-import type { Table as TanstackTable } from '@tanstack/react-table';
+import { flexRender } from "@tanstack/react-table";
+import type { Table as TanstackTable } from "@tanstack/react-table";
 import type * as React from "react";
 
 import { DataGridColumnHeader } from "@/components/data-grid/data-grid-column-header";

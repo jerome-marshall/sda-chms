@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { personInsertFormSchema } from '@sda-chms/shared/schema/people';
-import type { PersonInsertForm } from '@sda-chms/shared/schema/people';
+import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
+import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -16,7 +16,10 @@ const AddPersonForm = () => {
   const { mutate: addPerson, isPending } = useAddPerson({
     onSuccess: (person) => {
       toast.success("Person added successfully");
-      navigate({ to: "/people/$peopleId", params: { peopleId: person.id } });
+      void navigate({
+        to: "/people/$peopleId",
+        params: { peopleId: person.id },
+      });
     },
     onError: (error) => {
       if (error instanceof Error) {

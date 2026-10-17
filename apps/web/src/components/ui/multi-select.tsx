@@ -1,6 +1,13 @@
 import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react";
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -155,32 +162,32 @@ export function MultiSelectValue({
     (overflowBehavior === "wrap-when-open" && open);
 
   const checkOverflow = useCallback(() => {
-    if (valueRef.current == null) {
+    if (valueRef.current === null || valueRef.current === undefined) {
       return;
     }
 
     const containerElement = valueRef.current;
     const overflowElement = overflowRef.current;
-    const items = containerElement.querySelectorAll<HTMLElement>(
+    const itemElements = containerElement.querySelectorAll<HTMLElement>(
       "[data-selected-item]"
     );
 
-    if (overflowElement != null) {
+    if (overflowElement !== null && overflowElement !== undefined) {
       overflowElement.style.display = "none";
     }
-    for (const child of items) {
+    for (const child of itemElements) {
       child.style.removeProperty("display");
     }
     let amount = 0;
-    for (let i = items.length - 1; i >= 0; i--) {
-      const child = items[i];
-      if (child == null) {
+    for (let i = itemElements.length - 1; i >= 0; i--) {
+      const child = itemElements[i];
+      if (child === null || child === undefined) {
         continue;
       }
       if (containerElement.scrollWidth <= containerElement.clientWidth) {
         break;
       }
-      amount = items.length - i;
+      amount = itemElements.length - i;
       child.style.display = "none";
       overflowElement?.style.removeProperty("display");
     }
@@ -299,7 +306,12 @@ export function MultiSelectContent({
               }
             />
           ) : (
-            <button autoFocus className="sr-only" type="button" />
+            <button
+              aria-label="Focus options"
+              autoFocus
+              className="sr-only"
+              type="button"
+            />
           )}
           <CommandList>
             {canSearch && (
@@ -382,7 +394,7 @@ export function MultiSelectSeparator(
 
 function useMultiSelectContext() {
   const context = useContext(MultiSelectContext);
-  if (context == null) {
+  if (context === null || context === undefined) {
     throw new Error(
       "useMultiSelectContext must be used within a MultiSelectContext"
     );
@@ -395,7 +407,7 @@ function debounce<T extends (...args: never[]) => void>(
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  return function (this: unknown, ...args: Parameters<T>) {
+  return function debounced(this: unknown, ...args: Parameters<T>) {
     if (timeout) {
       clearTimeout(timeout);
     }

@@ -61,7 +61,9 @@ export function ProfileHeader({ person }: ProfileHeaderProps) {
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           {person.gender && <span className="capitalize">{person.gender}</span>}
-          {person.age != null && <span>Age {person.age}</span>}
+          {person.age !== null && person.age !== undefined && (
+            <span>Age {person.age}</span>
+          )}
           {person.occupation && (
             <span className="flex items-center gap-1.5">
               <Briefcase className="size-3.5" />

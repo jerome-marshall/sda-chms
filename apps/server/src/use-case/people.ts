@@ -177,7 +177,7 @@ export const getAllHouseholdUseCase = async () => {
     );
 
     const derivedName = `${head?.firstName} ${head?.lastName || ""} Family`
-      .replaceAll(/\s+/g, " ")
+      .replaceAll(/\s+/gu, " ")
       .trim();
 
     return {

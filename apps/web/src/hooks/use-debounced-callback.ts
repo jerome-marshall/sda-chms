@@ -13,10 +13,9 @@ export function useDebouncedCallback<T extends (...args: never[]) => unknown>(
   const setValue = useCallback(
     (...args: Parameters<T>) => {
       window.clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = window.setTimeout(
-        () => handleCallback(...args),
-        delay
-      );
+      debounceTimerRef.current = window.setTimeout(() => {
+        handleCallback(...args);
+      }, delay);
     },
     [handleCallback, delay]
   );

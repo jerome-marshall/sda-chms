@@ -20,7 +20,7 @@ import {
 
 const prs = process.argv
   .slice(2)
-  .map((arg) => Number(arg))
+  .map(Number)
   .filter((n) => Number.isInteger(n) && n > 0);
 
 if (prs.length === 0) {
@@ -66,7 +66,7 @@ for (const pr of prs) {
       );
     }
   } catch (error) {
-    console.error(`  ✗ PR #${pr} (${branch}) failed: ${error}`);
+    console.error(`  ✗ PR #${pr} (${branch}) failed: ${String(error)}`);
   } finally {
     await sandbox.close();
   }

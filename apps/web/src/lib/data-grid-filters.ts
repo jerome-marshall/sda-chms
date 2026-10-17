@@ -136,6 +136,9 @@ function matchPresenceOperator(
   operator: FilterOperator,
   cellValue: unknown
 ): boolean | null {
+  // Chain-of-responsibility matcher: default null delegates operators this
+  // matcher does not own to the next matcher in getFilterFn.
+  // oxlint-disable-next-line typescript/switch-exhaustiveness-check
   switch (operator) {
     case "isEmpty": {
       return isEmptyCellValue(cellValue);
@@ -181,6 +184,9 @@ function matchNumberOperator(
   value: number,
   endValue: unknown
 ): boolean | null {
+  // Chain-of-responsibility matcher: default null delegates operators this
+  // matcher does not own to the next matcher in getFilterFn.
+  // oxlint-disable-next-line typescript/switch-exhaustiveness-check
   switch (operator) {
     case "greaterThan": {
       return cellValue > value;
@@ -210,6 +216,9 @@ function matchStringOperator(
   cellValueStr: string,
   filterValueStr: string
 ): boolean | null {
+  // Chain-of-responsibility matcher: default null delegates operators this
+  // matcher does not own to the next matcher in getFilterFn.
+  // oxlint-disable-next-line typescript/switch-exhaustiveness-check
   switch (operator) {
     case "contains": {
       return cellValueStr.includes(filterValueStr);
@@ -243,7 +252,13 @@ function toComparableStrings(
   cellValue: unknown,
   value: unknown
 ): [string, string] {
-  const cellValueStr = String(cellValue ?? "").toLowerCase();
+  const cellValueStr = String(
+    typeof cellValue === "string" ||
+      typeof cellValue === "number" ||
+      typeof cellValue === "boolean"
+      ? cellValue
+      : ""
+  ).toLowerCase();
   const filterValueStr =
     typeof value === "string" ? value.toLowerCase() : String(value);
   return [cellValueStr, filterValueStr];

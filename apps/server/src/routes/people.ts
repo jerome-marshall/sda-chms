@@ -18,7 +18,7 @@ const app = new Hono()
     return c.json(people, 200);
   })
   .post("/", jsonValidator(personInsertFormSchema), async (c) => {
-    const data = await c.req.valid("json");
+    const data = c.req.valid("json");
     const person = await addPersonUseCase(data);
     return c.json(person, 201);
   })
@@ -29,7 +29,7 @@ const app = new Hono()
   })
   .put("/:id", jsonValidator(personUpdateFormSchema), async (c) => {
     const id = c.req.param("id");
-    const data = await c.req.valid("json");
+    const data = c.req.valid("json");
     const person = await updatePersonUseCase(id, data);
     return c.json(person, 200);
   });

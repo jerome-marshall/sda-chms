@@ -45,7 +45,7 @@ function parseValuesAsNumbers(value: unknown): RangeValue | undefined {
     return [Number(value[0]), Number(value[1])];
   }
 
-  return;
+  return undefined;
 }
 
 interface DataTableSliderFilterProps<TData> {

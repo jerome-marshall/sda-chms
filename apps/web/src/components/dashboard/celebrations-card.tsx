@@ -85,18 +85,20 @@ export function CelebrationsCard() {
     });
   }
 
-  const deduplicatedAnniversaries = [...anniversaryByHousehold.values()].map((members) => ({
-    ...members[0].entry,
-    name:
-      members.length > 1
-        ? members.map((m) => m.firstName).join(" & ")
-        : members[0].entry.name,
-  }));
+  const deduplicatedAnniversaries = [...anniversaryByHousehold.values()].map(
+    (members) => ({
+      ...members[0].entry,
+      name:
+        members.length > 1
+          ? members.map((m) => m.firstName).join(" & ")
+          : members[0].entry.name,
+    })
+  );
 
   const celebrations = [
     ...birthdaysThisMonth,
     ...deduplicatedAnniversaries,
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  ].toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <DashboardCard

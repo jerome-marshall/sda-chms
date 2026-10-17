@@ -4,6 +4,7 @@ import { Flower2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { queryOptions } from "@/lib/query";
+import type { Person } from "@/types/api";
 import { isDeceased } from "@/utils/people";
 
 import { DashboardCard } from "./dashboard-card";
@@ -22,32 +23,34 @@ export function MemorialWatchCard() {
     select: (data) => data.filter((person) => isDeceased(person)),
   });
 
-  const memorialDaysThisWeek = people.filter((person) => {
-    if (!person.memorialDay) {
-      return false;
+  const memorialDaysThisWeek = people.filter(
+    (person): person is Person & { memorialDay: string } => {
+      if (!person.memorialDay) {
+        return false;
+      }
+
+      const today = new Date();
+
+      // Week boundaries: Sunday 00:00 → Saturday 23:59
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+
+      // Project the memorial date into the current year to check the anniversary
+      const memorial = new Date(person.memorialDay);
+      const memorialThisYear = new Date(
+        today.getFullYear(),
+        memorial.getMonth(),
+        memorial.getDate()
+      );
+
+      return memorialThisYear >= startOfWeek && memorialThisYear <= endOfWeek;
     }
-
-    const today = new Date();
-
-    // Week boundaries: Sunday 00:00 → Saturday 23:59
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
-
-    // Project the memorial date into the current year to check the anniversary
-    const memorial = new Date(person.memorialDay);
-    const memorialThisYear = new Date(
-      today.getFullYear(),
-      memorial.getMonth(),
-      memorial.getDate()
-    );
-
-    return memorialThisYear >= startOfWeek && memorialThisYear <= endOfWeek;
-  });
+  );
 
   return (
     <DashboardCard
@@ -62,7 +65,7 @@ export function MemorialWatchCard() {
               // Years elapsed since the memorial, shown as a human-readable label
               const yearsSince =
                 new Date().getFullYear() -
-                new Date(person.memorialDay as string).getFullYear();
+                new Date(person.memorialDay).getFullYear();
 
               return (
                 <div

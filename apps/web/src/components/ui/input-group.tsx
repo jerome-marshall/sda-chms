@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/a11y/noNoninteractiveElementInteractions: <we need to use a div here> */
-import { cva } from 'class-variance-authority';
-import type { VariantProps } from 'class-variance-authority';
+import { cva } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,8 @@ function InputGroupAddon({
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof inputGroupAddonVariants>) {
   return (
+    // Clicking the addon forwards focus to the input; keyboard users tab to the input directly.
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       className={cn(inputGroupAddonVariants({ align }), className)}
       data-align={align}

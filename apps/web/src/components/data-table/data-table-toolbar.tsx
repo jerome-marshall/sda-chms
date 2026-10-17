@@ -145,6 +145,11 @@ function DataTableToolbarFilter<TData>({
         );
       }
 
+      // No boolean filter UI exists yet; boolean-variant columns show no filter.
+      case "boolean": {
+        return null;
+      }
+
       default: {
         return null;
       }

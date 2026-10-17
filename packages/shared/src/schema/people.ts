@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 import {
   DIETARY_PREFERENCES_VALUES,
@@ -109,10 +109,9 @@ export const personInsertFormSchema = z
     importantDates: z.array(importantDateSchema).optional(),
   })
   .refine(
-    (data) => 
+    (data) =>
       // Valid if: role is "head" (doesn't need existing household) OR householdId is provided
-      data.householdRole === "head" || !!data.householdId
-    ,
+      data.householdRole === "head" || !!data.householdId,
     {
       message: "Household is required for non-head of household",
       path: ["householdId"],
@@ -155,7 +154,10 @@ export const relationshipCreateSchema = z
     path: ["relatedPersonId"],
   })
   .refine(
-    (data) => data.type === RELATIONSHIP_TYPE.SPOUSE || data.state == null,
+    (data) =>
+      data.type === RELATIONSHIP_TYPE.SPOUSE ||
+      data.state === null ||
+      data.state === undefined,
     {
       message: "Only a spouse relationship can carry a lifecycle state",
       path: ["state"],

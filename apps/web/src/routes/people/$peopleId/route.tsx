@@ -1,5 +1,5 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router';
-import type { AnyRouteMatch } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import type { AnyRouteMatch } from "@tanstack/react-router";
 
 import { queryOptions } from "@/lib/query";
 
@@ -8,8 +8,14 @@ export const Route = createFileRoute("/people/$peopleId")({
   // Loads person data at the parent level so both detail and edit pages can use it
   loader: async ({ params, context: { queryClient } }) => {
     const [person] = await Promise.all([
-      queryClient.ensureQueryData(queryOptions.person(params.peopleId)),
-      queryClient.ensureQueryData(queryOptions.relationships(params.peopleId)),
+      queryClient.query({
+        ...queryOptions.person(params.peopleId),
+        staleTime: "static",
+      }),
+      queryClient.query({
+        ...queryOptions.relationships(params.peopleId),
+        staleTime: "static",
+      }),
     ]);
     return { person };
   },

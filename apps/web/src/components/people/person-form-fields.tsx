@@ -12,8 +12,9 @@ import {
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { useRouter } from "@tanstack/react-router";
 import { CalendarPlus, Trash2 } from "lucide-react";
-import { useFieldArray } from 'react-hook-form';
-import type { UseFormReturn } from 'react-hook-form';
+import type { ComponentProps } from "react";
+import { useFieldArray } from "react-hook-form";
+import type { UseFormReturn } from "react-hook-form";
 
 import { useHouseholds } from "@/hooks/data/use-households";
 import type { PersonDetail } from "@/types/api";
@@ -62,6 +63,12 @@ const PersonFormFields = ({
     name: "importantDates",
   });
 
+  const handleFormSubmit: NonNullable<ComponentProps<"form">["onSubmit"]> = (
+    event
+  ) => {
+    void form.handleSubmit(onSubmit)(event);
+  };
+
   function appendImportantDate() {
     append({
       id: crypto.randomUUID(),
@@ -78,7 +85,7 @@ const PersonFormFields = ({
       <form
         className="relative space-y-8"
         id={formId}
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={handleFormSubmit}
       >
         <FieldSet>
           <FieldLegend>Personal Information</FieldLegend>

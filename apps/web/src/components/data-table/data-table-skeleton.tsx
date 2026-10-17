@@ -19,11 +19,13 @@ interface DataTableSkeletonProps extends React.ComponentProps<"div"> {
   withViewOptions?: boolean;
 }
 
+const defaultCellWidths = ["auto"];
+
 export function DataTableSkeleton({
   columnCount,
   rowCount = 10,
   filterCount = 0,
-  cellWidths = ["auto"],
+  cellWidths = defaultCellWidths,
   withViewOptions = true,
   withPagination = true,
   shrinkZero = false,
@@ -58,12 +60,12 @@ export function DataTableSkeleton({
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {Array.from({ length: 1 }, (_, i) => (
+            {Array.from({ length: 1 }, (_headerRow, i) => (
               <TableRow
                 className="hover:bg-transparent"
                 key={`skeleton-header-row-${i.toString()}`}
               >
-                {Array.from({ length: columnCount }, (_, j) => (
+                {Array.from({ length: columnCount }, (_headerCell, j) => (
                   <TableHead
                     key={`skeleton-header-cell-${i.toString()}-${j.toString()}`}
                     style={{
@@ -78,12 +80,12 @@ export function DataTableSkeleton({
             ))}
           </TableHeader>
           <TableBody>
-            {Array.from({ length: rowCount }, (_, i) => (
+            {Array.from({ length: rowCount }, (_bodyRow, i) => (
               <TableRow
                 className="hover:bg-transparent"
                 key={`skeleton-body-row-${i.toString()}`}
               >
-                {Array.from({ length: columnCount }, (_, j) => (
+                {Array.from({ length: columnCount }, (_bodyCell, j) => (
                   <TableCell
                     key={`skeleton-body-cell-${i.toString()}-${j.toString()}`}
                     style={{

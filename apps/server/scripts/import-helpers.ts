@@ -50,23 +50,29 @@ export interface ImportSummary {
 // ---------------------------------------------------------------------------
 
 function str(val: unknown): string | null {
-  if (val == null || val === "") {
+  if (val === null || val === undefined || val === "") {
     return null;
   }
-  const s = String(val).trim();
-  return s === "" ? null : s;
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    return trimmed === "" ? null : trimmed;
+  }
+  if (typeof val === "number" || typeof val === "boolean") {
+    return String(val);
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------------------
 // Top-level regex constants
 // ---------------------------------------------------------------------------
 
-const YEAR_ONLY_RE = /^\d{4}$/;
-const MONTH_YEAR_RE = /^(\d{1,2})\/(\d{4})$/;
-const FULL_DATE_RE = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-const WHITESPACE_RE = /\s+/;
-const NEWLINE_RE = /\n/;
-const WHITESPACE_GLOBAL_RE = /\s+/g;
+const YEAR_ONLY_RE = /^\d{4}$/u;
+const MONTH_YEAR_RE = /^(?<month>\d{1,2})\/(?<year>\d{4})$/u;
+const FULL_DATE_RE = /^(?<day>\d{1,2})\/(?<month>\d{1,2})\/(?<year>\d{4})$/u;
+const WHITESPACE_RE = /\s+/u;
+const NEWLINE_RE = /\n/u;
+const WHITESPACE_GLOBAL_RE = /\s+/gu;
 
 // ---------------------------------------------------------------------------
 // Date Sanitization (planning doc section 5)

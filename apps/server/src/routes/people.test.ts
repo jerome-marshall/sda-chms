@@ -1,7 +1,7 @@
 import { setTestDb } from "@sda-chms/db";
 import type { PeopleInsertDb } from "@sda-chms/db/schema/people";
-import { createTestDb } from '@sda-chms/db/test-db';
-import type { TestDb } from '@sda-chms/db/test-db';
+import { createTestDb } from "@sda-chms/db/test-db";
+import type { TestDb } from "@sda-chms/db/test-db";
 import {
   afterAll,
   beforeAll,
@@ -13,6 +13,17 @@ import {
 
 import { insertPerson } from "../data-access/people";
 import app from "../index";
+
+/** A bare person row for direct data-access inserts (no household needed). */
+const minimalPerson = (
+  overrides: Partial<PeopleInsertDb> = {}
+): PeopleInsertDb => ({
+  firstName: "Jo",
+  maritalStatus: "single",
+  membershipStatus: "member",
+  isActive: true,
+  ...overrides,
+});
 
 /** Short, lowercase first name exercises issue #1 + the title-casing transformer. */
 const validHead = {
@@ -60,19 +71,19 @@ describe("people routes (integration, PGlite)", () => {
     setTestDb(testDb.db);
   });
 
+  beforeEach(async () => {
+    await testDb.reset();
+  });
+
   afterAll(async () => {
     setTestDb(null);
     await testDb.close();
   });
 
-  beforeEach(async () => {
-    await testDb.reset();
-  });
-
   it("GET /people returns an empty list initially", async () => {
     const res = await app.request("/people");
     expect(res.status).toBe(200);
-    await expect(json<PersonResponse[]>(res)).resolves.toEqual([]);
+    await expect(json<PersonResponse[]>(res)).resolves.toStrictEqual([]);
   });
 
   it("POST /people creates a head, title-cases the name, and links a household", async () => {
@@ -160,17 +171,6 @@ describe("people routes (integration, PGlite)", () => {
   // by default, so the guard needs NULLS NOT DISTINCT to catch partial-data
   // duplicates. The user must see a clear "may already exist" 409, not a raw
   // DB error.
-
-  /** A bare person row for direct data-access inserts (no household needed). */
-  const minimalPerson = (
-    overrides: Partial<PeopleInsertDb> = {}
-  ): PeopleInsertDb => ({
-    firstName: "Jo",
-    maritalStatus: "single",
-    membershipStatus: "member",
-    isActive: true,
-    ...overrides,
-  });
 
   it("blocks a second Person with the same first name and null last name + null DOB", async () => {
     await insertPerson(minimalPerson());

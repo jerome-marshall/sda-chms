@@ -168,7 +168,7 @@ const settled = await Promise.allSettled(
         pr = parsePrDescription(describe.stdout);
       } catch (error) {
         console.error(
-          `  ! ${issue.id}: PR-description step failed; using fallback body: ${error}`
+          `  ! ${issue.id}: PR-description step failed; using fallback body: ${String(error)}`
         );
       }
 
@@ -195,7 +195,7 @@ const completed: {
   issue: (typeof issues)[number];
   pr: { title: string; body: string } | null;
 }[] = [];
-settled.forEach((outcome, i) => {
+for (const [i, outcome] of settled.entries()) {
   const issue = issues[i];
   if (
     issue &&
@@ -204,7 +204,7 @@ settled.forEach((outcome, i) => {
   ) {
     completed.push({ issue, pr: outcome.value.pr });
   }
-});
+}
 
 console.log(
   `\nExecution complete. ${completed.length} branch(es) with commits.`
@@ -249,7 +249,7 @@ for (const { issue, pr } of completed) {
     console.log(`  ✓ ${issue.id} → ${url}`);
   } catch (error) {
     console.error(
-      `  ✗ ${issue.id} (${issue.branch}) failed to publish: ${error}`
+      `  ✗ ${issue.id} (${issue.branch}) failed to publish: ${String(error)}`
     );
   }
 }

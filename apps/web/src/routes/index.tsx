@@ -20,8 +20,13 @@ export const Route = createFileRoute("/")({
     breadcrumb: "Home",
   },
   loader: ({ context: { queryClient } }) => {
-    queryClient.prefetchQuery(queryOptions.people());
-    queryClient.prefetchQuery(queryOptions.groups());
+    // Prefetch failures resolve through the components' own queries.
+    void queryClient.query(queryOptions.people()).catch(() => {
+      // Components refetch on mount, so a failed prefetch is harmless.
+    });
+    void queryClient.query(queryOptions.groups()).catch(() => {
+      // Components refetch on mount, so a failed prefetch is harmless.
+    });
   },
 });
 

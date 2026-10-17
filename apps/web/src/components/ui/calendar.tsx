@@ -5,8 +5,8 @@ import {
 } from "lucide-react";
 // biome-ignore lint/performance/noNamespaceImport: <we need to use the React namespace>
 import * as React from "react";
-import { DayPicker, getDefaultClassNames } from 'react-day-picker';
-import type { Chevron, DayButton, Root, WeekNumber } from 'react-day-picker';
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
+import type { Chevron, DayButton, Root, WeekNumber } from "react-day-picker";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

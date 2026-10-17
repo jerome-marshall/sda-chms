@@ -1,9 +1,9 @@
-import { eq, getDb } from '@sda-chms/db';
-import type { DbTransaction } from '@sda-chms/db';
-import { relationshipsTable } from '@sda-chms/db/schema/people';
-import type { RelationshipsInsertDb } from '@sda-chms/db/schema/people';
-import { RELATIONSHIP_TYPE } from '@sda-chms/shared/constants/people';
-import type { SPOUSE_STATE_VALUES } from '@sda-chms/shared/constants/people';
+import { eq, getDb } from "@sda-chms/db";
+import type { DbTransaction } from "@sda-chms/db";
+import { relationshipsTable } from "@sda-chms/db/schema/people";
+import type { RelationshipsInsertDb } from "@sda-chms/db/schema/people";
+import { RELATIONSHIP_TYPE } from "@sda-chms/shared/constants/people";
+import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
 
 import { withDbErrorHandling } from "../lib/errors";
 

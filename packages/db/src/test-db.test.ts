@@ -8,8 +8,8 @@ import {
 } from "vite-plus/test";
 
 import { householdsTable, peopleTable } from "./schema/people";
-import { createTestDb } from './test-db';
-import type { TestDb } from './test-db';
+import { createTestDb } from "./test-db";
+import type { TestDb } from "./test-db";
 
 describe(createTestDb, () => {
   let testDb: TestDb;
@@ -18,12 +18,12 @@ describe(createTestDb, () => {
     testDb = await createTestDb();
   });
 
-  afterAll(async () => {
-    await testDb.close();
-  });
-
   beforeEach(async () => {
     await testDb.reset();
+  });
+
+  afterAll(async () => {
+    await testDb.close();
   });
 
   it("applies the live schema and round-trips a person", async () => {

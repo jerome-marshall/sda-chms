@@ -1,7 +1,7 @@
 /** Safely converts a string or Date to a Date, returning undefined for invalid/empty values. */
 export const toDate = (value: string | Date | undefined | null) => {
   if (!value) {
-    return;
+    return undefined;
   }
   if (value instanceof Date) {
     return value;
@@ -11,7 +11,7 @@ export const toDate = (value: string | Date | undefined | null) => {
     const d = new Date(value);
     return Number.isNaN(d.getTime()) ? undefined : d;
   }
-  return;
+  return undefined;
 };
 
 /**
@@ -20,7 +20,7 @@ export const toDate = (value: string | Date | undefined | null) => {
  */
 export const toDateString = (date: Date | undefined | null) => {
   if (!date) {
-    return;
+    return undefined;
   }
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -36,7 +36,7 @@ export const toTitleCase = (str: string) =>
   str
     .trim()
     .toLowerCase()
-    .replaceAll(/(?:^|[\s-])\w/g, (match) => match.toUpperCase());
+    .replaceAll(/(?:^|[\s-])\w/gu, (match) => match.toUpperCase());
 
 /**
  * Calculates age in whole years from a date of birth, adjusting for whether the
@@ -44,13 +44,13 @@ export const toTitleCase = (str: string) =>
  * reference date for deterministic results (e.g. seeding/tests).
  */
 export const calculateAge = (
-  dateOfBirth: Date | string | undefined | null,
+  dateOfBirth?: Date | string | null,
   referenceDate: Date = new Date()
 ) => {
   const dob = toDate(dateOfBirth);
 
   if (!dob) {
-    return;
+    return undefined;
   }
 
   const today = referenceDate;

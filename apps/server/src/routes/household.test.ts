@@ -1,6 +1,6 @@
 import { setTestDb } from "@sda-chms/db";
-import { createTestDb } from '@sda-chms/db/test-db';
-import type { TestDb } from '@sda-chms/db/test-db';
+import { createTestDb } from "@sda-chms/db/test-db";
+import type { TestDb } from "@sda-chms/db/test-db";
 import {
   afterAll,
   beforeAll,
@@ -55,13 +55,13 @@ describe("household routes (integration, PGlite)", () => {
     setTestDb(testDb.db);
   });
 
+  beforeEach(async () => {
+    await testDb.reset();
+  });
+
   afterAll(async () => {
     setTestDb(null);
     await testDb.close();
-  });
-
-  beforeEach(async () => {
-    await testDb.reset();
   });
 
   it("GET /households surfaces the family name the user stored, not one derived from the head", async () => {

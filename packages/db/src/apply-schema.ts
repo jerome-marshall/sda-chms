@@ -20,21 +20,19 @@ export async function applySchema(connectionString: string): Promise<number> {
   }
 }
 
-// Run directly: `bun run src/apply-schema.ts` (reads DATABASE_URL).
+// Run directly: `pnpm exec tsx src/apply-schema.ts` (reads DATABASE_URL).
 if (import.meta.main) {
   const url = process.env.DATABASE_URL;
-  if (url) {
-    applySchema(url)
-      .then((count) => {
-        console.log(`Applied ${count} schema statements.`);
-        process.exit(0);
-      })
-      .catch((error) => {
-        console.error("Failed to apply schema:", error);
-        process.exit(1);
-      });
-  } else {
+  if (!url) {
     console.error("DATABASE_URL is required");
+    process.exit(1);
+  }
+  try {
+    const count = await applySchema(url);
+    console.log(`Applied ${count} schema statements.`);
+    process.exit(0);
+  } catch (error) {
+    console.error("Failed to apply schema:", error);
     process.exit(1);
   }
 }

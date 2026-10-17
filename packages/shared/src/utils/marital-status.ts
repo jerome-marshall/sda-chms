@@ -1,5 +1,9 @@
-import { MEMBERSHIP_STATUS, SPOUSE_STATE } from '../constants/people';
-import type { MARITAL_STATUS_VALUES, MEMBERSHIP_STATUS_VALUES, SPOUSE_STATE_VALUES } from '../constants/people';
+import { MEMBERSHIP_STATUS, SPOUSE_STATE } from "../constants/people";
+import type {
+  MARITAL_STATUS_VALUES,
+  MEMBERSHIP_STATUS_VALUES,
+  SPOUSE_STATE_VALUES,
+} from "../constants/people";
 
 type SpouseState = (typeof SPOUSE_STATE_VALUES)[number];
 type MaritalStatus = (typeof MARITAL_STATUS_VALUES)[number];
@@ -33,7 +37,7 @@ export const resolveSpouseState = (
   storedState: SpouseState | null,
   partnerDeceased: boolean
 ): SpouseState | null => {
-  if (storedState == null) {
+  if (storedState === null || storedState === undefined) {
     return null;
   }
   if (partnerDeceased && storedState !== SPOUSE_STATE.DIVORCED) {
@@ -60,14 +64,16 @@ export const selectGoverningSpouseState = (
 ): SpouseState | null => {
   const resolved = links.flatMap((link) => {
     const state = resolveSpouseState(link.storedState, link.partnerDeceased);
-    return state == null ? [] : [{ createdAt: link.createdAt, state }];
+    return state === null || state === undefined
+      ? []
+      : [{ createdAt: link.createdAt, state }];
   });
 
   if (resolved.length === 0) {
     return null;
   }
 
-  const [governing] = resolved.sort((a, b) => {
+  const [governing] = resolved.toSorted((a, b) => {
     const byPriority =
       GOVERNING_SPOUSE_STATE_PRIORITY[a.state] -
       GOVERNING_SPOUSE_STATE_PRIORITY[b.state];

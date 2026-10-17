@@ -120,8 +120,14 @@ function lastMatch(text: string, re: RegExp): string | null {
 export function parsePrDescription(
   raw: string
 ): { title: string; body: string } | null {
-  const title = lastMatch(raw, /<pr-title>([\s\S]*?)<\/pr-title>/g)?.trim();
-  const body = lastMatch(raw, /<pr-body>([\s\S]*?)<\/pr-body>/g)?.trim();
+  const title = lastMatch(
+    raw,
+    /<pr-title>(?<title>[\s\S]*?)<\/pr-title>/gu
+  )?.trim();
+  const body = lastMatch(
+    raw,
+    /<pr-body>(?<body>[\s\S]*?)<\/pr-body>/gu
+  )?.trim();
   if (!(title && body)) {
     return null;
   }

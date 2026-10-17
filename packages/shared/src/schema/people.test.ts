@@ -17,7 +17,7 @@ const validHead = {
   householdRole: "head",
 } as const;
 
-describe(personInsertFormSchema, () => {
+describe("personInsertFormSchema validation", () => {
   it("accepts a short, two-letter first name (issue #1)", () => {
     expect(personInsertFormSchema.safeParse(validHead).success).toBe(true);
   });
@@ -66,11 +66,11 @@ describe(personInsertFormSchema, () => {
       fathersName: "Joseph Krishnamurthy",
       mothersName: "Mary Krishnamurthy",
     });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.fathersName).toBe("Joseph Krishnamurthy");
-      expect(result.data.mothersName).toBe("Mary Krishnamurthy");
+    if (!result.success) {
+      throw new Error(`parse failed: ${JSON.stringify(result.error.issues)}`);
     }
+    expect(result.data.fathersName).toBe("Joseph Krishnamurthy");
+    expect(result.data.mothersName).toBe("Mary Krishnamurthy");
   });
 
   it("allows omitting father's and mother's name", () => {
@@ -85,11 +85,12 @@ describe(personInsertFormSchema, () => {
       memorialDay: "2024-05-01",
     });
     expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues.some((i) => i.path[0] === "memorialDay")).toBe(
-        true
-      );
+    if (result.success) {
+      throw new Error("parse unexpectedly succeeded");
     }
+    expect(result.error.issues.some((i) => i.path[0] === "memorialDay")).toBe(
+      true
+    );
   });
 
   it("allows a Memorial Day when the Person is deceased (issue #3)", () => {

@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RELATIONSHIP_TYPE } from "@sda-chms/shared/constants/people";
-import { personUpdateFormSchema } from '@sda-chms/shared/schema/people';
-import type { PersonInsertForm } from '@sda-chms/shared/schema/people';
+import { personUpdateFormSchema } from "@sda-chms/shared/schema/people";
+import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -27,7 +27,7 @@ const EditPersonForm = ({ person }: EditPersonFormProps) => {
     personId: person.id,
     onSuccess: (updatedPerson) => {
       toast.success("Person updated successfully");
-      navigate({
+      void navigate({
         to: "/people/$peopleId",
         params: { peopleId: updatedPerson.id },
       });

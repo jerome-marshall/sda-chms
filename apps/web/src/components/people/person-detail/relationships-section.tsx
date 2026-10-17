@@ -1,5 +1,11 @@
-import { HOUSEHOLD_ROLE, RELATIONSHIP_TYPE, RELATIONSHIP_TYPE_OPTIONS, SPOUSE_STATE_OPTIONS } from '@sda-chms/shared/constants/people';
-import type { RELATIONSHIP_TYPE_VALUES, SPOUSE_STATE_VALUES } from '@sda-chms/shared/constants/people';
+import {
+  HOUSEHOLD_ROLE,
+  RELATIONSHIP_TYPE,
+  RELATIONSHIP_TYPE_OPTIONS,
+  SPOUSE_STATE_OPTIONS,
+  SPOUSE_STATE_VALUES,
+} from "@sda-chms/shared/constants/people";
+import type { RELATIONSHIP_TYPE_VALUES } from "@sda-chms/shared/constants/people";
 import { Sparkles, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 
@@ -47,7 +53,14 @@ function SpouseStateControl({
 
   return (
     <Select
-      onValueChange={(value) => onChange(relationshipId, value as SpouseState)}
+      onValueChange={(value) => {
+        const next = SPOUSE_STATE_VALUES.find(
+          (candidate) => candidate === value
+        );
+        if (next !== undefined) {
+          onChange(relationshipId, next);
+        }
+      }}
       value={state}
     >
       <SelectTrigger aria-label="Spouse lifecycle state">
@@ -277,7 +290,14 @@ export function RelationshipsSection({
 
           {isSpouse ? (
             <Select
-              onValueChange={(value) => setState(value as SpouseState)}
+              onValueChange={(value) => {
+                const next = SPOUSE_STATE_VALUES.find(
+                  (candidate) => candidate === value
+                );
+                if (next !== undefined) {
+                  setState(next);
+                }
+              }}
               value={state}
             >
               <SelectTrigger

@@ -1,5 +1,22 @@
-import { getCoreRowModel, getFacetedMinMaxValues, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
-import type { ColumnFiltersState, PaginationState, RowSelectionState, SortingState, TableOptions, TableState, VisibilityState } from '@tanstack/react-table';
+import {
+  getCoreRowModel,
+  getFacetedMinMaxValues,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import type {
+  ColumnFiltersState,
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+  TableOptions,
+  TableState,
+  VisibilityState,
+} from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 
 interface UseClientDataTableProps<TData> extends Omit<

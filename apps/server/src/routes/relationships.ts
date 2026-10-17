@@ -14,7 +14,7 @@ import {
 
 const app = new Hono()
   .post("/", jsonValidator(relationshipCreateSchema), async (c) => {
-    const data = await c.req.valid("json");
+    const data = c.req.valid("json");
     const relationship = await addRelationshipUseCase(data);
     return c.json(relationship, 201);
   })
@@ -25,7 +25,7 @@ const app = new Hono()
   })
   .patch("/:id", jsonValidator(relationshipUpdateSchema), async (c) => {
     const id = c.req.param("id");
-    const { state } = await c.req.valid("json");
+    const { state } = c.req.valid("json");
     const relationship = await updateRelationshipStateUseCase(id, state);
     return c.json(relationship, 200);
   })

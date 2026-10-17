@@ -25,7 +25,7 @@ import {
   getDefaultOperator,
   getOperatorsForVariant,
 } from "@/lib/data-grid-filters";
-import type { FilterOperator, FilterValue } from "@/types/data-grid";
+import type { FilterValue } from "@/types/data-grid";
 
 const OPERATORS_WITHOUT_VALUE = new Set([
   "isEmpty",
