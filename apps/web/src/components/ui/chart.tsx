@@ -1,7 +1,5 @@
-// biome-ignore lint/performance/noNamespaceImport: React namespace import needed for hooks
 import * as React from "react";
 import type { TooltipValueType } from "recharts";
-// biome-ignore lint/performance/noNamespaceImport: Recharts requires namespace import
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "@/lib/utils";
@@ -23,7 +21,6 @@ export type ChartConfig = Record<
   )
 >;
 
-// biome-ignore lint/style/useConsistentTypeDefinitions: Type definition matches component pattern
 interface ChartContextProps {
   config: ChartConfig;
 }
@@ -93,7 +90,6 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 
   return (
     <style
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: <no need to be dangerously set inner html>
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
           .map(

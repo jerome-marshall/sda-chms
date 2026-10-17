@@ -1,6 +1,5 @@
 import { OTPInput, OTPInputContext } from "input-otp";
 import { MinusIcon } from "lucide-react";
-// biome-ignore lint/performance/noNamespaceImport: React namespace import needed for hooks
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -71,11 +70,9 @@ function InputOTPSlot({
 
 function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
   return (
-    // biome-ignore lint/a11y/useFocusableInteractive: <no need to be focusable>
     <div
       className="flex items-center [&_svg:not([class*='size-'])]:size-4"
       data-slot="input-otp-separator"
-      // biome-ignore lint/a11y/useAriaPropsForRole: <no need to be aria-props for role>
       role="separator"
       {...props}
     >

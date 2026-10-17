@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/a11y/noNoninteractiveElementInteractions: <we need to use a div here> */
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";

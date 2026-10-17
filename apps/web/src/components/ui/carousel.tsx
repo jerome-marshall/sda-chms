@@ -1,7 +1,6 @@
 import useEmblaCarousel from "embla-carousel-react";
 import type { UseEmblaCarouselType } from "embla-carousel-react";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-// biome-ignore lint/performance/noNamespaceImport: React namespace import needed for hooks
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@ type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
 type CarouselOptions = UseCarouselParameters[0];
 type CarouselPlugin = UseCarouselParameters[1];
 
-// biome-ignore lint/style/useConsistentTypeDefinitions: Type definition matches component pattern
 interface CarouselProps {
   opts?: CarouselOptions;
   plugins?: CarouselPlugin;

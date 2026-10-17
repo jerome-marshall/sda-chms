@@ -22,7 +22,6 @@ import { count } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-// biome-ignore lint/performance/noNamespaceImport: <import schema>
 import * as schema from "./schema/index.js";
 import {
   departmentsTable,

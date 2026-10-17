@@ -4,7 +4,6 @@ import { PgTable } from "drizzle-orm/pg-core";
 import { drizzle } from "drizzle-orm/pglite";
 
 import type { Database } from ".";
-// biome-ignore lint/performance/noNamespaceImport: schema must be imported as a namespace for Drizzle
 import * as schema from "./schema";
 import { generateSchemaStatements } from "./schema-sql";
 

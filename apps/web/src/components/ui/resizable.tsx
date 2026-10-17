@@ -1,6 +1,5 @@
 "use client";
 
-// biome-ignore lint/performance/noNamespaceImport: ResizablePrimitive requires namespace import
 import * as ResizablePrimitive from "react-resizable-panels";
 
 import { cn } from "@/lib/utils";
