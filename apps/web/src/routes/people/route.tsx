@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
+
 import { queryOptions } from "@/lib/query";
 
 export const Route = createFileRoute("/people")({

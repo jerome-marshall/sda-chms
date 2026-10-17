@@ -1,5 +1,7 @@
 import { StickyNote } from "lucide-react";
+
 import type { PersonDetail } from "@/types/api";
+
 import { SectionCard } from "./section-card";
 
 interface NoteCardProps {
@@ -15,7 +17,7 @@ function NoteCard({ title, description, content }: NoteCardProps) {
         <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted/60">
           <StickyNote className="size-4 text-muted-foreground" />
         </div>
-        <p className="whitespace-pre-wrap text-foreground text-sm leading-relaxed">
+        <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
           {content || `No ${title.toLowerCase()} recorded.`}
         </p>
       </div>

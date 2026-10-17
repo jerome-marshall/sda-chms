@@ -36,7 +36,7 @@ export const toTitleCase = (str: string) =>
   str
     .trim()
     .toLowerCase()
-    .replace(/(?:^|[\s-])\w/g, (match) => match.toUpperCase());
+    .replaceAll(/(?:^|[\s-])\w/g, (match) => match.toUpperCase());
 
 /**
  * Calculates age in whole years from a date of birth, adjusting for whether the

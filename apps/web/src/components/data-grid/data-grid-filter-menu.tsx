@@ -4,6 +4,7 @@ import type { ColumnFilter, Table } from "@tanstack/react-table";
 import { GripVertical, ListFilter, Trash2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +34,9 @@ const OPERATORS_WITHOUT_VALUE = new Set([
   "isFalse",
 ]);
 
-interface DataGridFilterMenuProps<TData>
-  extends React.ComponentProps<typeof PopoverContent> {
+interface DataGridFilterMenuProps<TData> extends React.ComponentProps<
+  typeof PopoverContent
+> {
   disabled?: boolean;
   table: Table<TData>;
 }
@@ -137,10 +139,10 @@ export function DataGridFilterMenu<TData>({
         {...props}
       >
         <div className="flex flex-col gap-1">
-          <h4 className="font-medium leading-none">
+          <h4 className="leading-none font-medium">
             {columnFilters.length > 0 ? "Filter by" : "No filters applied"}
           </h4>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             {columnFilters.length > 0
               ? "Modify filters to narrow down your people."
               : "Add filters to narrow down your people."}
@@ -191,7 +193,7 @@ export function DataGridFilterMenu<TData>({
 
 interface DataGridFilterItemProps<TData> {
   columnLabels: Map<string, string>;
-  columns: Array<{ id: string; label: string }>;
+  columns: { id: string; label: string }[];
   columnVariants: Map<string, string>;
   filter: ColumnFilter;
   onFilterRemove: (filterId: string) => void;
@@ -220,7 +222,7 @@ function DataGridFilterItem<TData>({
   let valueInput: ReactNode;
   if (OPERATORS_WITHOUT_VALUE.has(filterValue.operator)) {
     valueInput = (
-      <div className="h-9 rounded-4xl border border-input border-dashed bg-input/10" />
+      <div className="h-9 rounded-4xl border border-dashed border-input bg-input/10" />
     );
   } else if (variant === "select" || variant === "multi-select") {
     valueInput = (
@@ -264,10 +266,10 @@ function DataGridFilterItem<TData>({
 
   return (
     <div className="grid grid-cols-[auto_72px_1fr_1fr_auto] items-center gap-2">
-      <div className="flex size-9 items-center justify-center rounded-xl border border-border border-dashed text-muted-foreground">
+      <div className="flex size-9 items-center justify-center rounded-xl border border-dashed border-border text-muted-foreground">
         <GripVertical className="size-4" />
       </div>
-      <span className="text-muted-foreground text-sm">Where</span>
+      <span className="text-sm text-muted-foreground">Where</span>
       <Select
         onValueChange={(value) => {
           if (!value) {
@@ -308,7 +310,7 @@ function DataGridFilterItem<TData>({
           onFilterUpdate(filter.id, {
             value: {
               ...filterValue,
-              operator: value as FilterOperator,
+              operator: value,
               value: OPERATORS_WITHOUT_VALUE.has(value) ? undefined : "",
               endValue: undefined,
             },

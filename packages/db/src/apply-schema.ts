@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+
 import { generateSchemaStatements } from "./schema-sql";
 
 /**

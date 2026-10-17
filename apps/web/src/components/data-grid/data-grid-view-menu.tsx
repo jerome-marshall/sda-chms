@@ -3,6 +3,7 @@
 import type { Table } from "@tanstack/react-table";
 import { Check, Settings2 } from "lucide-react";
 import { useMemo } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -19,8 +20,9 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-interface DataGridViewMenuProps<TData>
-  extends React.ComponentProps<typeof PopoverContent> {
+interface DataGridViewMenuProps<TData> extends React.ComponentProps<
+  typeof PopoverContent
+> {
   disabled?: boolean;
   table: Table<TData>;
 }
@@ -37,7 +39,7 @@ export function DataGridViewMenu<TData>({
         .getAllColumns()
         .filter(
           (column) =>
-            typeof column.accessorFn !== "undefined" && column.getCanHide()
+            column.accessorFn !== undefined && column.getCanHide()
         ),
     [table]
   );

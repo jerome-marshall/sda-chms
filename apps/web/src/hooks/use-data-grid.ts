@@ -1,23 +1,13 @@
-import {
-  type ColumnFiltersState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  type RowSelectionState,
-  type SortingState,
-  type TableOptions,
-  type TableState,
-  useReactTable,
-  type VisibilityState,
-} from "@tanstack/react-table";
+import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import type { ColumnFiltersState, RowSelectionState, SortingState, TableOptions, TableState, VisibilityState } from '@tanstack/react-table';
 import { useMemo, useState } from "react";
+
 import type { RowHeightValue } from "@/types/data-grid";
 
-interface UseDataGridProps<TData>
-  extends Omit<
-    TableOptions<TData>,
-    "getCoreRowModel" | "getFilteredRowModel" | "getSortedRowModel" | "state"
-  > {
+interface UseDataGridProps<TData> extends Omit<
+  TableOptions<TData>,
+  "getCoreRowModel" | "getFilteredRowModel" | "getSortedRowModel" | "state"
+> {
   initialState?: Partial<TableState>;
 }
 

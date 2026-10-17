@@ -1,6 +1,7 @@
 import { setTestDb } from "@sda-chms/db";
 import type { PeopleInsertDb } from "@sda-chms/db/schema/people";
-import { createTestDb, type TestDb } from "@sda-chms/db/test-db";
+import { createTestDb } from '@sda-chms/db/test-db';
+import type { TestDb } from '@sda-chms/db/test-db';
 import {
   afterAll,
   beforeAll,
@@ -9,6 +10,7 @@ import {
   expect,
   it,
 } from "vite-plus/test";
+
 import { insertPerson } from "../data-access/people";
 import app from "../index";
 
@@ -70,7 +72,7 @@ describe("people routes (integration, PGlite)", () => {
   it("GET /people returns an empty list initially", async () => {
     const res = await app.request("/people");
     expect(res.status).toBe(200);
-    expect(await json<PersonResponse[]>(res)).toEqual([]);
+    await expect(json<PersonResponse[]>(res)).resolves.toEqual([]);
   });
 
   it("POST /people creates a head, title-cases the name, and links a household", async () => {

@@ -1,9 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Flower2 } from "lucide-react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { queryOptions } from "@/lib/query";
 import { isDeceased } from "@/utils/people";
+
 import { DashboardCard } from "./dashboard-card";
 
 const memorialIcon = (
@@ -69,7 +71,7 @@ export function MemorialWatchCard() {
                 >
                   <div className="z-10 flex items-center gap-4">
                     <Avatar className="h-10 w-10 border border-border/50 ring-2 ring-transparent transition-all group-hover:ring-primary/10">
-                      <AvatarFallback className="bg-primary/5 font-medium text-primary text-sm">
+                      <AvatarFallback className="bg-primary/5 text-sm font-medium text-primary">
                         {person.fullName
                           .split(" ")
                           .map((n) => n[0])
@@ -79,10 +81,10 @@ export function MemorialWatchCard() {
                     </Avatar>
 
                     <div className="space-y-1">
-                      <p className="font-medium text-sm leading-none transition-colors group-hover:text-primary">
+                      <p className="text-sm leading-none font-medium transition-colors group-hover:text-primary">
                         {person.fullName}
                       </p>
-                      <p className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <span className="font-semibold text-foreground/70 tabular-nums">
                           {person.memorialDay}
                         </span>
@@ -108,8 +110,8 @@ export function MemorialWatchCard() {
               <Flower2 className="h-8 w-8 text-muted-foreground/50" />
             </div>
             <div className="space-y-1">
-              <p className="font-medium text-sm">No memorials this week</p>
-              <p className="max-w-[200px] text-muted-foreground text-xs">
+              <p className="text-sm font-medium">No memorials this week</p>
+              <p className="max-w-[200px] text-xs text-muted-foreground">
                 Take a moment to check in on members who might need support.
               </p>
             </div>

@@ -12,7 +12,7 @@ in `CONTEXT.md`, `docs/adr/`, and `docs/agents/` (read via `docs/agents/domain.m
 - Prefer named exports over default exports.
 - Choose clarity over cleverness: explicit code over terse code, no nested
   ternaries (use `if`/`else` or `switch`), shallow nesting.
-- Don't add comments that restate the code; comment the *why*, not the *what*.
+- Don't add comments that restate the code; comment the _why_, not the _what_.
 
 ## TypeScript
 

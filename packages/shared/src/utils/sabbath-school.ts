@@ -23,5 +23,5 @@ export const getSabbathSchoolClass = (
     (option) => age >= option.minAge && age <= option.maxAge
   );
 
-  return (match?.value ?? SABBATH_SCHOOL_CLASS.ADULT) as SabbathSchoolClass;
+  return (match?.value ?? SABBATH_SCHOOL_CLASS.ADULT);
 };

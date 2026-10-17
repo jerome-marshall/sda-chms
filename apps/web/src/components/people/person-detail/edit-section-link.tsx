@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
+
 import { buttonVariants } from "../../ui/button";
 
 interface EditSectionLinkProps {

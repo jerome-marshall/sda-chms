@@ -1,36 +1,10 @@
-import {
-  type ColumnFiltersState,
-  getCoreRowModel,
-  getFacetedMinMaxValues,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  type PaginationState,
-  type RowSelectionState,
-  type SortingState,
-  type TableOptions,
-  type TableState,
-  type Updater,
-  useReactTable,
-  type VisibilityState,
-} from "@tanstack/react-table";
-import {
-  parseAsArrayOf,
-  parseAsInteger,
-  parseAsString,
-  type SingleParser,
-  type UseQueryStateOptions,
-  useQueryState,
-  useQueryStates,
-} from "nuqs";
-import {
-  type TransitionStartFunction,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import { getCoreRowModel, getFacetedMinMaxValues, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import type { ColumnFiltersState, PaginationState, RowSelectionState, SortingState, TableOptions, TableState, Updater, VisibilityState } from '@tanstack/react-table';
+import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState, useQueryStates } from 'nuqs';
+import type { SingleParser, UseQueryStateOptions } from 'nuqs';
+import { useCallback, useMemo, useState } from 'react';
+import type { TransitionStartFunction } from 'react';
+
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { getSortingStateParser } from "@/lib/parsers";
 import type { ExtendedColumnSort, QueryKeys } from "@/types/data-table";
@@ -47,7 +21,8 @@ const NON_ALPHANUMERIC_REGEX = /[^a-zA-Z0-9]/;
 const NON_ALPHANUMERIC_SPLIT_REGEX = /[^a-zA-Z0-9]+/;
 
 interface UseDataTableProps<TData>
-  extends Omit<
+  extends
+    Omit<
       TableOptions<TData>,
       | "state"
       | "pageCount"
@@ -135,12 +110,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       .withDefault(initialState?.pagination?.pageSize ?? 10)
   );
 
-  const pagination: PaginationState = useMemo(() => {
-    return {
+  const pagination: PaginationState = useMemo(() => (
+    {
       pageIndex: page - 1, // zero-based index -> one-based index
       pageSize: perPage,
-    };
-  }, [page, perPage]);
+    }
+  ), [page, perPage]);
 
   const onPaginationChange = useCallback(
     (updaterOrValue: Updater<PaginationState>) => {
@@ -158,7 +133,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
   const columnIds = useMemo(
     () =>
-      new Set(columns.map((column) => column.id).filter(Boolean) as string[]),
+      new Set(columns.map((column) => column.id).filter(Boolean)),
     [columns]
   );
 

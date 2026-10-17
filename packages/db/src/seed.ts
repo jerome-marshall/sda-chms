@@ -1,38 +1,17 @@
 import { faker } from "@faker-js/faker";
-import {
-  DIETARY_PREFERENCES_VALUES,
-  GENDER_VALUES,
-  HOUSEHOLD_ROLE,
-  IMPORTANT_DATE_CATEGORY,
-  IMPORTANT_DATE_RECURRENCE,
-  MARITAL_STATUS,
-  type MARITAL_STATUS_VALUES,
-  MEMBERSHIP_STATUS,
-  type MEMBERSHIP_STATUS_VALUES,
-  RELATIONSHIP_TYPE,
-  SPOUSE_STATE,
-  type SPOUSE_STATE_VALUES,
-} from "@sda-chms/shared/constants/people";
+import { DIETARY_PREFERENCES_VALUES, GENDER_VALUES, HOUSEHOLD_ROLE, IMPORTANT_DATE_CATEGORY, IMPORTANT_DATE_RECURRENCE, MARITAL_STATUS, MEMBERSHIP_STATUS, RELATIONSHIP_TYPE, SPOUSE_STATE } from '@sda-chms/shared/constants/people';
+import type { MARITAL_STATUS_VALUES, MEMBERSHIP_STATUS_VALUES, SPOUSE_STATE_VALUES } from '@sda-chms/shared/constants/people';
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
 import { getSabbathSchoolClass } from "@sda-chms/shared/utils/sabbath-school";
 import dotenv from "dotenv";
 import { count } from "drizzle-orm";
-import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { drizzle } from 'drizzle-orm/node-postgres';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+
 // biome-ignore lint/performance/noNamespaceImport: <import schema>
 import * as schema from "./schema/index.js";
-import {
-  departmentsTable,
-  groupsTable,
-  type HouseholdsInsertDb,
-  householdsTable,
-  type PeopleInsertDb,
-  peopleDepartmentsTable,
-  peopleGroupsTable,
-  peopleTable,
-  positionHistoryTable,
-  positionsTable,
-  relationshipsTable,
-} from "./schema/people.js";
+import { departmentsTable, groupsTable, householdsTable, peopleDepartmentsTable, peopleGroupsTable, peopleTable, positionHistoryTable, positionsTable, relationshipsTable } from './schema/people.js';
+import type { HouseholdsInsertDb, PeopleInsertDb } from './schema/people.js';
 
 // ============================================================================
 // SOUTH INDIAN NAME DATA (Hosur, Tamil Nadu congregation)

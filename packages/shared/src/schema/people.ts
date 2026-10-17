@@ -1,4 +1,5 @@
 import z from "zod";
+
 import {
   DIETARY_PREFERENCES_VALUES,
   GENDER_VALUES,
@@ -108,10 +109,10 @@ export const personInsertFormSchema = z
     importantDates: z.array(importantDateSchema).optional(),
   })
   .refine(
-    (data) => {
+    (data) => 
       // Valid if: role is "head" (doesn't need existing household) OR householdId is provided
-      return data.householdRole === "head" || !!data.householdId;
-    },
+      data.householdRole === "head" || !!data.householdId
+    ,
     {
       message: "Household is required for non-head of household",
       path: ["householdId"],

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
+
 import {
   effectiveMaritalStatus,
   maritalStatusFromSpouseState,
@@ -8,7 +9,7 @@ import {
 
 const at = (iso: string) => new Date(iso);
 
-describe("resolveSpouseState", () => {
+describe(resolveSpouseState, () => {
   it("returns null when the link has no stored state", () => {
     expect(resolveSpouseState(null, false)).toBeNull();
   });
@@ -29,7 +30,7 @@ describe("resolveSpouseState", () => {
   });
 });
 
-describe("selectGoverningSpouseState", () => {
+describe(selectGoverningSpouseState, () => {
   it("returns null when there are no spouse links", () => {
     expect(selectGoverningSpouseState([])).toBeNull();
   });
@@ -103,7 +104,7 @@ describe("selectGoverningSpouseState", () => {
   });
 });
 
-describe("effectiveMaritalStatus", () => {
+describe(effectiveMaritalStatus, () => {
   it("returns the stored value when no spouse link governs", () => {
     expect(effectiveMaritalStatus("single", [])).toBe("single");
     expect(effectiveMaritalStatus("divorced", [])).toBe("divorced");

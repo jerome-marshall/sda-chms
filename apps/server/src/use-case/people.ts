@@ -5,6 +5,7 @@ import type {
   PersonUpdateForm,
 } from "@sda-chms/shared/schema/people";
 import { HTTPException } from "hono/http-exception";
+
 import {
   getAllHouseholds,
   getAllPeopleWithHousehold,
@@ -78,13 +79,13 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
       if (!household) {
         throw new Error("Failed to create household");
       }
-      return insertPerson(
+      return await insertPerson(
         { ...personData, ...NULL_PERSON_CONTACT, householdId: household.id },
         trx
       );
     }
 
-    return insertPerson(personData, trx);
+    return await insertPerson(personData, trx);
   });
 
   if (!personFinal) {
@@ -176,7 +177,7 @@ export const getAllHouseholdUseCase = async () => {
     );
 
     const derivedName = `${head?.firstName} ${head?.lastName || ""} Family`
-      .replace(/\s+/g, " ")
+      .replaceAll(/\s+/g, " ")
       .trim();
 
     return {

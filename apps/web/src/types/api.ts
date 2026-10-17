@@ -1,9 +1,10 @@
 import type { ClientResponse } from "hono/client";
+
 import type { apiClient } from "@/lib/api";
 
 /** Extracts the JSON data type from a Hono ClientResponse. */
 type ExtractClientResponseData<T> =
-  T extends ClientResponse<infer D, number, string> ? D : never;
+  T extends ClientResponse<infer D, number> ? D : never;
 
 export type People = ExtractClientResponseData<
   Awaited<ReturnType<typeof apiClient.people.$get>>

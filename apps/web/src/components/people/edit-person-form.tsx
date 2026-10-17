@@ -1,18 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RELATIONSHIP_TYPE } from "@sda-chms/shared/constants/people";
-import {
-  type PersonInsertForm,
-  personUpdateFormSchema,
-} from "@sda-chms/shared/schema/people";
+import { personUpdateFormSchema } from '@sda-chms/shared/schema/people';
+import type { PersonInsertForm } from '@sda-chms/shared/schema/people';
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+
 import { useUpdatePerson } from "@/hooks/data/use-people";
 import { useRelationships } from "@/hooks/data/use-relationships";
 import { ApiError } from "@/lib/api";
 import type { PersonDetail } from "@/types/api";
 import { personDetailToForm } from "@/utils/people";
+
 import PersonFormFields from "./person-form-fields";
 
 interface EditPersonFormProps {

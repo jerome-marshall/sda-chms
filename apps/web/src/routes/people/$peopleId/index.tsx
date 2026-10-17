@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+
 import PersonDetail from "@/components/people/person-detail";
 import { queryOptions } from "@/lib/query";
 

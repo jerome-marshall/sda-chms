@@ -1,5 +1,6 @@
 import { setTestDb } from "@sda-chms/db";
-import { createTestDb, type TestDb } from "@sda-chms/db/test-db";
+import { createTestDb } from '@sda-chms/db/test-db';
+import type { TestDb } from '@sda-chms/db/test-db';
 import {
   afterAll,
   beforeAll,
@@ -8,6 +9,7 @@ import {
   expect,
   it,
 } from "vite-plus/test";
+
 import app from "../index";
 
 /** A valid head-of-household payload; each head gets its own household. */
@@ -136,8 +138,8 @@ describe("relationships routes (integration, PGlite)", () => {
     });
     expect(del.status).toBe(200);
 
-    expect(await json<RelationshipItem[]>(await listFor(b.id))).toHaveLength(0);
-    expect(await json<RelationshipItem[]>(await listFor(a.id))).toHaveLength(0);
+    await expect(json<RelationshipItem[]>(await listFor(b.id))).resolves.toHaveLength(0);
+    await expect(json<RelationshipItem[]>(await listFor(a.id))).resolves.toHaveLength(0);
   });
 
   it("rejects linking a person to themselves with 400", async () => {

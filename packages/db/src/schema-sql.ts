@@ -1,4 +1,5 @@
 import { generateDrizzleJson, generateMigration } from "drizzle-kit/api";
+
 // biome-ignore lint/performance/noNamespaceImport: schema must be imported as a namespace for Drizzle
 import * as schema from "./schema";
 

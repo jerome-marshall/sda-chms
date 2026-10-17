@@ -1,4 +1,5 @@
 import type { Column, FilterFn, Row } from "@tanstack/react-table";
+
 import type {
   BooleanFilterOperator,
   DateFilterOperator,
@@ -9,10 +10,10 @@ import type {
   TextFilterOperator,
 } from "@/types/data-grid";
 
-export const TEXT_FILTER_OPERATORS: ReadonlyArray<{
+export const TEXT_FILTER_OPERATORS: readonly {
   label: string;
   value: TextFilterOperator;
-}> = [
+}[] = [
   { label: "Contains", value: "contains" },
   { label: "Does not contain", value: "notContains" },
   { label: "Is", value: "equals" },
@@ -23,10 +24,10 @@ export const TEXT_FILTER_OPERATORS: ReadonlyArray<{
   { label: "Is not empty", value: "isNotEmpty" },
 ];
 
-export const NUMBER_FILTER_OPERATORS: ReadonlyArray<{
+export const NUMBER_FILTER_OPERATORS: readonly {
   label: string;
   value: NumberFilterOperator;
-}> = [
+}[] = [
   { label: "Is", value: "equals" },
   { label: "Is not", value: "notEquals" },
   { label: "Is less than", value: "lessThan" },
@@ -38,10 +39,10 @@ export const NUMBER_FILTER_OPERATORS: ReadonlyArray<{
   { label: "Is not empty", value: "isNotEmpty" },
 ];
 
-export const DATE_FILTER_OPERATORS: ReadonlyArray<{
+export const DATE_FILTER_OPERATORS: readonly {
   label: string;
   value: DateFilterOperator;
-}> = [
+}[] = [
   { label: "Is", value: "equals" },
   { label: "Is not", value: "notEquals" },
   { label: "Is before", value: "before" },
@@ -53,20 +54,20 @@ export const DATE_FILTER_OPERATORS: ReadonlyArray<{
   { label: "Is not empty", value: "isNotEmpty" },
 ];
 
-export const SELECT_FILTER_OPERATORS: ReadonlyArray<{
+export const SELECT_FILTER_OPERATORS: readonly {
   label: string;
   value: SelectFilterOperator;
-}> = [
+}[] = [
   { label: "Is", value: "is" },
   { label: "Is not", value: "isNot" },
   { label: "Is empty", value: "isEmpty" },
   { label: "Is not empty", value: "isNotEmpty" },
 ];
 
-export const BOOLEAN_FILTER_OPERATORS: ReadonlyArray<{
+export const BOOLEAN_FILTER_OPERATORS: readonly {
   label: string;
   value: BooleanFilterOperator;
-}> = [
+}[] = [
   { label: "Is", value: "isTrue" },
   { label: "Is not", value: "isFalse" },
 ];
@@ -79,36 +80,46 @@ export function getDataGridColumnVariant<TData, TValue>(
 
 export function getDefaultOperator(variant: string): FilterOperator {
   switch (variant) {
-    case "number":
+    case "number": {
       return "equals";
-    case "date":
+    }
+    case "date": {
       return "equals";
+    }
     case "select":
-    case "multi-select":
+    case "multi-select": {
       return "is";
-    case "checkbox":
+    }
+    case "checkbox": {
       return "isTrue";
-    default:
+    }
+    default: {
       return "contains";
+    }
   }
 }
 
-export function getOperatorsForVariant(variant: string): ReadonlyArray<{
+export function getOperatorsForVariant(variant: string): readonly {
   label: string;
   value: FilterOperator;
-}> {
+}[] {
   switch (variant) {
-    case "number":
+    case "number": {
       return NUMBER_FILTER_OPERATORS;
-    case "date":
+    }
+    case "date": {
       return DATE_FILTER_OPERATORS;
+    }
     case "select":
-    case "multi-select":
+    case "multi-select": {
       return SELECT_FILTER_OPERATORS;
-    case "checkbox":
+    }
+    case "checkbox": {
       return BOOLEAN_FILTER_OPERATORS;
-    default:
+    }
+    default: {
       return TEXT_FILTER_OPERATORS;
+    }
   }
 }
 
@@ -126,16 +137,21 @@ function matchPresenceOperator(
   cellValue: unknown
 ): boolean | null {
   switch (operator) {
-    case "isEmpty":
+    case "isEmpty": {
       return isEmptyCellValue(cellValue);
-    case "isNotEmpty":
+    }
+    case "isNotEmpty": {
       return !isEmptyCellValue(cellValue);
-    case "isTrue":
+    }
+    case "isTrue": {
       return cellValue === true;
-    case "isFalse":
+    }
+    case "isFalse": {
       return cellValue === false || !cellValue;
-    default:
+    }
+    default: {
       return null;
+    }
   }
 }
 
@@ -166,20 +182,26 @@ function matchNumberOperator(
   endValue: unknown
 ): boolean | null {
   switch (operator) {
-    case "greaterThan":
+    case "greaterThan": {
       return cellValue > value;
-    case "greaterThanOrEqual":
+    }
+    case "greaterThanOrEqual": {
       return cellValue >= value;
-    case "lessThan":
+    }
+    case "lessThan": {
       return cellValue < value;
-    case "lessThanOrEqual":
+    }
+    case "lessThanOrEqual": {
       return cellValue <= value;
-    case "isBetween":
+    }
+    case "isBetween": {
       return typeof endValue === "number"
         ? cellValue >= value && cellValue <= endValue
         : null;
-    default:
+    }
+    default: {
       return null;
+    }
   }
 }
 
@@ -189,20 +211,27 @@ function matchStringOperator(
   filterValueStr: string
 ): boolean | null {
   switch (operator) {
-    case "contains":
+    case "contains": {
       return cellValueStr.includes(filterValueStr);
-    case "notContains":
+    }
+    case "notContains": {
       return !cellValueStr.includes(filterValueStr);
-    case "equals":
+    }
+    case "equals": {
       return cellValueStr === filterValueStr;
-    case "notEquals":
+    }
+    case "notEquals": {
       return cellValueStr !== filterValueStr;
-    case "startsWith":
+    }
+    case "startsWith": {
       return cellValueStr.startsWith(filterValueStr);
-    case "endsWith":
+    }
+    case "endsWith": {
       return cellValueStr.endsWith(filterValueStr);
-    default:
+    }
+    default: {
       return null;
+    }
   }
 }
 

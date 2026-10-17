@@ -6,6 +6,7 @@ import {
   isPartnerDeceased,
   resolveSpouseState,
 } from "@sda-chms/shared/utils/marital-status";
+
 import type { getRelationshipsForPerson } from "../data-access/relationships";
 
 // Inferred from the data-access query so it stays in sync with the columns selected.

@@ -1,4 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
+
 import { Checkbox } from "@/components/ui/checkbox";
 
 export function getDataGridSelectColumn<TData>(): ColumnDef<TData> {
@@ -20,7 +21,7 @@ export function getDataGridSelectColumn<TData>(): ColumnDef<TData> {
           checked={row.getIsSelected()}
           onCheckedChange={(checked) => row.toggleSelected(Boolean(checked))}
         />
-        <span className="min-w-4 text-muted-foreground text-xs tabular-nums">
+        <span className="min-w-4 text-xs text-muted-foreground tabular-nums">
           {row.index + 1}
         </span>
       </div>

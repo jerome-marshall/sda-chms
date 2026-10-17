@@ -2,6 +2,7 @@ import { MEMBERSHIP_STATUS_OPTIONS } from "@sda-chms/shared/constants/people";
 import { Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
+
 import { DataGrid } from "@/components/data-grid/data-grid";
 import { DataGridFilterMenu } from "@/components/data-grid/data-grid-filter-menu";
 import { DataGridRowHeightMenu } from "@/components/data-grid/data-grid-row-height-menu";
@@ -14,6 +15,7 @@ import { useDataGrid } from "@/hooks/use-data-grid";
 import { getFilterFn } from "@/lib/data-grid-filters";
 import type { Person } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
+
 import HouseholdTooltip from "../household-tooltip";
 
 /** Main people list view rendered as a read-only data grid. */
@@ -104,7 +106,7 @@ export const PeopleList = () => {
         accessorKey: "membershipStatus",
         header: "Membership Status",
         cell: ({ row }) => {
-          const status = row.getValue("membershipStatus") as string;
+          const status = row.getValue("membershipStatus");
           const option = MEMBERSHIP_STATUS_OPTIONS.find(
             (opt) => opt.value === status
           );

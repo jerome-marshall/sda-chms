@@ -1,10 +1,8 @@
-import { type DbTransaction, getDb } from "@sda-chms/db";
-import {
-  isPartnerDeceased,
-  maritalStatusFromSpouseState,
-  type SpouseLinkForMaritalStatus,
-  selectGoverningSpouseState,
-} from "@sda-chms/shared/utils/marital-status";
+import { getDb } from '@sda-chms/db';
+import type { DbTransaction } from '@sda-chms/db';
+import { isPartnerDeceased, maritalStatusFromSpouseState, selectGoverningSpouseState } from '@sda-chms/shared/utils/marital-status';
+import type { SpouseLinkForMaritalStatus } from '@sda-chms/shared/utils/marital-status';
+
 import { updatePerson } from "../data-access/people";
 import { getSpouseLinksForPeople } from "../data-access/relationships";
 

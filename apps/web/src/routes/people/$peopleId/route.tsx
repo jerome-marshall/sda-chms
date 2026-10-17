@@ -1,8 +1,6 @@
-import {
-  type AnyRouteMatch,
-  createFileRoute,
-  Outlet,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import type { AnyRouteMatch } from '@tanstack/react-router';
+
 import { queryOptions } from "@/lib/query";
 
 export const Route = createFileRoute("/people/$peopleId")({

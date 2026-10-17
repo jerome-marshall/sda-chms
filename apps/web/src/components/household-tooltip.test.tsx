@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
+
 import HouseholdTooltip from "./household-tooltip";
 import { TooltipProvider } from "./ui/tooltip";
 
-describe("HouseholdTooltip", () => {
+describe(HouseholdTooltip, () => {
   it("renders nothing when the value is not from the household", () => {
     const { container } = render(<HouseholdTooltip isFromHousehold={false} />);
     expect(container).toBeEmptyDOMElement();

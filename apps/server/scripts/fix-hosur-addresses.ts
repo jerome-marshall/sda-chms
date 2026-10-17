@@ -55,9 +55,9 @@ async function fixHosurAddresses() {
       // Remove "Hosur" from addressLine1 (case-insensitive, with whitespace cleanup)
       const currentAddress = person.addressLine1 ?? "";
       const cleanedAddress = currentAddress
-        .replace(/\bHosur\b/gi, "") // Remove "Hosur" word (case-insensitive, whole word)
-        .replace(/\s+/g, " ") // Replace multiple spaces with single space
-        .replace(/^[\s,]+|[\s,]+$/g, "") // Remove leading/trailing spaces and commas
+        .replaceAll(/\bHosur\b/gi, "") // Remove "Hosur" word (case-insensitive, whole word)
+        .replaceAll(/\s+/g, " ") // Replace multiple spaces with single space
+        .replaceAll(/^[\s,]+|[\s,]+$/g, "") // Remove leading/trailing spaces and commas
         .trim();
 
       await db

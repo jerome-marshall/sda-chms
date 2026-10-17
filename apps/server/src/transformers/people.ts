@@ -7,6 +7,7 @@ import type {
   PersonUpdateForm,
 } from "@sda-chms/shared/schema/people";
 import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
+
 import type { getAllPeopleWithHousehold } from "../data-access/people";
 
 // Inferred from the data-access return type so it stays in sync with the query
@@ -16,7 +17,7 @@ type PersonWithHouseholdDb = Awaited<
 
 /** Shared field mapping used by both insert and update transformers. */
 const personFormToDbFields = (
-  data: PersonInsertForm | PersonUpdateForm
+  data: PersonInsertForm  
 ): Omit<PeopleInsertDb, "isActive"> => ({
   firstName: toTitleCase(data.firstName),
   lastName: data.lastName ? toTitleCase(data.lastName) : data.lastName,
@@ -99,7 +100,7 @@ export const peopleWithHouseholdDbToApi = (data: PersonWithHouseholdDb[]) =>
 
 /** The shared contact fields the Household owns; pulled off a person form to store on the Household. */
 export const householdContactFromForm = (
-  data: PersonInsertForm | PersonUpdateForm
+  data: PersonInsertForm  
 ) => ({
   addressLine1: data.addressLine1 || null,
   addressLine2: data.addressLine2 || null,

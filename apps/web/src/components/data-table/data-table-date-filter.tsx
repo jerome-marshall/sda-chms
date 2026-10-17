@@ -51,7 +51,7 @@ function parseColumnFilterValue(value: unknown) {
 }
 
 interface DataTableDateFilterProps<TData> {
-  column: Column<TData, unknown>;
+  column: Column<TData>;
   multiple?: boolean;
   title?: string;
 }
@@ -196,7 +196,7 @@ export function DataTableDateFilter<TData>({
         {hasValue ? (
           <div
             aria-label={`Clear ${title} filter`}
-            className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
             onClick={onReset}
             role="button"
             tabIndex={0}

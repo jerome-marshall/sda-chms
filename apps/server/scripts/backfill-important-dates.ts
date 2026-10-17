@@ -50,7 +50,7 @@ async function backfill() {
   process.exit(0);
 }
 
-backfill().catch((err) => {
-  console.error("Backfill failed:", err);
+backfill().catch((error) => {
+  console.error("Backfill failed:", error);
   process.exit(1);
 });

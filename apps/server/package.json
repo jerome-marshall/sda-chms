@@ -35,10 +35,10 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
     "@electric-sql/pglite": "^0.5.3",
-    "typescript": "catalog:",
     "@sda-chms/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   }

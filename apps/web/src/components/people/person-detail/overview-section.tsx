@@ -12,10 +12,12 @@ import {
   UtensilsCrossed,
   VenusIcon,
 } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
 import type { PersonDetail } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
+
 import { Separator } from "../../ui/separator";
 import { RelationshipsSection } from "./relationships-section";
 import { DetailRow, SectionCard } from "./section-card";
@@ -149,7 +151,7 @@ export function OverviewSection({ person }: OverviewSectionProps) {
           value={formatLabel(person.householdRole)}
         />
         <Separator />
-        <p className="text-muted-foreground text-xs uppercase tracking-wide">
+        <p className="text-xs tracking-wide text-muted-foreground uppercase">
           Relationships
         </p>
         <RelationshipsSection embedded person={person} />
@@ -186,11 +188,11 @@ export function OverviewSection({ person }: OverviewSectionProps) {
                 <CalendarHeartIcon className="size-4 text-muted-foreground" />
               </div>
               <div className="min-w-0 space-y-0.5">
-                <p className="text-muted-foreground text-xs uppercase tracking-wide">
+                <p className="text-xs tracking-wide text-muted-foreground uppercase">
                   {entry.name}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-foreground text-sm">
+                  <span className="text-sm text-foreground">
                     {formatDate(entry.date)}
                   </span>
                   {entry.recurrence === "yearly" && (
@@ -211,7 +213,7 @@ export function OverviewSection({ person }: OverviewSectionProps) {
                   )}
                 </div>
                 {entry.notes && (
-                  <p className="text-muted-foreground text-xs">{entry.notes}</p>
+                  <p className="text-xs text-muted-foreground">{entry.notes}</p>
                 )}
               </div>
             </div>

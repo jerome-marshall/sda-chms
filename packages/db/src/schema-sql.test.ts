@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vite-plus/test";
+
 import { generateSchemaStatements } from "./schema-sql";
 
 /**
@@ -14,7 +16,7 @@ import { generateSchemaStatements } from "./schema-sql";
  * `bun run db:generate`.
  */
 const migrationPath = new URL(
-  "./migrations/0000_baseline.sql",
+  "migrations/0000_baseline.sql",
   import.meta.url
 );
 
@@ -33,7 +35,7 @@ const asSortedStatements = (statements: string[]) =>
 
 const statementsFromMigrationFile = () =>
   asSortedStatements(
-    readFileSync(migrationPath, "utf8").split(STATEMENT_BREAKPOINT)
+    readFileSync(migrationPath, "utf-8").split(STATEMENT_BREAKPOINT)
   );
 
 describe("schema / migration drift", () => {

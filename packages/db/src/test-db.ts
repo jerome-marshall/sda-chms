@@ -2,6 +2,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { getTableName, is } from "drizzle-orm";
 import { PgTable } from "drizzle-orm/pg-core";
 import { drizzle } from "drizzle-orm/pglite";
+
 import type { Database } from ".";
 // biome-ignore lint/performance/noNamespaceImport: schema must be imported as a namespace for Drizzle
 import * as schema from "./schema";
@@ -65,7 +66,7 @@ export async function createTestDb(): Promise<TestDb> {
   return {
     db: asDatabase(db),
     client,
-    reset: () => client.exec(truncate).then(() => undefined),
+    reset: () => client.exec(truncate).then(() => {}),
     close: () => client.close(),
   };
 }

@@ -1,8 +1,8 @@
 {
   "name": "@sda-chms/shared",
+  "type": "module",
   "main": "./index.ts",
   "types": "./index.ts",
-  "type": "module",
   "exports": {
     ".": {
       "default": "./src/index.ts"

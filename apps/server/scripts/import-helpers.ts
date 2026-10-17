@@ -84,14 +84,14 @@ export function normalizeDate(raw: string | undefined | null): string | null {
   }
 
   // m/yyyy or mm/yyyy
-  const monthYearMatch = trimmed.match(MONTH_YEAR_RE);
+  const monthYearMatch = MONTH_YEAR_RE.exec(trimmed);
   if (monthYearMatch?.[1] && monthYearMatch[2]) {
     const month = monthYearMatch[1].padStart(2, "0");
     return `${monthYearMatch[2]}-${month}-01`;
   }
 
   // d/m/yyyy or dd/mm/yyyy (with occasional m/d/yyyy legacy outlier)
-  const slashMatch = trimmed.match(FULL_DATE_RE);
+  const slashMatch = FULL_DATE_RE.exec(trimmed);
   if (slashMatch?.[1] && slashMatch[2] && slashMatch[3]) {
     const year = slashMatch[3];
     let day = Number.parseInt(slashMatch[1], 10);

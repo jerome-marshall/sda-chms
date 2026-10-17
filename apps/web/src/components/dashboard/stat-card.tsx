@@ -1,6 +1,8 @@
 import type * as React from "react";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+
 import { Skeleton } from "../ui/skeleton";
 
 interface StatCardProps {
@@ -31,17 +33,17 @@ export function StatCard({
       <CardContent className="relative p-6">
         <div className="flex items-center justify-between">
           <div className="relative z-10 space-y-1">
-            <p className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+            <p className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
               {label}
             </p>
             <div className="flex items-baseline gap-2">
-              <h3 className="font-semibold text-4xl text-foreground tabular-nums tracking-tight">
+              <h3 className="text-4xl font-semibold tracking-tight text-foreground tabular-nums">
                 {value}
               </h3>
               {trend && (
                 <span
                   className={cn(
-                    "ml-1 font-medium text-xs",
+                    "ml-1 text-xs font-medium",
                     trendDirection === "up" && "text-emerald-500",
                     trendDirection === "down" && "text-rose-500",
                     trendDirection === "neutral" && "text-muted-foreground"

@@ -3,6 +3,7 @@ import { env } from "@sda-chms/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+
 import { errorHandler } from "./lib/errors";
 import groupsRoutes from "./routes/groups";
 import householdRoutes from "./routes/household";

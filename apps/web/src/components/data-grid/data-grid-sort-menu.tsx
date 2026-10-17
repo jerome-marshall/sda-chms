@@ -3,6 +3,7 @@
 import type { ColumnSort, Table } from "@tanstack/react-table";
 import { ArrowDownUp, GripVertical, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +24,9 @@ const SORT_ORDERS = [
   { label: "Desc", value: "desc" },
 ];
 
-interface DataGridSortMenuProps<TData>
-  extends React.ComponentProps<typeof PopoverContent> {
+interface DataGridSortMenuProps<TData> extends React.ComponentProps<
+  typeof PopoverContent
+> {
   disabled?: boolean;
   table: Table<TData>;
 }
@@ -118,10 +120,10 @@ export function DataGridSortMenu<TData>({
         {...props}
       >
         <div className="flex flex-col gap-1">
-          <h4 className="font-medium leading-none">
+          <h4 className="leading-none font-medium">
             {sorting.length > 0 ? "Sort by" : "No sorting applied"}
           </h4>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             {sorting.length > 0
               ? "Modify sorting to organize your rows."
               : "Add sorting to organize your rows."}
@@ -135,7 +137,7 @@ export function DataGridSortMenu<TData>({
                 className="grid grid-cols-[auto_1fr_120px_auto] items-center gap-2"
                 key={sort.id}
               >
-                <div className="flex size-9 items-center justify-center rounded-xl border border-border border-dashed text-muted-foreground">
+                <div className="flex size-9 items-center justify-center rounded-xl border border-dashed border-border text-muted-foreground">
                   <GripVertical className="size-4" />
                 </div>
                 <Select

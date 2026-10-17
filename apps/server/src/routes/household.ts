@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+
 import { getAllHouseholdUseCase } from "../use-case/people";
 
 const app = new Hono().get("/", async (c) => {

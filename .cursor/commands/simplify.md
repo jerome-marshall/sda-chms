@@ -21,7 +21,7 @@ Review recently modified or selected code for opportunities to improve readabili
 ## Steps
 
 1. Identify the target code — either from `git diff` or the provided selection
-2. Read through each section and ask: *"Would a teammate understand this on first read?"*
+2. Read through each section and ask: _"Would a teammate understand this on first read?"_
 3. For each opportunity found:
    - Describe what makes the current code harder to follow
    - Apply the simplification directly
@@ -42,10 +42,12 @@ Review recently modified or selected code for opportunities to improve readabili
 For each simplified file:
 
 ### `path/to/file.ts`
+
 - **Before**: Brief description of the issue
 - **After**: What was changed and why it's clearer
 
 ### Overall
+
 - Files simplified, number of changes applied
 
 ## Constraints

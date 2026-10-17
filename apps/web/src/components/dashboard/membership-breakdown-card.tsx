@@ -1,7 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Activity, Baby, Droplet } from "lucide-react";
+
 import { queryOptions } from "@/lib/query";
 import { getPeopleStats, isDeceased } from "@/utils/people";
+
 import { DashboardCard } from "./dashboard-card";
 
 interface StatusRowProps {
@@ -19,9 +21,9 @@ function StatusRow({ color, label, count }: StatusRowProps) {
           className="h-2 w-2 rounded-full"
           style={{ backgroundColor: color }}
         />
-        <span className="font-medium text-foreground/80 text-sm">{label}</span>
+        <span className="text-sm font-medium text-foreground/80">{label}</span>
       </div>
-      <span className="font-semibold text-foreground text-sm tabular-nums">
+      <span className="text-sm font-semibold text-foreground tabular-nums">
         {count}
       </span>
     </div>
@@ -55,22 +57,22 @@ export function MembershipBreakdownCard() {
         <div className="flex flex-col justify-between rounded-xl bg-blue-500/5 p-4 ring-1 ring-blue-500/20">
           <div className="mb-2 flex items-center gap-2 text-blue-600">
             <Droplet className="h-4 w-4" />
-            <span className="font-semibold text-xs uppercase tracking-wider">
+            <span className="text-xs font-semibold tracking-wider uppercase">
               Baptized
             </span>
           </div>
-          <p className="font-semibold text-3xl text-foreground/90 tabular-nums tracking-tight">
+          <p className="text-3xl font-semibold tracking-tight text-foreground/90 tabular-nums">
             {membershipStats.totalBaptized}
           </p>
         </div>
         <div className="flex flex-col justify-between rounded-xl bg-amber-500/5 p-4 ring-1 ring-amber-500/20">
           <div className="mb-2 flex items-center gap-2 text-amber-600">
             <Baby className="h-4 w-4" />
-            <span className="font-semibold text-xs uppercase tracking-wider">
+            <span className="text-xs font-semibold tracking-wider uppercase">
               Unbaptized
             </span>
           </div>
-          <p className="font-semibold text-3xl text-foreground/90 tabular-nums tracking-tight">
+          <p className="text-3xl font-semibold tracking-tight text-foreground/90 tabular-nums">
             {membershipStats.totalUnbaptized}
           </p>
         </div>
@@ -78,7 +80,7 @@ export function MembershipBreakdownCard() {
 
       {/* Bottom List: Status Breakdown */}
       <div className="space-y-4">
-        <h4 className="border-border/40 border-b pb-2 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+        <h4 className="border-b border-border/40 pb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
           By Status
         </h4>
         <div className="space-y-3">

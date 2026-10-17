@@ -1,5 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import type { PersonDetail } from "@/types/api";
+
 import { ChurchSection } from "./church-section";
 import { NotesSection } from "./notes-section";
 import { OverviewSection } from "./overview-section";

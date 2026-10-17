@@ -4,6 +4,7 @@
 // setup and the prod-DB guard never drift between the two flows.
 
 import { execFileSync } from "node:child_process";
+
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 
 // Branch that PRs target and the base for diffs.
@@ -61,7 +62,7 @@ export const sandboxProvider = () =>
 // ---------------------------------------------------------------------------
 
 function sh(cmd: string, args: string[]): string {
-  return execFileSync(cmd, args, { encoding: "utf8" }).trim();
+  return execFileSync(cmd, args, { encoding: "utf-8" }).trim();
 }
 
 /** Open PR number for a branch, or null if none is open. */

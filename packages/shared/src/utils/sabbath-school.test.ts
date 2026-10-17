@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
+
 import { SABBATH_SCHOOL_CLASS } from "../constants/people";
 import { getSabbathSchoolClass } from "./sabbath-school";
 
@@ -11,7 +12,7 @@ const REFERENCE_DATE = new Date(2026, 0, 6);
 // edge, so a ±1 day shift can never cross a boundary.
 const dobInYear = (year: number) => new Date(year, 5, 15);
 
-describe("getSabbathSchoolClass", () => {
+describe(getSabbathSchoolClass, () => {
   it("assigns beginner to an infant", () => {
     expect(getSabbathSchoolClass(dobInYear(2024), REFERENCE_DATE)).toBe(
       SABBATH_SCHOOL_CLASS.BEGINNER

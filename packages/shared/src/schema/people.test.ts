@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
+
 import { personInsertFormSchema } from "./people";
 
 /** A valid head-of-household payload (heads don't need an existing household). */
@@ -16,7 +17,7 @@ const validHead = {
   householdRole: "head",
 } as const;
 
-describe("personInsertFormSchema", () => {
+describe(personInsertFormSchema, () => {
   it("accepts a short, two-letter first name (issue #1)", () => {
     expect(personInsertFormSchema.safeParse(validHead).success).toBe(true);
   });

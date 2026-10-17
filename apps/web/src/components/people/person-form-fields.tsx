@@ -12,9 +12,12 @@ import {
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { useRouter } from "@tanstack/react-router";
 import { CalendarPlus, Trash2 } from "lucide-react";
-import { type UseFormReturn, useFieldArray } from "react-hook-form";
+import { useFieldArray } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
+
 import { useHouseholds } from "@/hooks/data/use-households";
 import type { PersonDetail } from "@/types/api";
+
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
 import FormSelect from "../form/select";
@@ -308,7 +311,7 @@ const PersonFormFields = ({
           </div>
 
           {fields.length === 0 ? (
-            <p className="py-2 text-center text-muted-foreground text-sm">
+            <p className="py-2 text-center text-sm text-muted-foreground">
               No important dates added yet.
             </p>
           ) : (

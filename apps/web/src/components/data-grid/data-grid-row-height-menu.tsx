@@ -8,6 +8,7 @@ import {
   MinusIcon,
 } from "lucide-react";
 import { useMemo } from "react";
+
 import {
   Select,
   SelectContent,
@@ -28,8 +29,9 @@ const rowHeights = [
   },
 ];
 
-interface DataGridRowHeightMenuProps<TData>
-  extends React.ComponentProps<typeof SelectContent> {
+interface DataGridRowHeightMenuProps<TData> extends React.ComponentProps<
+  typeof SelectContent
+> {
   disabled?: boolean;
   table: Table<TData>;
 }

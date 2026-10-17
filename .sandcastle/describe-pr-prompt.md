@@ -22,9 +22,11 @@ Output EXACTLY the two tagged blocks below and nothing of substance after them.
 One or two sentences on **what changed and why**.
 
 ## Changes
+
 - Bullet list of the notable changes (group related edits; skip trivia).
 
 ## Testing
+
 - What tests were added or run, and how the change was verified.
 </pr-body>
 

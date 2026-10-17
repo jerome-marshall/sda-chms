@@ -20,7 +20,7 @@ Review the current `git diff` and add concise documentation to the most importan
 3. Clean up existing comments:
    - Remove comments that narrate what the code literally does
    - Remove comments referencing bug fixes, tickets, or PRs
-   - Keep comments that explain *why*
+   - Keep comments that explain _why_
 4. Write new documentation:
    - **Keep it short** — 1 line for simple functions, 2–4 lines max for complex ones
    - **JSDoc (`/** */`)** for exported functions — a brief summary only; skip `@param`/`@returns` when types make it obvious
@@ -34,9 +34,11 @@ Review the current `git diff` and add concise documentation to the most importan
 For each documented file:
 
 ### `path/to/file.ts`
+
 - What was added/updated/removed (one line each)
 
 ### Overall
+
 - Files documented, comments added/updated/removed
 
 ## Constraints

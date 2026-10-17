@@ -1,9 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Cake, Heart } from "lucide-react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { queryOptions } from "@/lib/query";
 import { isDeceased } from "@/utils/people";
+
 import { Badge } from "../ui/badge";
 import { DashboardCard } from "./dashboard-card";
 
@@ -83,9 +85,7 @@ export function CelebrationsCard() {
     });
   }
 
-  const deduplicatedAnniversaries = Array.from(
-    anniversaryByHousehold.values()
-  ).map((members) => ({
+  const deduplicatedAnniversaries = [...anniversaryByHousehold.values()].map((members) => ({
     ...members[0].entry,
     name:
       members.length > 1
@@ -113,7 +113,7 @@ export function CelebrationsCard() {
             >
               <div className="flex items-center gap-4">
                 <Avatar className="h-10 w-10 border border-border/50 ring-2 ring-transparent transition-all group-hover:ring-primary/10">
-                  <AvatarFallback className="bg-primary/5 font-medium text-primary text-sm">
+                  <AvatarFallback className="bg-primary/5 text-sm font-medium text-primary">
                     {celebration.name
                       .split(" ")
                       .map((n) => n[0])
@@ -122,12 +122,12 @@ export function CelebrationsCard() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
-                  <p className="font-medium text-sm leading-none transition-colors group-hover:text-primary">
+                  <p className="text-sm leading-none font-medium transition-colors group-hover:text-primary">
                     {celebration.name}
                   </p>
-                  <p className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Badge
-                      className={`px-2 py-0.5 font-semibold text-[10px] capitalize tracking-wider ${
+                      className={`px-2 py-0.5 text-[10px] font-semibold tracking-wider capitalize ${
                         celebration.type === "birthday"
                           ? "bg-amber-100 text-amber-600"
                           : "bg-rose-100 text-rose-600"

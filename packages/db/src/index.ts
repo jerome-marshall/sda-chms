@@ -1,5 +1,6 @@
 import { env } from "@sda-chms/env/server";
-import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { drizzle } from 'drizzle-orm/node-postgres';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // biome-ignore lint/performance/noNamespaceImport: <import schema>
 import * as schema from "./schema";

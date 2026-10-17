@@ -6,10 +6,12 @@ import {
   expect,
   it,
 } from "vite-plus/test";
-import { householdsTable, peopleTable } from "./schema/people";
-import { createTestDb, type TestDb } from "./test-db";
 
-describe("createTestDb", () => {
+import { householdsTable, peopleTable } from "./schema/people";
+import { createTestDb } from './test-db';
+import type { TestDb } from './test-db';
+
+describe(createTestDb, () => {
   let testDb: TestDb;
 
   beforeAll(async () => {

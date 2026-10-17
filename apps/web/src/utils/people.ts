@@ -1,4 +1,5 @@
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
+
 import type { Person, PersonDetail } from "@/types/api";
 
 /** Converts nullable DB strings to optional form strings. */

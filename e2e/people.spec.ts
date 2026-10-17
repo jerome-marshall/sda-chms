@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { expect, test } from "@playwright/test";
 
 test("the People directory page loads and lists seeded people", async ({

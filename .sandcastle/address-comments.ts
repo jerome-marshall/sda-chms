@@ -9,6 +9,7 @@
 //   bun run sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
 
 import { claudeCode, createSandbox } from "@ai-hero/sandcastle";
+
 import {
   copyToWorktree,
   hooks,
@@ -64,8 +65,8 @@ for (const pr of prs) {
         `  No code changes for PR #${pr} (the agent may have replied without changing code).`
       );
     }
-  } catch (err) {
-    console.error(`  ✗ PR #${pr} (${branch}) failed: ${err}`);
+  } catch (error) {
+    console.error(`  ✗ PR #${pr} (${branch}) failed: ${error}`);
   } finally {
     await sandbox.close();
   }

@@ -1,7 +1,9 @@
 import { Calendar, Church, Droplets, MapPin, User } from "lucide-react";
+
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { PersonDetail } from "@/types/api";
+
 import { Badge } from "../../ui/badge";
 import { DetailRow, SectionCard } from "./section-card";
 import { formatLabel, getMembershipColor } from "./utils";
@@ -23,7 +25,7 @@ export function ChurchSection({ person }: ChurchSectionProps) {
           value={
             <Badge
               className={cn(
-                "border font-medium text-[11px]",
+                "border text-[11px] font-medium",
                 getMembershipColor(person.membershipStatus)
               )}
             >

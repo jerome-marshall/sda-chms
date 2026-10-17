@@ -25,6 +25,7 @@
 
 import { claudeCode, createSandbox, Output, run } from "@ai-hero/sandcastle";
 import { z } from "zod";
+
 import {
   copyToWorktree,
   createPr,
@@ -165,9 +166,9 @@ const settled = await Promise.allSettled(
           promptArgs: { BRANCH: issue.branch },
         });
         pr = parsePrDescription(describe.stdout);
-      } catch (err) {
+      } catch (error) {
         console.error(
-          `  ! ${issue.id}: PR-description step failed; using fallback body: ${err}`
+          `  ! ${issue.id}: PR-description step failed; using fallback body: ${error}`
         );
       }
 
@@ -246,9 +247,9 @@ for (const { issue, pr } of completed) {
 
     const url = createPr(issue.branch, title, body);
     console.log(`  ✓ ${issue.id} → ${url}`);
-  } catch (err) {
+  } catch (error) {
     console.error(
-      `  ✗ ${issue.id} (${issue.branch}) failed to publish: ${err}`
+      `  ✗ ${issue.id} (${issue.branch}) failed to publish: ${error}`
     );
   }
 }

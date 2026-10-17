@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+
 import {
   Card,
   CardContent,
@@ -37,7 +38,7 @@ export function DashboardCardSkeleton({
         className
       )}
     >
-      <CardHeader className="gap-0 border-border/40 border-b">
+      <CardHeader className="gap-0 border-b border-border/40">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-2">
             <Skeleton className="h-5 w-32 rounded-sm" />
@@ -81,11 +82,11 @@ export function DashboardCard({
         className
       )}
     >
-      <CardHeader className="gap-0 border-border/40 border-b">
+      <CardHeader className="gap-0 border-b border-border/40">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-1">
             <CardTitle className="text-xl tracking-tight">{title}</CardTitle>
-            <CardDescription className="font-medium text-xs uppercase tracking-wider">
+            <CardDescription className="text-xs font-medium tracking-wider uppercase">
               {description}
             </CardDescription>
           </div>

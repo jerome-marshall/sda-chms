@@ -1,14 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import {
-  BarChart,
-  Calendar,
-  Church,
-  CreditCard,
-  type LucideIcon,
-  Settings,
-  Users2,
-} from "lucide-react";
+import { BarChart, Calendar, Church, CreditCard, Settings, Users2 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type * as React from "react";
+
 import {
   Sidebar,
   SidebarContent,
@@ -20,16 +14,17 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import type { TRoutes } from "@/types/route";
+
 import { Separator } from "./ui/separator";
 
 // Church Management System navigation data
 interface NavItem {
   icon: LucideIcon;
-  items?: Array<{
+  items?: {
     title: string;
     url: TRoutes;
     isActive?: boolean;
-  }>;
+  }[];
   title: string;
   url: TRoutes;
 }

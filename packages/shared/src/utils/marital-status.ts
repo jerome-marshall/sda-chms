@@ -1,10 +1,5 @@
-import {
-  type MARITAL_STATUS_VALUES,
-  MEMBERSHIP_STATUS,
-  type MEMBERSHIP_STATUS_VALUES,
-  SPOUSE_STATE,
-  type SPOUSE_STATE_VALUES,
-} from "../constants/people";
+import { MEMBERSHIP_STATUS, SPOUSE_STATE } from '../constants/people';
+import type { MARITAL_STATUS_VALUES, MEMBERSHIP_STATUS_VALUES, SPOUSE_STATE_VALUES } from '../constants/people';
 
 type SpouseState = (typeof SPOUSE_STATE_VALUES)[number];
 type MaritalStatus = (typeof MARITAL_STATUS_VALUES)[number];
