@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { RowHeightValue } from "@/types/data-grid";
 
 const rowHeights = [
   { label: "Short", value: "short" as const, icon: MinusIcon },

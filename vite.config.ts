@@ -48,7 +48,11 @@ export default defineConfig({
       "vite-plus/prefer-vite-plus-imports": "error",
       // Biome parity: these were warnings under ultracite/biome, kept as
       // warnings where Oxlint has an equivalent rule.
-      "no-unused-vars": "warn",
+      "no-unused-vars": [
+        "error",
+        { args: "after-used", argsIgnorePattern: "^_" },
+      ],
+      "no-unreachable": "error",
       "import/no-namespace": "warn",
       "oxc/no-barrel-file": "warn",
       "react/no-danger": "warn",
