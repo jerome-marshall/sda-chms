@@ -11,7 +11,14 @@
     "types": ["vite/client"],
     "rootDirs": ["."],
     "paths": {
-      "@/*": ["./src/*"]
+      // Restated from .void/tsconfig.json instead of extending it: extending
+      // inherits its `files` (restricting the program to three .d.ts files, so
+      // src/ is never checked) and compilerOptions.paths does not merge.
+      "@/*": ["./src/*"],
+      "void/db": ["./.void/db.d.ts"],
+      "void/routes": ["./.void/routes.d.ts"],
+      "@schema": ["./db/schema.ts"],
+      "@schema/*": ["./db/schema/*"]
     }
   }
 }

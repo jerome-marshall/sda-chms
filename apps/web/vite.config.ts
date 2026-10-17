@@ -4,11 +4,17 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
+import { voidPlugin } from "void";
 
 import { testInclude, workspaceDeps } from "../../vitest.shared";
 
 export default defineConfig({
-  plugins: lazyPlugins(() => [tailwindcss(), tanstackRouter({}), react()]),
+  plugins: lazyPlugins(() => [
+    tailwindcss(),
+    tanstackRouter({}),
+    react(),
+    voidPlugin(),
+  ]),
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),

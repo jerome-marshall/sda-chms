@@ -15,7 +15,10 @@ import { generateSchemaStatements } from "./schema-sql";
  * This locks the two together: if they diverge, regenerate the baseline with
  * `pnpm db:generate`.
  */
-const migrationPath = new URL("migrations/0000_baseline.sql", import.meta.url);
+const migrationPath = new URL(
+  "../../../apps/web/db/migrations/0000_baseline.sql",
+  import.meta.url
+);
 
 /** Drizzle joins statements with this marker when it writes a migration file. */
 const STATEMENT_BREAKPOINT = /-->\s*statement-breakpoint/u;
