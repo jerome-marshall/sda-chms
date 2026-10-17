@@ -10,7 +10,6 @@ export default defineConfig({
     clean: true,
     deps: {
       alwaysBundle: [/@sda-chms\/.*/u],
-      resolveDepSubpath: true,
     },
   },
   test: {

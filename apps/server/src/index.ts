@@ -34,7 +34,7 @@ export default app;
 export type THonoApp = typeof routes;
 
 // Only bind a port when run directly (`tsx watch src/index.ts` / `node
-// dist/index.js`). Test files import the app and drive it via `app.request()`,
+// dist/index.mjs`). Test files import the app and drive it via `app.request()`,
 // so serving on import would steal :3000 from the dev server and fail.
 if (import.meta.main) {
   serve({ fetch: app.fetch, port: 3000 }, (info) => {
