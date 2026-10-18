@@ -1,30 +1,23 @@
-import type { ClientResponse } from "hono/client";
+import type { RouteMap } from "void/routes";
 
-import type { apiClient } from "@/lib/api";
+/** Extracts the serialized JSON output type of a Void route handler. */
+type RouteOutput<
+  P extends keyof RouteMap,
+  M extends keyof RouteMap[P],
+> = RouteMap[P][M] extends { output: infer O } ? O : never;
 
-/** Extracts the JSON data type from a Hono ClientResponse. */
-type ExtractClientResponseData<T> =
-  T extends ClientResponse<infer D, number> ? D : never;
-
-export type People = ExtractClientResponseData<
-  Awaited<ReturnType<typeof apiClient.people.$get>>
->;
+export type People = RouteOutput<"/api/people", "GET">;
 export type Person = People[number];
 
 /** Single person view — includes the Household's shared contact fields for the effective-value rule (ADR-0001). */
-export type PersonDetail = ExtractClientResponseData<
-  Awaited<ReturnType<(typeof apiClient.people)[":id"]["$get"]>>
->;
+export type PersonDetail = RouteOutput<"/api/people/:id", "GET">;
 
-/** Minimal person shape returned by the POST /people endpoint (no household contact fields). */
-export type PersonCreated = ExtractClientResponseData<
-  Awaited<ReturnType<typeof apiClient.people.$post>>
->;
+/** Minimal person shape returned by the POST /api/people endpoint (no household contact fields). */
+export type PersonCreated = RouteOutput<"/api/people", "POST">;
 
 /** A person's relationships, resolved from that person's perspective. */
-export type Relationships = ExtractClientResponseData<
-  Awaited<
-    ReturnType<(typeof apiClient.relationships.person)[":personId"]["$get"]>
-  >
+export type Relationships = RouteOutput<
+  "/api/relationships/person/:personId",
+  "GET"
 >;
 export type Relationship = Relationships[number];

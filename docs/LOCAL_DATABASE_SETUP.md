@@ -55,12 +55,11 @@ docker run -d \
 
 ## Environment Configuration
 
-Create or update your `.env` file at `apps/server/.env`:
+Create `apps/web/.env` (see `apps/web/ENV.md` — Void reads only that file
+and rejects `.env.example`):
 
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/sda_chms
-CORS_ORIGIN=http://localhost:5173
-NODE_ENV=development
 ```
 
 ## Database Commands
@@ -97,17 +96,23 @@ docker exec -it sda-chms-db psql -U postgres -d sda_chms
 
 ## Running Migrations
 
-After starting the database, run Drizzle migrations:
+After starting the database, apply the migration history with Void (run
+from `apps/web`, with `apps/web/.env` in place):
 
 ```bash
-pnpm db:push
+pnpm --dir apps/web exec void db migrate
 ```
 
-Or if you have migration files:
+To seed faker data into the throwaway database:
 
 ```bash
-pnpm db:migrate
+pnpm db:seed
 ```
+
+This refuses anything but a local database before connecting (override
+with `SEED_ALLOW_REMOTE=true`), then wipes `public` and reseeds via
+`db/seed.ts`. Only ever run it against a throwaway database (local
+container or the CI service container).
 
 ## Troubleshooting
 

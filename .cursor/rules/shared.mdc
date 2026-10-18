@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Shared Package (packages/shared)
 
-Code shared between the web and server apps. Contains validation schemas, constants, types, and utilities.
+Code shared by the app's layers. Contains validation schemas, constants, types, and utilities.
 
 ## Structure
 
@@ -23,7 +23,7 @@ src/
 - One file per domain (e.g., `people.ts`)
 - Always export both the Zod schema and its inferred type together
 - Use `z.infer<typeof schema>` for the type export
-- These are form/API-level schemas — DB-level schemas live in `@sda-chms/db`
+- These are form/API-level schemas — DB-level schemas live in `apps/web/db`
 - Include `.refine()` for cross-field validation rules
 - Use descriptive error messages via the `error` option on each field
 
@@ -36,8 +36,8 @@ src/
 
 ## Types (`src/types/`)
 
-- Shared TypeScript interfaces used by both web and server (e.g., `ApiErrorBody`)
-- Keep types minimal — only what genuinely needs to be shared across apps
+- Shared TypeScript interfaces used across layers (e.g., `ApiErrorBody`)
+- Keep types minimal — only what genuinely needs to be shared
 
 ## Utils (`src/utils/`)
 
@@ -55,7 +55,7 @@ Consumers import via subpath exports:
 
 ## Avoid
 
-- Don't put app-specific logic here — only code genuinely shared between web and server
-- Don't import from `@sda-chms/db` or `@sda-chms/server` — shared must not depend on app packages
-- Don't duplicate DB-level schemas — those belong in `@sda-chms/db` using `drizzle-zod`
+- Don't put app-specific logic here — only code genuinely shared between layers
+- Don't import from `@schema` or `void/*` — shared must not depend on app packages
+- Don't duplicate DB-level schemas — those belong in `apps/web/db` using `void/drizzle-zod`
 - Don't add UI components or server route logic — this package is framework-agnostic

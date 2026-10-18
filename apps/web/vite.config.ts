@@ -4,11 +4,17 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
+import { voidPlugin } from "void";
 
 import { testInclude, workspaceDeps } from "../../vitest.shared";
 
 export default defineConfig({
-  plugins: lazyPlugins(() => [tailwindcss(), tanstackRouter({}), react()]),
+  plugins: lazyPlugins(() => [
+    tailwindcss(),
+    tanstackRouter({}),
+    react(),
+    voidPlugin(),
+  ]),
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
@@ -27,12 +33,21 @@ export default defineConfig({
   },
   test: {
     name: "web",
-    environment: "jsdom",
-    include: testInclude,
+    environment: "node",
+    include: [...testInclude, "test/**/*.test.{ts,tsx}"],
     setupFiles: ["./vitest.setup.ts"],
-    env: {
-      VITE_SERVER_URL: "http://localhost:3000",
-    },
+    // Mirrors what voidPlugin provides in dev/build, which does not run under
+    // Vitest: the PGlite stand-in for void/db and the schema barrel for @schema.
+    alias: [
+      {
+        find: "@schema",
+        replacement: path.resolve(import.meta.dirname, "./db/schema.ts"),
+      },
+      {
+        find: "void/db",
+        replacement: path.resolve(import.meta.dirname, "./test/void-db.ts"),
+      },
+    ],
     server: { deps: workspaceDeps },
   },
 });

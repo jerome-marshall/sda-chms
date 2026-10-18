@@ -6,8 +6,12 @@ catalog:
   "@faker-js/faker": ^10.5.0
   "@types/node": ^24.0.0
   dotenv: ^17.4.2
-  drizzle-orm: ^0.45.2
-  hono: ^4.12.27
+  # Pinned to the exact versions Void 1.1.11 resolves its own drizzle-orm and
+  # hono dependencies to, so the app shares Void's single installed copy (two
+  # copies produce incompatible Drizzle `Column` types across `void/schema-pg`
+  # and `relations`). test/version-parity.test.ts fails when they diverge.
+  drizzle-orm: 0.45.4
+  hono: 4.13.13
   tsx: ^4.20.3
   typescript: ^6.0.3
   zod: ^4.4.3

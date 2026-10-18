@@ -24,15 +24,19 @@ pnpm install
 
 ## Database Setup
 
-This project uses PostgreSQL with Drizzle ORM.
+This project uses PostgreSQL with Drizzle ORM, managed through Void.
 
-1. Make sure you have a PostgreSQL database set up.
-2. Update your `apps/server/.env` file with your PostgreSQL connection details.
+1. Make sure you have a PostgreSQL database set up (see `docs/LOCAL_DATABASE_SETUP.md`).
+2. Create `apps/web/.env` with your connection details (see `apps/web/ENV.md`):
 
-3. Apply the schema to your database:
+```env
+DATABASE_URL=postgresql://postgres:password@localhost:5432/sda_chms
+```
+
+3. Apply the migration history:
 
 ```bash
-pnpm db:push
+pnpm db:migrate
 ```
 
 Then, run the development server:
@@ -41,26 +45,23 @@ Then, run the development server:
 pnpm dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3001](http://localhost:3001) in your browser. The SPA and the API (`/api/*`) are served from the single Void dev server on that origin.
 
 ## Project Structure
 
 ```
 sda-chms/
 ├── apps/
-│   ├── web/         # Frontend application (React + TanStack Router)
-│   └── server/      # Backend API (Hono)
+│   └── web/         # Void app: React SPA (src/) + API file routes (routes/api/) + Drizzle schema (db/)
 ├── packages/
-│   ├── api/         # API layer / business logic
+│   ├── shared/      # Zod schemas, constants, types, utils
+│   └── config/      # Shared TypeScript config
 ```
 
 ## Available Scripts
 
-- `pnpm dev`: Start web (3001) and server (3000) together
+- `pnpm dev`: Start the Void dev server (SPA + API on :3001)
 - `pnpm build`: Build all applications
-- `vpr dev:web` / `vpr dev:server`: Start only one tier
 - `pnpm check-types`: Check TypeScript types across all apps
-- `pnpm db:push`: Push schema changes to database
-- `pnpm db:studio`: Open database studio UI
+- `pnpm db:migrate`: Apply pending migrations through `void db`
 - `pnpm check`: Run `vp check --fix` (format, lint, type check)

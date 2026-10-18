@@ -3,9 +3,9 @@
 # The paths below contain only NON-SECRET, localhost/CI dummy Postgres
 # connection strings:
 #   - .github/workflows/test.yml      CI service-container creds (postgres:postgres@localhost)
-#   - apps/server/vitest.config.ts    a never-connected dummy URL that only satisfies env validation
 #   - playwright.config.ts            local-dev throwaway DB URL
 #   - docs/LOCAL_DATABASE_SETUP.md    local setup examples
+#   - apps/web/ENV.md                 local setup examples
 #
 # None are real credentials — the only live secret (the Neon DATABASE_URL) lives
 # exclusively in gitignored .env files and is never committed. Exclude these
@@ -14,6 +14,6 @@ version: 2
 secret:
   ignored-paths:
     - ".github/workflows/test.yml"
-    - "apps/server/vitest.config.ts"
     - "playwright.config.ts"
     - "docs/LOCAL_DATABASE_SETUP.md"
+    - "apps/web/ENV.md"

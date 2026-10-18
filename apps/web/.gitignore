@@ -58,3 +58,7 @@ dev-dist
 .dev.vars*
 
 .open-next
+
+# Void generated code (void prepare)
+.void/
+.void-wrangler.jsonc

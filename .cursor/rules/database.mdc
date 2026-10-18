@@ -1,19 +1,19 @@
 ---
 description: "Database conventions for Drizzle ORM — schema definitions, migrations, naming, Zod integration"
-globs: "packages/db/**"
+globs: "apps/web/db/**"
 alwaysApply: false
 ---
 
 > **Skill available**: When working on database tasks, use the `drizzle-orm` skill at `.cursor/skills/drizzle-orm/SKILL.md` for detailed patterns on CRUD, relations, filtering, joins, transactions, and migrations.
 
-# Database (packages/db)
+# Database (apps/web/db)
 
 PostgreSQL database managed with Drizzle ORM. Schemas, migrations, and seed data live here.
 
 ## Schema Definitions
 
-- Schema files live in `src/schema/` — one file per domain (e.g., `people.ts`)
-- Use `pgTable`, `pgEnum`, and relations from `drizzle-orm`
+- Schema files live in `db/schema/` — one file per domain (e.g., `people.ts`), re-exported through the `db/schema.ts` barrel (Void's documented convention)
+- Import column helpers from `void/schema-pg` (same API as `drizzle-orm/pg-core`) and `relations` from `drizzle-orm`
 - Define relations alongside tables using `relations()` from `drizzle-orm`
 
 ## Naming Conventions
@@ -43,22 +43,21 @@ Tables that support soft deletes include:
 
 ## Zod Schemas (DB-level)
 
-- Auto-generate with `createSelectSchema` and `createInsertSchema` from `drizzle-zod`
+- Auto-generate with `createSelectSchema` and `createInsertSchema` from `void/drizzle-zod`
 - Always export both the schema and the inferred TypeScript type
 - Naming: `*SelectSchemaDb`, `*InsertSchemaDb` for schemas; `*SelectDb`, `*InsertDb` for types
 - These are DB-level schemas — form/API validation schemas belong in `@sda-chms/shared/schema`
 
 ## Migration Commands
 
-- `pnpm db:generate` — generate migration files from schema changes
-- `pnpm db:migrate` — apply pending migrations
-- `pnpm db:push` — push schema directly (dev only, skips migration files)
-- `pnpm db:studio` — open Drizzle Studio for visual DB inspection
-- `vp -C packages/db run db:seed` — run seed script at `packages/db/src/seed.ts`
+- Never hand-write SQL for schema changes; use `void db generate` from `apps/web`, then apply with `void db migrate`
+- The drift gate is `void db generate` plus `git diff --exit-code` — a schema change with no regenerated migration fails it (`void db status` only reports applied vs pending)
+- Never run raw `void db seed` — it wipes `public` before any guard can run. Always seed through `pnpm db:seed`, which refuses non-local databases first and then delegates to it
+- `pnpm db:seed` wipes `public` and reseeds from `db/seed.ts` — throwaway databases only
 
 ## Canonical Example
 
-- For the complete schema pattern (tables, enums, relations, Zod schemas, types), see `src/schema/people.ts`
+- For the complete schema pattern (tables, enums, relations, Zod schemas, types), see `db/schema/people.ts`
 
 ## Avoid
 

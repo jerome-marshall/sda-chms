@@ -4,25 +4,21 @@ const PORT = 3001;
 const baseURL = `http://localhost:${PORT}`;
 
 /**
- * Local throwaway Postgres for E2E. The server's own `.env` resolves
- * `DATABASE_URL` to a cloud DB, so we override it here to guarantee a local
- * `test:e2e` never reads or seeds production. In CI, `DATABASE_URL` is already
- * set to the service container, so we defer to it.
+ * Local throwaway Postgres for E2E. CI sets DATABASE_URL to the service
+ * container; locally this default is used. The webServer command writes it
+ * into apps/web/.env first (Void reads only that file and rejects
+ * .env.example), then migrates, seeds, and serves.
  */
 const E2E_DATABASE_URL =
   process.env.DATABASE_URL ??
   "postgresql://postgres:password@localhost:5432/sda_chms";
 
 /**
- * E2E runs against the real stack — web (3001) + Hono server (3000) + a
- * throwaway Postgres (the server is node-postgres). Locally: `pnpm db:start`,
- * apply the schema + seed, then `pnpm test:e2e`. In CI a Postgres service
- * container is provisioned, schema-applied, and seeded (see .github/workflows/test.yml).
- *
- * The two servers are started and health-gated independently so the API (3000)
- * is ready before tests run, not just the web tier (3001). In CI the web app is
- * served from a production build (`vite preview`) so E2E exercises the real
- * artifact; locally it uses the dev server for fast iteration.
+ * E2E runs against one Void server (API + SPA on a single origin) backed by
+ * a throwaway Postgres. Locally the dev server serves for fast iteration;
+ * in CI the production build is served through the built worker so E2E
+ * exercises the real artifact (see the commit trail for the local
+ * production proof). Either way the database is migrated and seeded first.
  */
 export default defineConfig({
   testDir: "./e2e",
@@ -36,25 +32,14 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: [
-    {
-      command: "pnpm run dev",
-      cwd: "apps/server",
-      url: "http://localhost:3000/",
-      // Override the server's cloud DATABASE_URL so local E2E targets a
-      // throwaway Postgres (Playwright merges this over process.env).
-      env: { DATABASE_URL: E2E_DATABASE_URL },
-      reuseExistingServer: !process.env.CI,
-      timeout: 120_000,
-    },
-    {
-      command: process.env.CI
-        ? "pnpm run build && pnpm run serve"
-        : "pnpm run dev",
-      cwd: "apps/web",
-      url: baseURL,
-      reuseExistingServer: !process.env.CI,
-      timeout: 120_000,
-    },
-  ],
+  webServer: {
+    command: process.env.CI
+      ? 'printf \'DATABASE_URL=%s\\n\' "$DATABASE_URL" > .env && pnpm exec void db migrate && pnpm run db:seed && pnpm run build && pnpm exec wrangler dev --config dist/ssr/wrangler.json --port 3001 --var "DATABASE_URL:$DATABASE_URL"'
+      : "printf 'DATABASE_URL=%s\\n' \"$DATABASE_URL\" > .env && pnpm exec void db migrate && pnpm run db:seed && pnpm run dev",
+    cwd: "apps/web",
+    url: baseURL,
+    env: { DATABASE_URL: E2E_DATABASE_URL, SEED_COUNT: "20" },
+    reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
+  },
 });

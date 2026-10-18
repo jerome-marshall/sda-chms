@@ -15,11 +15,9 @@ import { Toaster } from "@/components/ui/sonner";
 
 import "../index.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import type { apiClient } from "@/lib/api";
 import { queryClient } from "@/lib/query";
 
 export interface MyRouterContext {
-  apiClient: typeof apiClient;
   queryClient: QueryClient;
 }
 
