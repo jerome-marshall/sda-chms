@@ -20,8 +20,10 @@ printf 'DATABASE_URL=%s\n' "postgres://postgres:postgres@localhost:5432/sda_chms
 ```
 
 Use the throwaway container from `docs/LOCAL_DATABASE_SETUP.md`, or point
-at any Postgres you own. Seeding (`void db seed --yes`) wipes every object
-in `public` first, so only ever point it at a throwaway database.
+at any Postgres you own. Seeding wipes every object in `public` first, so
+only ever point it at a throwaway database — and only ever seed through
+`pnpm db:seed`, which refuses non-local databases before connecting
+(`SEED_ALLOW_REMOTE=true` overrides).
 
 ## CI
 

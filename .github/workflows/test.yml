@@ -87,7 +87,7 @@ jobs:
         run: pnpm --dir apps/web exec void db migrate
 
       - name: Seed throwaway database
-        run: SEED_COUNT=20 pnpm --dir apps/web exec void db seed --yes
+        run: SEED_COUNT=20 pnpm run db:seed
 
       - name: Production build
         run: pnpm --dir apps/web run build

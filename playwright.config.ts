@@ -34,8 +34,8 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: process.env.CI
-      ? 'printf \'DATABASE_URL=%s\\n\' "$DATABASE_URL" > .env && pnpm exec void db migrate && pnpm exec void db seed --yes && pnpm run build && pnpm exec wrangler dev --config dist/ssr/wrangler.json --port 3001 --var "DATABASE_URL:$DATABASE_URL"'
-      : "printf 'DATABASE_URL=%s\\n' \"$DATABASE_URL\" > .env && pnpm exec void db migrate && pnpm exec void db seed --yes && pnpm run dev",
+      ? 'printf \'DATABASE_URL=%s\\n\' "$DATABASE_URL" > .env && pnpm exec void db migrate && pnpm run db:seed && pnpm run build && pnpm exec wrangler dev --config dist/ssr/wrangler.json --port 3001 --var "DATABASE_URL:$DATABASE_URL"'
+      : "printf 'DATABASE_URL=%s\\n' \"$DATABASE_URL\" > .env && pnpm exec void db migrate && pnpm run db:seed && pnpm run dev",
     cwd: "apps/web",
     url: baseURL,
     env: { DATABASE_URL: E2E_DATABASE_URL, SEED_COUNT: "20" },

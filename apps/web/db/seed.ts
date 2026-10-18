@@ -20,6 +20,7 @@ import { getSabbathSchoolClass } from "@sda-chms/shared/utils/sabbath-school";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { defineSeed } from "void/seed";
 
+import { assertSeedableHost } from "../server/lib/seed-guard";
 import type * as schema from "./schema";
 import {
   departmentsTable,
@@ -1362,22 +1363,15 @@ async function insertAccumulated(
 }
 
 /**
- * Seeds ~100 people across family households. `void db seed --yes` wipes
- * every object in `public` first, so this only ever runs against the local
- * database Void provisions — never production.
+ * Seeds ~100 people across family households. Run it only through the
+ * `db:seed` script, which refuses non-local databases before Void connects:
+ * `void db seed` wipes every object in `public` before this callback runs,
+ * so the guard below is only the second line of defense, never the first.
  */
 export default defineSeed<typeof schema>(async ({ db }) => {
   const host = (db as unknown as { $client?: { host?: unknown } }).$client
     ?.host;
-  if (
-    typeof host !== "string" ||
-    (!["localhost", "127.0.0.1", "::1"].includes(host) &&
-      process.env.SEED_ALLOW_REMOTE !== "true")
-  ) {
-    throw new Error(
-      `Refusing to seed non-local database host "${typeof host === "string" ? host : "unknown"}". Seeding is for local development; set SEED_ALLOW_REMOTE=true to override.`
-    );
-  }
+  assertSeedableHost(host);
   const target = Number.parseInt(process.env.SEED_COUNT ?? "100", 10);
   console.log(`Seeding ~${target} people across family households...`);
 

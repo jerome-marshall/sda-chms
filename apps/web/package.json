@@ -9,7 +9,8 @@
     "serve": "vp preview",
     "start": "vp dev",
     "check-types": "tsc --noEmit",
-    "import-people": "tsx ./scripts/import-people.ts"
+    "import-people": "tsx ./scripts/import-people.ts",
+    "db:seed": "tsx ./scripts/seed.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

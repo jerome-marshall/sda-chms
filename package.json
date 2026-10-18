@@ -12,6 +12,7 @@
     "test": "vp test run",
     "test:watch": "vp test",
     "test:e2e": "playwright test",
+    "db:seed": "pnpm --dir apps/web run db:seed",
     "db:migrate": "pnpm --dir apps/web exec void db migrate",
     "prepare": "node scripts/prepare.mjs",
     "sandcastle": "pnpm exec tsx .sandcastle/main.ts",

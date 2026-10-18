@@ -106,12 +106,13 @@ pnpm --dir apps/web exec void db migrate
 To seed faker data into the throwaway database:
 
 ```bash
-pnpm --dir apps/web exec void db seed --yes
+pnpm db:seed
 ```
 
-`void db seed --yes` wipes every object in `public` first — only ever run
-it against a throwaway database (local container or the CI service
-container).
+This refuses anything but a local database before connecting (override
+with `SEED_ALLOW_REMOTE=true`), then wipes `public` and reseeds via
+`db/seed.ts`. Only ever run it against a throwaway database (local
+container or the CI service container).
 
 ## Troubleshooting
 
