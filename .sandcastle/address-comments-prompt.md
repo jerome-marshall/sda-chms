@@ -42,18 +42,18 @@ Do not make unrequested changes beyond what the feedback calls for.
 
 # FEEDBACK LOOPS
 
-This is a Bun + Turborepo monorepo (no `npm`). Before committing, run and pass:
+This is a Vite+ monorepo (no `npm`). Before committing, run and pass:
 
-1. `bun run check-types`
-2. `bun run test`
-3. `bun run check`
+1. `pnpm check-types`
+2. `pnpm test`
+3. `pnpm check`
 
 # DATABASE SAFETY
 
 A throwaway Postgres runs locally in this sandbox and `DATABASE_URL` already
 points at it. NEVER point `DATABASE_URL` at a cloud/production database, and never
-run `bun run db:start` (docker compose is unavailable). Headless Playwright E2E is
-allowed: `bun run db:push` then `bun run test:e2e`, targeting the local DB only.
+run `pnpm db:start` (docker compose is unavailable). Headless Playwright E2E is
+allowed: `pnpm db:push` then `pnpm test:e2e`, targeting the local DB only.
 
 # COMMIT
 

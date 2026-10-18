@@ -1,6 +1,15 @@
 import { setTestDb } from "@sda-chms/db";
-import { createTestDb, type TestDb } from "@sda-chms/db/test-db";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { createTestDb } from "@sda-chms/db/test-db";
+import type { TestDb } from "@sda-chms/db/test-db";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
+
 import { insertPerson } from "../data-access/people";
 import app from "../index";
 
@@ -56,13 +65,13 @@ describe("household-owned contact details (integration, PGlite)", () => {
     setTestDb(testDb.db);
   });
 
+  beforeEach(async () => {
+    await testDb.reset();
+  });
+
   afterAll(async () => {
     setTestDb(null);
     await testDb.close();
-  });
-
-  beforeEach(async () => {
-    await testDb.reset();
   });
 
   it("stores the head's contact details on the Household, not the head Person", async () => {

@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
+
 import {
   getReciprocalRelationshipType,
   RELATIONSHIP_TYPE_VALUES,
@@ -39,7 +40,7 @@ describe("relationship reciprocity (ADR-0003)", () => {
   });
 });
 
-describe("relationshipCreateSchema", () => {
+describe("relationshipCreateSchema validation", () => {
   const valid = {
     personId: "11111111-1111-1111-1111-111111111111",
     relatedPersonId: "22222222-2222-2222-2222-222222222222",

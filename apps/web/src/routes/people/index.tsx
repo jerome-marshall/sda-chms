@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download, Plus } from "lucide-react";
-import PeopleList from "@/components/people/people-list";
+
+import { PeopleList } from "@/components/people/people-list";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,7 @@ function RouteComponent() {
   return (
     <div className="flex min-h-0 flex-1 flex-col space-y-6 overflow-hidden">
       <div className="flex justify-between gap-4">
-        <h1 className="font-bold text-3xl text-foreground tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
           People Directory
         </h1>
         <div className="flex shrink-0 items-center gap-2">

@@ -17,23 +17,23 @@
     "db:seed": "tsx ./src/seed.ts",
     "db:apply-schema": "tsx ./src/apply-schema.ts",
     "check-types": "tsc --noEmit",
-    "test": "vitest run"
-  },
-  "devDependencies": {
-    "drizzle-kit": "^0.31.10",
-    "@electric-sql/pglite": "^0.5.3",
-    "@types/pg": "^8.20.0",
-    "typescript": "catalog:",
-    "@sda-chms/config": "workspace:*"
+    "test": "vp test run"
   },
   "dependencies": {
+    "@faker-js/faker": "catalog:",
+    "@sda-chms/env": "workspace:*",
+    "@sda-chms/shared": "workspace:*",
+    "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "drizzle-zod": "^0.8.3",
     "pg": "^8.22.0",
-    "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@faker-js/faker": "catalog:",
-    "@sda-chms/env": "workspace:*",
-    "@sda-chms/shared": "workspace:*"
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.3",
+    "@sda-chms/config": "workspace:*",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "catalog:"
   }
 }

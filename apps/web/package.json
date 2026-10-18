@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "serve": "vite preview",
-    "start": "vite",
+    "dev": "vp dev",
+    "build": "vp build",
+    "serve": "vp preview",
+    "start": "vp dev",
     "check-types": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vp test run"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -66,6 +66,7 @@
     "postcss": "^8.5.15",
     "tailwindcss": "^4.3.1",
     "typescript": "catalog:",
-    "vite": "^8.1.0"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

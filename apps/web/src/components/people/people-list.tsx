@@ -1,7 +1,8 @@
 import { MEMBERSHIP_STATUS_OPTIONS } from "@sda-chms/shared/constants/people";
 import { Link } from "@tanstack/react-router";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
+
 import { DataGrid } from "@/components/data-grid/data-grid";
 import { DataGridFilterMenu } from "@/components/data-grid/data-grid-filter-menu";
 import { DataGridRowHeightMenu } from "@/components/data-grid/data-grid-row-height-menu";
@@ -14,7 +15,52 @@ import { useDataGrid } from "@/hooks/use-data-grid";
 import { getFilterFn } from "@/lib/data-grid-filters";
 import type { Person } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
+
 import HouseholdTooltip from "../household-tooltip";
+
+function FullNameCell({ row }: CellContext<Person, unknown>) {
+  return (
+    <Link
+      className="underline hover:no-underline"
+      params={{ peopleId: row.original.id }}
+      to="/people/$peopleId"
+    >
+      {row.getValue<string>("fullName")}
+    </Link>
+  );
+}
+
+function HouseholdInfoCell({
+  person,
+  field,
+}: {
+  person: Person;
+  field: "phone" | "city";
+}) {
+  const { data, isfromHousehold } = getInfoOrFromHousehold(person, field);
+
+  return (
+    <div className="flex items-center gap-1">
+      <span>{data || "-"}</span>
+      <HouseholdTooltip isFromHousehold={isfromHousehold} />
+    </div>
+  );
+}
+
+function PhoneCell({ row }: CellContext<Person, unknown>) {
+  return <HouseholdInfoCell field="phone" person={row.original} />;
+}
+
+function CityCell({ row }: CellContext<Person, unknown>) {
+  return <HouseholdInfoCell field="city" person={row.original} />;
+}
+
+function MembershipStatusCell({ row }: CellContext<Person, unknown>) {
+  const status = row.getValue<string>("membershipStatus");
+  const option = MEMBERSHIP_STATUS_OPTIONS.find((opt) => opt.value === status);
+
+  return <div>{option?.label ?? status}</div>;
+}
 
 /** Main people list view rendered as a read-only data grid. */
 export const PeopleList = () => {
@@ -28,15 +74,7 @@ export const PeopleList = () => {
         id: "fullName",
         accessorKey: "fullName",
         header: "Name",
-        cell: ({ row }) => (
-          <Link
-            className="underline hover:no-underline"
-            params={{ peopleId: row.original.id }}
-            to="/people/$peopleId"
-          >
-            {row.getValue("fullName")}
-          </Link>
-        ),
+        cell: FullNameCell,
         filterFn,
         meta: {
           label: "Name",
@@ -50,20 +88,7 @@ export const PeopleList = () => {
         accessorFn: (person) =>
           getInfoOrFromHousehold(person, "phone").data ?? "",
         header: "Phone",
-        cell: ({ row }) => {
-          const person = row.original;
-          const { data: phone, isfromHousehold } = getInfoOrFromHousehold(
-            person,
-            "phone"
-          );
-
-          return (
-            <div className="flex items-center gap-1">
-              <span>{phone || "-"}</span>
-              <HouseholdTooltip isFromHousehold={isfromHousehold} />
-            </div>
-          );
-        },
+        cell: PhoneCell,
         filterFn,
         meta: {
           label: "Phone",
@@ -77,20 +102,7 @@ export const PeopleList = () => {
         accessorFn: (person) =>
           getInfoOrFromHousehold(person, "city").data ?? "",
         header: "City",
-        cell: ({ row }) => {
-          const person = row.original;
-          const { data: city, isfromHousehold } = getInfoOrFromHousehold(
-            person,
-            "city"
-          );
-
-          return (
-            <div className="flex items-center gap-1">
-              <span>{city || "-"}</span>
-              <HouseholdTooltip isFromHousehold={isfromHousehold} />
-            </div>
-          );
-        },
+        cell: CityCell,
         filterFn,
         meta: {
           label: "City",
@@ -103,13 +115,7 @@ export const PeopleList = () => {
         id: "membershipStatus",
         accessorKey: "membershipStatus",
         header: "Membership Status",
-        cell: ({ row }) => {
-          const status = row.getValue("membershipStatus") as string;
-          const option = MEMBERSHIP_STATUS_OPTIONS.find(
-            (opt) => opt.value === status
-          );
-          return <div>{option?.label || status}</div>;
-        },
+        cell: MembershipStatusCell,
         filterFn,
         meta: {
           label: "Membership Status",

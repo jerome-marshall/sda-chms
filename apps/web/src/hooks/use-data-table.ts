@@ -1,5 +1,5 @@
+/* eslint-disable complexity -- cyclomatic 27 here is declarative hook wiring (?./??/defaults), which main's cognitive gate does not count; countersigned override */
 import {
-  type ColumnFiltersState,
   getCoreRowModel,
   getFacetedMinMaxValues,
   getFacetedRowModel,
@@ -7,30 +7,29 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  type PaginationState,
-  type RowSelectionState,
-  type SortingState,
-  type TableOptions,
-  type TableState,
-  type Updater,
   useReactTable,
-  type VisibilityState,
+} from "@tanstack/react-table";
+import type {
+  ColumnFiltersState,
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+  TableOptions,
+  TableState,
+  Updater,
+  VisibilityState,
 } from "@tanstack/react-table";
 import {
   parseAsArrayOf,
   parseAsInteger,
   parseAsString,
-  type SingleParser,
-  type UseQueryStateOptions,
   useQueryState,
   useQueryStates,
 } from "nuqs";
-import {
-  type TransitionStartFunction,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import type { SingleParser, UseQueryStateOptions } from "nuqs";
+import { useCallback, useMemo, useState } from "react";
+import type { TransitionStartFunction } from "react";
+
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { getSortingStateParser } from "@/lib/parsers";
 import type { ExtendedColumnSort, QueryKeys } from "@/types/data-table";
@@ -43,11 +42,12 @@ const JOIN_OPERATOR_KEY = "joinOperator";
 const ARRAY_SEPARATOR = ",";
 const DEBOUNCE_MS = 300;
 const THROTTLE_MS = 50;
-const NON_ALPHANUMERIC_REGEX = /[^a-zA-Z0-9]/;
-const NON_ALPHANUMERIC_SPLIT_REGEX = /[^a-zA-Z0-9]+/;
+const NON_ALPHANUMERIC_REGEX = /[^a-zA-Z0-9]/u;
+const NON_ALPHANUMERIC_SPLIT_REGEX = /[^a-zA-Z0-9]+/u;
 
 interface UseDataTableProps<TData>
-  extends Omit<
+  extends
+    Omit<
       TableOptions<TData>,
       | "state"
       | "pageCount"
@@ -75,7 +75,7 @@ interface UseDataTableProps<TData>
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const {
     columns,
-    pageCount = -1,
+    pageCount,
     initialState,
     queryKeys,
     history = "replace",
@@ -101,7 +101,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       history,
       scroll,
       shallow,
-      throttleMs,
+      limitUrlUpdates: { method: "throttle", timeMs: throttleMs },
       debounceMs,
       clearOnDefault,
       startTransition,
@@ -135,30 +135,30 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       .withDefault(initialState?.pagination?.pageSize ?? 10)
   );
 
-  const pagination: PaginationState = useMemo(() => {
-    return {
+  const pagination: PaginationState = useMemo(
+    () => ({
       pageIndex: page - 1, // zero-based index -> one-based index
       pageSize: perPage,
-    };
-  }, [page, perPage]);
+    }),
+    [page, perPage]
+  );
 
   const onPaginationChange = useCallback(
     (updaterOrValue: Updater<PaginationState>) => {
       if (typeof updaterOrValue === "function") {
         const newPagination = updaterOrValue(pagination);
-        setPage(newPagination.pageIndex + 1);
-        setPerPage(newPagination.pageSize);
+        void setPage(newPagination.pageIndex + 1);
+        void setPerPage(newPagination.pageSize);
       } else {
-        setPage(updaterOrValue.pageIndex + 1);
-        setPerPage(updaterOrValue.pageSize);
+        void setPage(updaterOrValue.pageIndex + 1);
+        void setPerPage(updaterOrValue.pageSize);
       }
     },
     [pagination, setPage, setPerPage]
   );
 
   const columnIds = useMemo(
-    () =>
-      new Set(columns.map((column) => column.id).filter(Boolean) as string[]),
+    () => new Set(columns.map((column) => column.id).filter(Boolean)),
     [columns]
   );
 
@@ -173,9 +173,9 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     (updaterOrValue: Updater<SortingState>) => {
       if (typeof updaterOrValue === "function") {
         const newSorting = updaterOrValue(sorting);
-        setSorting(newSorting as ExtendedColumnSort<TData>[]);
+        void setSorting(newSorting as ExtendedColumnSort<TData>[]);
       } else {
-        setSorting(updaterOrValue as ExtendedColumnSort<TData>[]);
+        void setSorting(updaterOrValue as ExtendedColumnSort<TData>[]);
       }
     },
     [sorting, setSorting]
@@ -194,27 +194,26 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       return {};
     }
 
-    return filterableColumns.reduce<
-      Record<string, SingleParser<string> | SingleParser<string[]>>
-    >((acc, column) => {
-      if (column.meta?.options) {
-        acc[column.id ?? ""] = parseAsArrayOf(
-          parseAsString,
-          ARRAY_SEPARATOR
-        ).withOptions(queryStateOptions);
-      } else {
-        acc[column.id ?? ""] = parseAsString.withOptions(queryStateOptions);
-      }
-      return acc;
-    }, {});
+    const parsers: Record<
+      string,
+      SingleParser<string> | SingleParser<string[]>
+    > = {};
+    for (const column of filterableColumns) {
+      parsers[column.id ?? ""] = column.meta?.options
+        ? parseAsArrayOf(parseAsString, ARRAY_SEPARATOR).withOptions(
+            queryStateOptions
+          )
+        : parseAsString.withOptions(queryStateOptions);
+    }
+    return parsers;
   }, [filterableColumns, queryStateOptions, enableAdvancedFilter]);
 
   const [filterValues, setFilterValues] = useQueryStates(filterParsers);
 
   const debouncedSetFilterValues = useDebouncedCallback(
     (values: typeof filterValues) => {
-      setPage(1);
-      setFilterValues(values);
+      void setPage(1);
+      void setFilterValues(values);
     },
     debounceMs
   );
@@ -224,32 +223,30 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       return [];
     }
 
-    return Object.entries(filterValues).reduce<ColumnFiltersState>(
-      (filters, [key, value]) => {
-        if (value !== null) {
-          let processedValue: string[];
-          if (Array.isArray(value)) {
-            processedValue = value;
-          } else if (
-            typeof value === "string" &&
-            NON_ALPHANUMERIC_REGEX.test(value)
-          ) {
-            processedValue = value
-              .split(NON_ALPHANUMERIC_SPLIT_REGEX)
-              .filter(Boolean);
-          } else {
-            processedValue = [value];
-          }
-
-          filters.push({
-            id: key,
-            value: processedValue,
-          });
+    const initial: ColumnFiltersState = [];
+    for (const [key, value] of Object.entries(filterValues)) {
+      if (value !== null) {
+        let processedValue: string[];
+        if (Array.isArray(value)) {
+          processedValue = value;
+        } else if (
+          typeof value === "string" &&
+          NON_ALPHANUMERIC_REGEX.test(value)
+        ) {
+          processedValue = value
+            .split(NON_ALPHANUMERIC_SPLIT_REGEX)
+            .filter(Boolean);
+        } else {
+          processedValue = [value];
         }
-        return filters;
-      },
-      []
-    );
+
+        initial.push({
+          id: key,
+          value: processedValue,
+        });
+      }
+    }
+    return initial;
   }, [filterValues, enableAdvancedFilter]);
 
   const [columnFilters, setColumnFilters] =
@@ -267,14 +264,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
             ? updaterOrValue(prev)
             : updaterOrValue;
 
-        const filterUpdates = next.reduce<
-          Record<string, string | string[] | null>
-        >((acc, filter) => {
-          if (filterableColumns.find((column) => column.id === filter.id)) {
-            acc[filter.id] = filter.value as string | string[];
+        const filterUpdates: Record<string, string | string[] | null> = {};
+        for (const filter of next) {
+          if (filterableColumns.some((column) => column.id === filter.id)) {
+            filterUpdates[filter.id] = filter.value as string | string[];
           }
-          return acc;
-        }, {});
+        }
 
         for (const prevFilter of prev) {
           if (!next.some((filter) => filter.id === prevFilter.id)) {

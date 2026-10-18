@@ -1,4 +1,3 @@
-// biome-ignore lint/performance/noNamespaceImport: React namespace import needed for hooks
 import * as React from "react";
 
 /**
@@ -10,6 +9,7 @@ import * as React from "react";
  * prop or avoid re-executing effects when passed as a dependency
  */
 function useCallbackRef<T extends (...args: never[]) => unknown>(
+  // oxlint-disable-next-line promise/prefer-await-to-callbacks -- sync callback-to-ref wrapper (radix pattern), no promises involved
   callback: T | undefined
 ): T {
   const callbackRef = React.useRef(callback);

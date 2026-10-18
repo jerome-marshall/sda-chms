@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Home, TrendingUp, UserCheck, Users } from "lucide-react";
 import { Suspense } from "react";
+
 import { AgeGroupChart } from "@/components/dashboard/age-group-chart";
 import { CelebrationsCard } from "@/components/dashboard/celebrations-card";
 import { DashboardCardSkeleton } from "@/components/dashboard/dashboard-card";
@@ -19,8 +20,13 @@ export const Route = createFileRoute("/")({
     breadcrumb: "Home",
   },
   loader: ({ context: { queryClient } }) => {
-    queryClient.prefetchQuery(queryOptions.people());
-    queryClient.prefetchQuery(queryOptions.groups());
+    // Prefetch failures resolve through the components' own queries.
+    void queryClient.query(queryOptions.people()).catch(() => {
+      // Components refetch on mount, so a failed prefetch is harmless.
+    });
+    void queryClient.query(queryOptions.groups()).catch(() => {
+      // Components refetch on mount, so a failed prefetch is harmless.
+    });
   },
 });
 
@@ -32,7 +38,7 @@ function DashboardPage() {
   return (
     <div className="container mx-auto space-y-6">
       <div className="mb-8 flex flex-col space-y-2">
-        <h1 className="font-bold text-3xl text-foreground tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
           Dashboard
         </h1>
         <p className="text-muted-foreground">

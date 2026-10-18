@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+
 import { getAllGroupsUseCase } from "../use-case/groups";
 
 const app = new Hono().get("/", async (c) => {

@@ -3,6 +3,7 @@ import type {
   PersonUpdateForm,
 } from "@sda-chms/shared/schema/people";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { apiClient, fetchApi } from "@/lib/api";
 import { queryKeys, queryOptions } from "@/lib/query";
 import type { PersonCreated, PersonDetail } from "@/types/api";
@@ -24,7 +25,7 @@ export const useAddPerson = ({
     mutationFn: (data: PersonInsertForm) =>
       fetchApi(apiClient.people.$post({ json: data })),
     onSuccess: (person) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.people() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.people() });
       onSuccess?.(person);
     },
     onError: (error) => {
@@ -51,8 +52,10 @@ export const useUpdatePerson = ({
         apiClient.people[":id"].$put({ param: { id: personId }, json: data })
       ),
     onSuccess: (person) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.people() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.person(personId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.people() });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.person(personId),
+      });
       onSuccess?.(person);
     },
     onError: (error) => {

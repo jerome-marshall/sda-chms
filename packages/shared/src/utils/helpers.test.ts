@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
+
 import { calculateAge, toDate, toDateString, toTitleCase } from "./helpers";
 
-describe("toTitleCase", () => {
+describe(toTitleCase, () => {
   it("capitalizes each word", () => {
     expect(toTitleCase("mary jane")).toBe("Mary Jane");
   });
@@ -15,7 +16,7 @@ describe("toTitleCase", () => {
   });
 });
 
-describe("toDate", () => {
+describe(toDate, () => {
   it("returns undefined for empty or invalid input", () => {
     expect(toDate("")).toBeUndefined();
     expect(toDate(null)).toBeUndefined();
@@ -32,7 +33,7 @@ describe("toDate", () => {
   });
 });
 
-describe("toDateString", () => {
+describe(toDateString, () => {
   it("formats a Date as YYYY-MM-DD in local time", () => {
     expect(toDateString(new Date(2026, 0, 6))).toBe("2026-01-06");
   });
@@ -42,7 +43,7 @@ describe("toDateString", () => {
   });
 });
 
-describe("calculateAge", () => {
+describe(calculateAge, () => {
   it("computes whole years from a date of birth", () => {
     const dob = new Date();
     dob.setFullYear(dob.getFullYear() - 30);
@@ -51,6 +52,6 @@ describe("calculateAge", () => {
   });
 
   it("returns undefined when the date of birth is missing", () => {
-    expect(calculateAge(undefined)).toBeUndefined();
+    expect(calculateAge()).toBeUndefined();
   });
 });

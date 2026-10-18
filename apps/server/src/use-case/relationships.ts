@@ -2,9 +2,10 @@ import { createTransaction } from "@sda-chms/db";
 import {
   RELATIONSHIP_TYPE,
   SPOUSE_STATE,
-  type SPOUSE_STATE_VALUES,
 } from "@sda-chms/shared/constants/people";
+import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
 import type { RelationshipCreate } from "@sda-chms/shared/schema/people";
+
 import {
   deleteRelationship,
   getRelationshipsForPerson,

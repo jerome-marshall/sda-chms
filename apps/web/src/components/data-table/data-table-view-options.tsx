@@ -3,6 +3,7 @@
 import type { Table } from "@tanstack/react-table";
 import { Check, Settings2 } from "lucide-react";
 import { useMemo } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -19,8 +20,9 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-interface DataTableViewOptionsProps<TData>
-  extends React.ComponentProps<typeof PopoverContent> {
+interface DataTableViewOptionsProps<TData> extends React.ComponentProps<
+  typeof PopoverContent
+> {
   disabled?: boolean;
   table: Table<TData>;
 }
@@ -35,8 +37,7 @@ export function DataTableViewOptions<TData>({
       table
         .getAllColumns()
         .filter(
-          (column) =>
-            typeof column.accessorFn !== "undefined" && column.getCanHide()
+          (column) => column.accessorFn !== undefined && column.getCanHide()
         ),
     [table]
   );

@@ -1,9 +1,8 @@
+import { eq, getDb } from "@sda-chms/db";
+import { peopleTable } from "@sda-chms/db/schema/people";
 import dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
-
-import { eq, getDb } from "@sda-chms/db";
-import { peopleTable } from "@sda-chms/db/schema/people";
 
 const db = getDb();
 
@@ -50,7 +49,9 @@ async function backfill() {
   process.exit(0);
 }
 
-backfill().catch((err) => {
-  console.error("Backfill failed:", err);
+try {
+  await backfill();
+} catch (error) {
+  console.error("Backfill failed:", error);
   process.exit(1);
-});
+}

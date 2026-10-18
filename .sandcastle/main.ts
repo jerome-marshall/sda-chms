@@ -18,13 +18,14 @@
 // work. Issues that already have an open PR are skipped so work isn't duplicated.
 //
 // To address review comments you leave on a PR, run:
-//   bun run sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
+//   pnpm sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
 //
 // Usage:
-//   bun run sandcastle
+//   pnpm sandcastle
 
 import { claudeCode, createSandbox, Output, run } from "@ai-hero/sandcastle";
 import { z } from "zod";
+
 import {
   copyToWorktree,
   createPr,
@@ -165,9 +166,9 @@ const settled = await Promise.allSettled(
           promptArgs: { BRANCH: issue.branch },
         });
         pr = parsePrDescription(describe.stdout);
-      } catch (err) {
+      } catch (error) {
         console.error(
-          `  ! ${issue.id}: PR-description step failed; using fallback body: ${err}`
+          `  ! ${issue.id}: PR-description step failed; using fallback body: ${String(error)}`
         );
       }
 
@@ -194,7 +195,7 @@ const completed: {
   issue: (typeof issues)[number];
   pr: { title: string; body: string } | null;
 }[] = [];
-settled.forEach((outcome, i) => {
+for (const [i, outcome] of settled.entries()) {
   const issue = issues[i];
   if (
     issue &&
@@ -203,7 +204,7 @@ settled.forEach((outcome, i) => {
   ) {
     completed.push({ issue, pr: outcome.value.pr });
   }
-});
+}
 
 console.log(
   `\nExecution complete. ${completed.length} branch(es) with commits.`
@@ -242,18 +243,18 @@ for (const { issue, pr } of completed) {
     const body =
       `${lead}Closes #${issue.id}\n\n` +
       "_Automated by Sandcastle (implement → review). Leave review comments, " +
-      "then run `bun run sandcastle:pr-comments <PR>` to have them addressed._";
+      "then run `pnpm sandcastle:pr-comments <PR>` to have them addressed._";
 
     const url = createPr(issue.branch, title, body);
     console.log(`  ✓ ${issue.id} → ${url}`);
-  } catch (err) {
+  } catch (error) {
     console.error(
-      `  ✗ ${issue.id} (${issue.branch}) failed to publish: ${err}`
+      `  ✗ ${issue.id} (${issue.branch}) failed to publish: ${String(error)}`
     );
   }
 }
 
 console.log(
-  "\nAll done. Review and merge the PR(s) above. Re-run `bun run sandcastle` " +
+  "\nAll done. Review and merge the PR(s) above. Re-run `pnpm sandcastle` " +
     "after merging to pick up newly unblocked issues."
 );

@@ -7,5 +7,5 @@
     "jsxImportSource": "hono/jsx",
     "strictNullChecks": true
   },
-  "exclude": ["dist", "**/*.test.ts", "vitest.config.ts"]
+  "exclude": ["dist", "**/*.test.ts", "vite.config.ts"]
 }

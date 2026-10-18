@@ -4,11 +4,12 @@ import {
   Calendar,
   Church,
   CreditCard,
-  type LucideIcon,
   Settings,
   Users2,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type * as React from "react";
+
 import {
   Sidebar,
   SidebarContent,
@@ -20,16 +21,17 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import type { TRoutes } from "@/types/route";
+
 import { Separator } from "./ui/separator";
 
 // Church Management System navigation data
 interface NavItem {
   icon: LucideIcon;
-  items?: Array<{
+  items?: {
     title: string;
     url: TRoutes;
     isActive?: boolean;
-  }>;
+  }[];
   title: string;
   url: TRoutes;
 }
@@ -64,9 +66,11 @@ const data: { navMain: NavItem[] } = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  ...sidebarProps
+}: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar variant="floating" {...props}>
+    <Sidebar variant="floating" {...sidebarProps}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

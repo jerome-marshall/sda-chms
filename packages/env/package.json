@@ -11,13 +11,13 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "zod": "catalog:",
     "@t3-oss/env-core": "^0.13.11",
-    "dotenv": "catalog:"
+    "dotenv": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
+    "@sda-chms/config": "workspace:*",
     "@types/node": "catalog:",
-    "@sda-chms/config": "workspace:*"
+    "typescript": "catalog:"
   }
 }

@@ -1,6 +1,15 @@
 import { setTestDb } from "@sda-chms/db";
-import { createTestDb, type TestDb } from "@sda-chms/db/test-db";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { createTestDb } from "@sda-chms/db/test-db";
+import type { TestDb } from "@sda-chms/db/test-db";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
+
 import app from "../index";
 
 /** A head that defines a new household. */
@@ -46,13 +55,13 @@ describe("household routes (integration, PGlite)", () => {
     setTestDb(testDb.db);
   });
 
+  beforeEach(async () => {
+    await testDb.reset();
+  });
+
   afterAll(async () => {
     setTestDb(null);
     await testDb.close();
-  });
-
-  beforeEach(async () => {
-    await testDb.reset();
   });
 
   it("GET /households surfaces the family name the user stored, not one derived from the head", async () => {

@@ -47,13 +47,13 @@ Use RGR (red-green-refactor) to complete the task.
 
 # FEEDBACK LOOPS
 
-This is a Bun + Turborepo monorepo. Before committing, run all three and make
+This is a Vite+ monorepo. Before committing, run all three and make
 them pass:
 
-1. `bun run check-types` — TypeScript across all packages.
-2. `bun run test` — Vitest (server integration tests run against in-memory
+1. `pnpm check-types` — TypeScript across all packages.
+2. `pnpm test` — `vp test` (server integration tests run against in-memory
    PGlite; safe and self-contained).
-3. `bun run check` — Biome (formats + lints; this is the project's lint gate).
+3. `pnpm check` — `vp check` (formats + lints; this is the project's lint gate).
 
 # DATABASE SAFETY (read carefully)
 
@@ -62,12 +62,12 @@ points at it. The production database is NOT reachable from here.
 
 - NEVER set `DATABASE_URL` to a cloud / Neon / production URL, and never hardcode
   one. Use the `DATABASE_URL` already in the environment.
-- Do NOT run `bun run db:start` (it uses docker compose, which is unavailable
+- Do NOT run `pnpm db:start` (it uses docker compose, which is unavailable
   here — Postgres is already running).
 - You MAY run headless Playwright E2E. To do so: apply the schema to the local DB
-  with `bun run db:push`, then run `bun run test:e2e` (Playwright is headless by
+  with `pnpm db:push`, then run `pnpm test:e2e` (Playwright is headless by
   default). E2E targets the local sandbox Postgres via `DATABASE_URL`.
-- `bun run db:push` / `db:migrate` / seeding are only ever acceptable against this
+- `pnpm db:push` / `db:migrate` / seeding are only ever acceptable against this
   local sandbox DB — which is the only DB you can reach. Treat them as E2E setup,
   not as something to run "to be safe."
 

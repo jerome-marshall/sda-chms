@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Users2 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+
 import {
   ChartContainer,
   ChartTooltip,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/chart";
 import { queryOptions } from "@/lib/query";
 import { isDeceased } from "@/utils/people";
+
 import { DashboardCard } from "./dashboard-card";
 
 /** Broader demographic buckets (distinct from Sabbath School classes in shared constants). */

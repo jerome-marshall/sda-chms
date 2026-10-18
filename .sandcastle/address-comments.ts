@@ -6,9 +6,10 @@
 // the branch (which updates the PR). It never merges — you still merge yourself.
 //
 // Usage:
-//   bun run sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
+//   pnpm sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]
 
 import { claudeCode, createSandbox } from "@ai-hero/sandcastle";
+
 import {
   copyToWorktree,
   hooks,
@@ -19,12 +20,12 @@ import {
 
 const prs = process.argv
   .slice(2)
-  .map((arg) => Number(arg))
+  .map(Number)
   .filter((n) => Number.isInteger(n) && n > 0);
 
 if (prs.length === 0) {
   console.error(
-    "Usage: bun run sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]"
+    "Usage: pnpm sandcastle:pr-comments <PR_NUMBER> [<PR_NUMBER> ...]"
   );
   process.exit(1);
 }
@@ -64,8 +65,8 @@ for (const pr of prs) {
         `  No code changes for PR #${pr} (the agent may have replied without changing code).`
       );
     }
-  } catch (err) {
-    console.error(`  ✗ PR #${pr} (${branch}) failed: ${err}`);
+  } catch (error) {
+    console.error(`  ✗ PR #${pr} (${branch}) failed: ${String(error)}`);
   } finally {
     await sandbox.close();
   }

@@ -1,7 +1,17 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
+
 import { testInclude, workspaceDeps } from "../../vitest.shared";
 
 export default defineConfig({
+  pack: {
+    entry: "./src/index.ts",
+    format: "esm",
+    outDir: "./dist",
+    clean: true,
+    deps: {
+      alwaysBundle: [/@sda-chms\/.*/u],
+    },
+  },
   test: {
     name: "server",
     environment: "node",

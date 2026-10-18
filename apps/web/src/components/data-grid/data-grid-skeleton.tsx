@@ -1,4 +1,5 @@
 import type * as React from "react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -26,7 +27,7 @@ export function DataGridSkeleton({
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            {Array.from({ length: columnCount }, (_, index) => (
+            {Array.from({ length: columnCount }, (_headerCell, index) => (
               <TableHead key={`header-${index.toString()}`}>
                 <Skeleton className="h-5 w-full" />
               </TableHead>
@@ -34,12 +35,12 @@ export function DataGridSkeleton({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: rowCount }, (_, rowIndex) => (
+          {Array.from({ length: rowCount }, (_bodyRow, rowIndex) => (
             <TableRow
               className="hover:bg-transparent"
               key={`row-${rowIndex.toString()}`}
             >
-              {Array.from({ length: columnCount }, (_, columnIndex) => (
+              {Array.from({ length: columnCount }, (_bodyCell, columnIndex) => (
                 <TableCell
                   key={`cell-${rowIndex.toString()}-${columnIndex.toString()}`}
                 >

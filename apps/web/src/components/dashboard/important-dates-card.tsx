@@ -1,10 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CalendarHeart } from "lucide-react";
 import { useMemo } from "react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { queryOptions } from "@/lib/query";
 import { isDeceased } from "@/utils/people";
+
 import { Badge } from "../ui/badge";
 import { DashboardCard } from "./dashboard-card";
 
@@ -140,7 +142,7 @@ export function ImportantDatesCard() {
 
     return people
       .flatMap((person) => getEntriesForPerson(person, today))
-      .sort((a, b) => a.daysUntil - b.daysUntil);
+      .toSorted((a, b) => a.daysUntil - b.daysUntil);
   }, [people]);
 
   return (
@@ -159,7 +161,7 @@ export function ImportantDatesCard() {
               >
                 <div className="z-10 flex items-center gap-4">
                   <Avatar className="h-10 w-10 border border-border/50 ring-2 ring-transparent transition-all group-hover:ring-primary/10">
-                    <AvatarFallback className="bg-primary/5 font-medium text-primary text-sm">
+                    <AvatarFallback className="bg-primary/5 text-sm font-medium text-primary">
                       {entry.memberName
                         .split(" ")
                         .map((n) => n[0])
@@ -169,12 +171,12 @@ export function ImportantDatesCard() {
                   </Avatar>
 
                   <div className="space-y-1">
-                    <p className="font-medium text-sm leading-none transition-colors group-hover:text-primary">
+                    <p className="text-sm leading-none font-medium transition-colors group-hover:text-primary">
                       {entry.memberName}
                     </p>
-                    <p className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Badge
-                        className="bg-teal-100 px-2 py-0.5 font-semibold text-[10px] text-teal-700 capitalize leading-none tracking-wider"
+                        className="bg-teal-100 px-2 py-0.5 text-[10px] leading-none font-semibold tracking-wider text-teal-700 capitalize"
                         variant="secondary"
                       >
                         {entry.occasion}
@@ -188,7 +190,7 @@ export function ImportantDatesCard() {
                 </div>
 
                 <span
-                  className={`z-10 shrink-0 rounded-full px-2.5 py-1 font-semibold text-[11px] tabular-nums ${
+                  className={`z-10 shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold tabular-nums ${
                     entry.daysUntil === 0
                       ? "bg-teal-500/10 text-teal-600"
                       : "bg-muted text-muted-foreground"
@@ -209,10 +211,10 @@ export function ImportantDatesCard() {
               <CalendarHeart className="h-8 w-8 text-muted-foreground/50" />
             </div>
             <div className="space-y-1">
-              <p className="font-medium text-sm">
+              <p className="text-sm font-medium">
                 No important dates this week
               </p>
-              <p className="max-w-[200px] text-muted-foreground text-xs">
+              <p className="max-w-[200px] text-xs text-muted-foreground">
                 Dates to remember will appear here as they approach.
               </p>
             </div>

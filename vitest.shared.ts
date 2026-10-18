@@ -11,4 +11,4 @@ export const testInclude = ["src/**/*.test.{ts,tsx}"];
  * Workspace packages resolve to TS source; inline them so Vite transforms them
  * instead of Node trying to import raw `.ts`.
  */
-export const workspaceDeps = { inline: [/^@sda-chms\//] };
+export const workspaceDeps = { inline: [/^@sda-chms\//u] };

@@ -14,9 +14,9 @@ const E2E_DATABASE_URL =
   "postgresql://postgres:password@localhost:5432/sda_chms";
 
 /**
- * E2E runs against the real stack — web (3001) + Bun/Hono server (3000) + a
- * throwaway Postgres (the server is node-postgres). Locally: `bun run db:start`,
- * apply the schema + seed, then `bun run test:e2e`. In CI a Postgres service
+ * E2E runs against the real stack — web (3001) + Hono server (3000) + a
+ * throwaway Postgres (the server is node-postgres). Locally: `pnpm db:start`,
+ * apply the schema + seed, then `pnpm test:e2e`. In CI a Postgres service
  * container is provisioned, schema-applied, and seeded (see .github/workflows/test.yml).
  *
  * The two servers are started and health-gated independently so the API (3000)
@@ -38,7 +38,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: [
     {
-      command: "bun run dev",
+      command: "pnpm run dev",
       cwd: "apps/server",
       url: "http://localhost:3000/",
       // Override the server's cloud DATABASE_URL so local E2E targets a
@@ -49,8 +49,8 @@ export default defineConfig({
     },
     {
       command: process.env.CI
-        ? "bun run build && bun run serve"
-        : "bun run dev",
+        ? "pnpm run build && pnpm run serve"
+        : "pnpm run dev",
       cwd: "apps/web",
       url: baseURL,
       reuseExistingServer: !process.env.CI,

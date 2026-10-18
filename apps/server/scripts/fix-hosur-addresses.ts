@@ -1,9 +1,8 @@
+import { and, eq, getDb, ilike, isNotNull } from "@sda-chms/db";
+import { peopleTable } from "@sda-chms/db/schema/people";
 import dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
-
-import { and, eq, getDb, ilike, isNotNull } from "@sda-chms/db";
-import { peopleTable } from "@sda-chms/db/schema/people";
 
 const db = getDb();
 
@@ -55,9 +54,9 @@ async function fixHosurAddresses() {
       // Remove "Hosur" from addressLine1 (case-insensitive, with whitespace cleanup)
       const currentAddress = person.addressLine1 ?? "";
       const cleanedAddress = currentAddress
-        .replace(/\bHosur\b/gi, "") // Remove "Hosur" word (case-insensitive, whole word)
-        .replace(/\s+/g, " ") // Replace multiple spaces with single space
-        .replace(/^[\s,]+|[\s,]+$/g, "") // Remove leading/trailing spaces and commas
+        .replaceAll(/\bHosur\b/giu, "") // Remove "Hosur" word (case-insensitive, whole word)
+        .replaceAll(/\s+/gu, " ") // Replace multiple spaces with single space
+        .replaceAll(/^[\s,]+|[\s,]+$/gu, "") // Remove leading/trailing spaces and commas
         .trim();
 
       await db
@@ -92,12 +91,11 @@ async function fixHosurAddresses() {
   console.log("====================================\n");
 }
 
-fixHosurAddresses()
-  .then(() => {
-    console.log("Script completed successfully.");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("Script failed:", error);
-    process.exit(1);
-  });
+try {
+  await fixHosurAddresses();
+  console.log("Script completed successfully.");
+  process.exit(0);
+} catch (error) {
+  console.error("Script failed:", error);
+  process.exit(1);
+}

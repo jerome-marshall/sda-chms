@@ -1,5 +1,4 @@
 import {
-  type ColumnFiltersState,
   getCoreRowModel,
   getFacetedMinMaxValues,
   getFacetedRowModel,
@@ -7,25 +6,27 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  type PaginationState,
-  type RowSelectionState,
-  type SortingState,
-  type TableOptions,
-  type TableState,
   useReactTable,
-  type VisibilityState,
+} from "@tanstack/react-table";
+import type {
+  ColumnFiltersState,
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+  TableOptions,
+  TableState,
+  VisibilityState,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 
-interface UseClientDataTableProps<TData>
-  extends Omit<
-    TableOptions<TData>,
-    | "state"
-    | "getCoreRowModel"
-    | "manualFiltering"
-    | "manualPagination"
-    | "manualSorting"
-  > {
+interface UseClientDataTableProps<TData> extends Omit<
+  TableOptions<TData>,
+  | "state"
+  | "getCoreRowModel"
+  | "manualFiltering"
+  | "manualPagination"
+  | "manualSorting"
+> {
   initialState?: Partial<TableState>;
 }
 

@@ -1,5 +1,6 @@
 import HouseholdTooltip from "@/components/household-tooltip";
 import { cn } from "@/lib/utils";
+
 import {
   Card,
   CardContent,
@@ -33,13 +34,13 @@ export function DetailRow({
         </div>
       )}
       <div className="relative top-1.5 flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-0.5">
-        <span className="w-32 shrink-0 text-muted-foreground text-xs uppercase tracking-wide">
+        <span className="w-32 shrink-0 text-xs tracking-wide text-muted-foreground uppercase">
           <span className="flex items-center gap-1">
             {label}
             <HouseholdTooltip isFromHousehold={!!isFromHousehold} />
           </span>
         </span>
-        <span className="min-w-0 flex-1 text-foreground text-sm">
+        <span className="min-w-0 flex-1 text-sm text-foreground">
           {value || "—"}
         </span>
       </div>

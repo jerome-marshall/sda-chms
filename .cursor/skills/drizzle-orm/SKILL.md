@@ -11,44 +11,45 @@ Modern TypeScript-first ORM with compile-time type safety and SQL-like syntax. Z
 
 ```typescript
 // db/schema.ts
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core"
+import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-})
+});
 
 // db/client.ts
-import { drizzle } from "drizzle-orm/node-postgres"
-import { Pool } from "pg"
-import * as schema from "./schema"
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-export const db = drizzle(pool, { schema })
+import * as schema from "./schema";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const db = drizzle(pool, { schema });
 ```
 
 ## CRUD
 
 ```typescript
-import { eq } from "drizzle-orm"
+import { eq } from "drizzle-orm";
 
 // Insert
 const newUser = await db
   .insert(users)
   .values({ email: "user@example.com", name: "John" })
-  .returning()
+  .returning();
 
 // Select
-const allUsers = await db.select().from(users)
-const user = await db.select().from(users).where(eq(users.id, 1))
+const allUsers = await db.select().from(users);
+const user = await db.select().from(users).where(eq(users.id, 1));
 
 // Update
-await db.update(users).set({ name: "Jane" }).where(eq(users.id, 1))
+await db.update(users).set({ name: "Jane" }).where(eq(users.id, 1));
 
 // Delete
-await db.delete(users).where(eq(users.id, 1))
+await db.delete(users).where(eq(users.id, 1));
 ```
 
 ## Schema Patterns
@@ -65,7 +66,7 @@ import {
   json,
   unique,
   primaryKey,
-} from "drizzle-orm/pg-core"
+} from "drizzle-orm/pg-core";
 
 export const users = pgTable(
   "users",
@@ -80,32 +81,32 @@ export const users = pgTable(
   },
   (table) => ({
     emailIdx: unique("email_unique_idx").on(table.email),
-  }),
-)
+  })
+);
 
 // Infer TypeScript types
-type User = typeof users.$inferSelect
-type NewUser = typeof users.$inferInsert
+type User = typeof users.$inferSelect;
+type NewUser = typeof users.$inferInsert;
 ```
 
 ## Relations
 
 ```typescript
-import { relations } from "drizzle-orm"
+import { relations } from "drizzle-orm";
 
 // One-to-many
 export const authorsRelations = relations(authors, ({ many }) => ({
   posts: many(posts),
-}))
+}));
 
 export const postsRelations = relations(posts, ({ one }) => ({
   author: one(authors, { fields: [posts.authorId], references: [authors.id] }),
-}))
+}));
 
 // Query with relations
 const authorsWithPosts = await db.query.authors.findMany({
   with: { posts: true },
-})
+});
 
 // Many-to-many — use a join table with composite primary key
 export const usersToGroups = pgTable(
@@ -120,8 +121,8 @@ export const usersToGroups = pgTable(
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.groupId] }),
-  }),
-)
+  })
+);
 ```
 
 ## Filtering & Sorting
@@ -138,7 +139,7 @@ import {
   desc,
   asc,
   between,
-} from "drizzle-orm"
+} from "drizzle-orm";
 
 await db
   .select()
@@ -147,35 +148,35 @@ await db
     and(
       eq(users.role, "admin"),
       gt(users.createdAt, new Date("2024-01-01")),
-      isNull(users.deletedAt),
-    ),
-  )
+      isNull(users.deletedAt)
+    )
+  );
 
 await db
   .select()
   .from(users)
   .orderBy(desc(users.createdAt))
   .limit(10)
-  .offset(20)
+  .offset(20);
 ```
 
 ## Joins
 
 ```typescript
-import { count } from "drizzle-orm"
+import { count } from "drizzle-orm";
 
 // Inner join
 const result = await db
   .select({ user: users, post: posts })
   .from(users)
-  .innerJoin(posts, eq(users.id, posts.authorId))
+  .innerJoin(posts, eq(users.id, posts.authorId));
 
 // With aggregation
 const result = await db
   .select({ name: authors.name, postCount: count(posts.id) })
   .from(authors)
   .leftJoin(posts, eq(authors.id, posts.authorId))
-  .groupBy(authors.id)
+  .groupBy(authors.id);
 ```
 
 ## Transactions
@@ -192,14 +193,14 @@ await db.transaction(async (tx) => {
 
 ```typescript
 // drizzle.config.ts
-import type { Config } from "drizzle-kit"
+import type { Config } from "drizzle-kit";
 
 export default {
   schema: "./db/schema.ts",
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: { url: process.env.DATABASE_URL! },
-} satisfies Config
+} satisfies Config;
 ```
 
 ```bash

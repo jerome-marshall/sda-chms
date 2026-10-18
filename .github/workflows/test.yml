@@ -11,7 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PNPM_VERSION: "10.15.0"
   NODE_VERSION: "24"
 
 jobs:
@@ -21,33 +20,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache pnpm dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/pnpm/store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+          cache: true
 
       - name: Type-check
-        run: pnpm check-types
+        run: vp run check-types
+
+      - name: Static check (lint + format + types)
+        run: vp check
 
       - name: Unit + integration tests
-        run: pnpm test
+        run: vp run test
 
   # End-to-end tests against the real stack + a throwaway Postgres.
   # Heavier (real Postgres + browser), so run only on pushes to main — not on
-  # every PR. PRs get the fast `test` job; AFK agents run `bun run test:e2e`
+  # every PR. PRs get the fast `test` job; AFK agents run `pnpm test:e2e`
   # locally before pushing. (`push` only fires on main per the trigger above.)
   e2e:
     runs-on: ubuntu-latest
@@ -74,37 +63,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache pnpm dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/pnpm/store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+          cache: true
 
       - name: Apply schema to Postgres
-        working-directory: packages/db
-        run: pnpm run db:apply-schema
+        run: vp -C packages/db run db:apply-schema
 
       - name: Seed minimal data
-        working-directory: packages/db
-        run: pnpm run db:seed 20
+        run: vp -C packages/db run db:seed 20
 
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run E2E tests
-        run: pnpm test:e2e
+        run: vp run test:e2e
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}

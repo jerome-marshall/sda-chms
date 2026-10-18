@@ -1,10 +1,11 @@
-import { type DbTransaction, eq, getDb } from "@sda-chms/db";
-import {
-  type HouseholdsInsertDb,
-  householdsTable,
-  type PeopleInsertDb,
-  peopleTable,
+import { eq, getDb } from "@sda-chms/db";
+import type { DbTransaction } from "@sda-chms/db";
+import { householdsTable, peopleTable } from "@sda-chms/db/schema/people";
+import type {
+  HouseholdsInsertDb,
+  PeopleInsertDb,
 } from "@sda-chms/db/schema/people";
+
 import { withDbErrorHandling } from "../lib/errors";
 
 /** The Household's own columns surfaced alongside each Person for the effective-value rule (ADR-0001). */
@@ -112,7 +113,7 @@ export const getAllHouseholds = () =>
 export const getPersonById = (id: string) =>
   withDbErrorHandling(async () => {
     const person = await getDb().query.peopleTable.findFirst({
-      where: (table, { eq }) => eq(table.id, id),
+      where: (table) => eq(table.id, id),
     });
     return person;
   }, "getPersonById");
@@ -136,7 +137,7 @@ export const updatePerson = (
 export const getPersonWithHouseholdById = (id: string) =>
   withDbErrorHandling(async () => {
     const person = await getDb().query.peopleTable.findFirst({
-      where: (table, { eq }) => eq(table.id, id),
+      where: (table) => eq(table.id, id),
       with: {
         household: { columns: householdContactColumns },
       },

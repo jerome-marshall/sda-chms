@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+
 import {
   Card,
   CardContent,
@@ -37,7 +38,7 @@ export function DashboardCardSkeleton({
         className
       )}
     >
-      <CardHeader className="gap-0 border-border/40 border-b">
+      <CardHeader className="gap-0 border-b border-border/40">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-2">
             <Skeleton className="h-5 w-32 rounded-sm" />
@@ -49,7 +50,7 @@ export function DashboardCardSkeleton({
       <CardContent className="flex-1 p-0">
         <div className="divide-y divide-border/40">
           {Array.from({ length: rows }).map((_, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton rows have no meaningful key
+            // eslint-disable-next-line react/no-array-index-key -- static skeleton rows have no meaningful key
             <div className="flex items-center gap-3 px-4 py-3" key={i}>
               <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
               <div className="flex-1 space-y-1.5">
@@ -81,11 +82,11 @@ export function DashboardCard({
         className
       )}
     >
-      <CardHeader className="gap-0 border-border/40 border-b">
+      <CardHeader className="gap-0 border-b border-border/40">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-1">
             <CardTitle className="text-xl tracking-tight">{title}</CardTitle>
-            <CardDescription className="font-medium text-xs uppercase tracking-wider">
+            <CardDescription className="text-xs font-medium tracking-wider uppercase">
               {description}
             </CardDescription>
           </div>

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+
 import EditPersonForm from "@/components/people/edit-person-form";
 import { queryOptions } from "@/lib/query";
 
@@ -9,8 +10,14 @@ export const Route = createFileRoute("/people/$peopleId/edit")({
   // ensureQueryData blocks navigation until data is ready, complementing the parent prefetch
   loader: async ({ params, context: { queryClient } }) => {
     await Promise.all([
-      queryClient.ensureQueryData(queryOptions.person(params.peopleId)),
-      queryClient.ensureQueryData(queryOptions.relationships(params.peopleId)),
+      queryClient.query({
+        ...queryOptions.person(params.peopleId),
+        staleTime: "static",
+      }),
+      queryClient.query({
+        ...queryOptions.relationships(params.peopleId),
+        staleTime: "static",
+      }),
     ]);
   },
 });

@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable complexity -- vendored data-table example copy: cyclomatic counts branches main's cognitive gate does not; countersigned override */
 import type { Column, Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import { useCallback, useMemo } from "react";
@@ -82,7 +83,7 @@ function DataTableToolbarFilter<TData>({
     }
 
     switch (columnMeta.variant) {
-      case "text":
+      case "text": {
         return (
           <Input
             className="h-8 w-40 lg:w-56"
@@ -91,8 +92,9 @@ function DataTableToolbarFilter<TData>({
             value={(column.getFilterValue() as string) ?? ""}
           />
         );
+      }
 
-      case "number":
+      case "number": {
         return (
           <div className="relative">
             <Input
@@ -104,23 +106,25 @@ function DataTableToolbarFilter<TData>({
               value={(column.getFilterValue() as string) ?? ""}
             />
             {columnMeta.unit && (
-              <span className="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm">
+              <span className="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-sm text-muted-foreground">
                 {columnMeta.unit}
               </span>
             )}
           </div>
         );
+      }
 
-      case "range":
+      case "range": {
         return (
           <DataTableSliderFilter
             column={column}
             title={columnMeta.label ?? column.id}
           />
         );
+      }
 
       case "date":
-      case "dateRange":
+      case "dateRange": {
         return (
           <DataTableDateFilter
             column={column}
@@ -128,9 +132,10 @@ function DataTableToolbarFilter<TData>({
             title={columnMeta.label ?? column.id}
           />
         );
+      }
 
       case "select":
-      case "multiSelect":
+      case "multiSelect": {
         return (
           <DataTableFacetedFilter
             column={column}
@@ -139,9 +144,16 @@ function DataTableToolbarFilter<TData>({
             title={columnMeta.label ?? column.id}
           />
         );
+      }
 
-      default:
+      // No boolean filter UI exists yet; boolean-variant columns show no filter.
+      case "boolean": {
         return null;
+      }
+
+      default: {
+        return null;
+      }
     }
   }, [column, columnMeta]);
 

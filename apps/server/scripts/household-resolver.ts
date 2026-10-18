@@ -12,11 +12,25 @@ interface ValidEntry {
 }
 
 function getFamily(row: CsvRow): string {
-  return row.Family ? String(row.Family).trim() : "";
+  const family = row.Family;
+  if (typeof family === "string") {
+    return family.trim();
+  }
+  if (typeof family === "number" || typeof family === "boolean") {
+    return String(family);
+  }
+  return "";
 }
 
 function getRelation(row: CsvRow): string {
-  return row.Relation ? String(row.Relation).trim().toLowerCase() : "";
+  const relation = row.Relation;
+  if (typeof relation === "string") {
+    return relation.trim().toLowerCase();
+  }
+  if (typeof relation === "number" || typeof relation === "boolean") {
+    return String(relation);
+  }
+  return "";
 }
 
 function isOrphanedDependent(relation: string, family: string): boolean {

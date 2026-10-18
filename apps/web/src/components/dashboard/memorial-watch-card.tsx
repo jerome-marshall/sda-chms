@@ -1,9 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Flower2 } from "lucide-react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { queryOptions } from "@/lib/query";
+import type { Person } from "@/types/api";
 import { isDeceased } from "@/utils/people";
+
 import { DashboardCard } from "./dashboard-card";
 
 const memorialIcon = (
@@ -20,32 +23,34 @@ export function MemorialWatchCard() {
     select: (data) => data.filter((person) => isDeceased(person)),
   });
 
-  const memorialDaysThisWeek = people.filter((person) => {
-    if (!person.memorialDay) {
-      return false;
+  const memorialDaysThisWeek = people.filter(
+    (person): person is Person & { memorialDay: string } => {
+      if (!person.memorialDay) {
+        return false;
+      }
+
+      const today = new Date();
+
+      // Week boundaries: Sunday 00:00 → Saturday 23:59
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+
+      // Project the memorial date into the current year to check the anniversary
+      const memorial = new Date(person.memorialDay);
+      const memorialThisYear = new Date(
+        today.getFullYear(),
+        memorial.getMonth(),
+        memorial.getDate()
+      );
+
+      return memorialThisYear >= startOfWeek && memorialThisYear <= endOfWeek;
     }
-
-    const today = new Date();
-
-    // Week boundaries: Sunday 00:00 → Saturday 23:59
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
-
-    // Project the memorial date into the current year to check the anniversary
-    const memorial = new Date(person.memorialDay);
-    const memorialThisYear = new Date(
-      today.getFullYear(),
-      memorial.getMonth(),
-      memorial.getDate()
-    );
-
-    return memorialThisYear >= startOfWeek && memorialThisYear <= endOfWeek;
-  });
+  );
 
   return (
     <DashboardCard
@@ -60,7 +65,7 @@ export function MemorialWatchCard() {
               // Years elapsed since the memorial, shown as a human-readable label
               const yearsSince =
                 new Date().getFullYear() -
-                new Date(person.memorialDay as string).getFullYear();
+                new Date(person.memorialDay).getFullYear();
 
               return (
                 <div
@@ -69,7 +74,7 @@ export function MemorialWatchCard() {
                 >
                   <div className="z-10 flex items-center gap-4">
                     <Avatar className="h-10 w-10 border border-border/50 ring-2 ring-transparent transition-all group-hover:ring-primary/10">
-                      <AvatarFallback className="bg-primary/5 font-medium text-primary text-sm">
+                      <AvatarFallback className="bg-primary/5 text-sm font-medium text-primary">
                         {person.fullName
                           .split(" ")
                           .map((n) => n[0])
@@ -79,10 +84,10 @@ export function MemorialWatchCard() {
                     </Avatar>
 
                     <div className="space-y-1">
-                      <p className="font-medium text-sm leading-none transition-colors group-hover:text-primary">
+                      <p className="text-sm leading-none font-medium transition-colors group-hover:text-primary">
                         {person.fullName}
                       </p>
-                      <p className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <span className="font-semibold text-foreground/70 tabular-nums">
                           {person.memorialDay}
                         </span>
@@ -108,8 +113,8 @@ export function MemorialWatchCard() {
               <Flower2 className="h-8 w-8 text-muted-foreground/50" />
             </div>
             <div className="space-y-1">
-              <p className="font-medium text-sm">No memorials this week</p>
-              <p className="max-w-[200px] text-muted-foreground text-xs">
+              <p className="text-sm font-medium">No memorials this week</p>
+              <p className="max-w-[200px] text-xs text-muted-foreground">
                 Take a moment to check in on members who might need support.
               </p>
             </div>

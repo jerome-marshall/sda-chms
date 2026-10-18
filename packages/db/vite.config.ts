@@ -1,9 +1,10 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
+
 import { testInclude, workspaceDeps } from "../../vitest.shared";
 
 export default defineConfig({
   test: {
-    name: "shared",
+    name: "db",
     environment: "node",
     include: testInclude,
     server: { deps: workspaceDeps },

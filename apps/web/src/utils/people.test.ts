@@ -1,5 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
+
 import type { Person } from "@/types/api";
+
 import { getInfoOrFromHousehold, isDeceased } from "./people";
 
 /** The fields these utilities actually read — cast to Person for the call sites. */
@@ -12,7 +14,7 @@ interface PersonLike {
 }
 const asPerson = (person: PersonLike): Person => person as unknown as Person;
 
-describe("isDeceased", () => {
+describe(isDeceased, () => {
   it("is true when membership status is deceased", () => {
     expect(isDeceased(asPerson({ membershipStatus: "deceased" }))).toBe(true);
   });
@@ -28,7 +30,7 @@ describe("isDeceased", () => {
   });
 });
 
-describe("getInfoOrFromHousehold", () => {
+describe(getInfoOrFromHousehold, () => {
   it("uses the person's own value when present", () => {
     const { data, isfromHousehold } = getInfoOrFromHousehold(
       asPerson({ isHeadOfHousehold: false, phone: "12345" }),

@@ -1,6 +1,15 @@
 import { setTestDb } from "@sda-chms/db";
-import { createTestDb, type TestDb } from "@sda-chms/db/test-db";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { createTestDb } from "@sda-chms/db/test-db";
+import type { TestDb } from "@sda-chms/db/test-db";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
+
 import app from "../index";
 
 /** A valid head-of-household payload; each head gets its own household. */
@@ -50,6 +59,42 @@ const postRelationship = (body: unknown) =>
 const listFor = (personId: string) =>
   app.request(`/relationships/person/${personId}`);
 
+const patchState = (id: string, state: string) =>
+  app.request(`/relationships/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ state }),
+  });
+
+const getPerson = (id: string) => app.request(`/people/${id}`);
+
+const putPerson = (
+  id: string,
+  householdId: string,
+  overrides: Record<string, unknown> = {}
+) =>
+  app.request(`/people/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...validHead,
+      householdId,
+      ...overrides,
+    }),
+  });
+
+/** Two heads each get their own household, so any link between them is cross-household. */
+const seedTwoPeople = async () => {
+  const a = await json<PersonResponse>(
+    await postPerson({ ...validHead, firstName: "ann" })
+  );
+  const b = await json<PersonResponse>(
+    await postPerson({ ...validHead, firstName: "ben" })
+  );
+  expect(a.householdId).not.toBe(b.householdId);
+  return { a, b };
+};
+
 describe("relationships routes (integration, PGlite)", () => {
   let testDb: TestDb;
 
@@ -58,26 +103,14 @@ describe("relationships routes (integration, PGlite)", () => {
     setTestDb(testDb.db);
   });
 
-  afterAll(async () => {
-    setTestDb(null);
-    await testDb.close();
-  });
-
   beforeEach(async () => {
     await testDb.reset();
   });
 
-  /** Two heads each get their own household, so any link between them is cross-household. */
-  const seedTwoPeople = async () => {
-    const a = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ann" })
-    );
-    const b = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ben" })
-    );
-    expect(a.householdId).not.toBe(b.householdId);
-    return { a, b };
-  };
+  afterAll(async () => {
+    setTestDb(null);
+    await testDb.close();
+  });
 
   it("links two people and lists the link on the subject with the chosen type", async () => {
     const { a, b } = await seedTwoPeople();
@@ -129,8 +162,12 @@ describe("relationships routes (integration, PGlite)", () => {
     });
     expect(del.status).toBe(200);
 
-    expect(await json<RelationshipItem[]>(await listFor(b.id))).toHaveLength(0);
-    expect(await json<RelationshipItem[]>(await listFor(a.id))).toHaveLength(0);
+    await expect(
+      json<RelationshipItem[]>(await listFor(b.id))
+    ).resolves.toHaveLength(0);
+    await expect(
+      json<RelationshipItem[]>(await listFor(a.id))
+    ).resolves.toHaveLength(0);
   });
 
   it("rejects linking a person to themselves with 400", async () => {
@@ -144,13 +181,6 @@ describe("relationships routes (integration, PGlite)", () => {
   });
 
   describe("spouse lifecycle (ADR-0003, issue #7)", () => {
-    const patchState = (id: string, state: string) =>
-      app.request(`/relationships/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state }),
-      });
-
     it("creates a spouse link with an explicit lifecycle state", async () => {
       const { a, b } = await seedTwoPeople();
       const created = await postRelationship({
@@ -249,10 +279,21 @@ describe("relationships routes (integration, PGlite)", () => {
       const list = await json<RelationshipItem[]>(await listFor(a.id));
       const spouses = list.filter((r) => r.type === "spouse");
       expect(spouses).toHaveLength(2);
-      expect(spouses.map((s) => s.state).sort()).toEqual([
-        "divorced",
-        "married",
-      ]);
+      expect(
+        spouses
+          .map((s) => s.state)
+          .toSorted((stateA, stateB) => {
+            const x = stateA ?? "";
+            const y = stateB ?? "";
+            if (x < y) {
+              return -1;
+            }
+            if (x > y) {
+              return 1;
+            }
+            return 0;
+          })
+      ).toStrictEqual(["divorced", "married"]);
     });
 
     it("reflects widowhood when the partner is deceased", async () => {
@@ -280,30 +321,6 @@ describe("relationships routes (integration, PGlite)", () => {
   });
 
   describe("Marital Status follows the spouse link (ADR-0003, issue #8)", () => {
-    const getPerson = (id: string) => app.request(`/people/${id}`);
-
-    const patchState = (id: string, state: string) =>
-      app.request(`/relationships/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state }),
-      });
-
-    const putPerson = (
-      id: string,
-      householdId: string,
-      overrides: Record<string, unknown> = {}
-    ) =>
-      app.request(`/people/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...validHead,
-          householdId,
-          ...overrides,
-        }),
-      });
-
     it("sets both People's Marital Status from a new spouse link", async () => {
       const { a, b } = await seedTwoPeople();
       expect(

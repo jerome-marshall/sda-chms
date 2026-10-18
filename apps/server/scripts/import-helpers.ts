@@ -50,23 +50,29 @@ export interface ImportSummary {
 // ---------------------------------------------------------------------------
 
 function str(val: unknown): string | null {
-  if (val == null || val === "") {
+  if (val === null || val === undefined || val === "") {
     return null;
   }
-  const s = String(val).trim();
-  return s === "" ? null : s;
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    return trimmed === "" ? null : trimmed;
+  }
+  if (typeof val === "number" || typeof val === "boolean") {
+    return String(val);
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------------------
 // Top-level regex constants
 // ---------------------------------------------------------------------------
 
-const YEAR_ONLY_RE = /^\d{4}$/;
-const MONTH_YEAR_RE = /^(\d{1,2})\/(\d{4})$/;
-const FULL_DATE_RE = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-const WHITESPACE_RE = /\s+/;
-const NEWLINE_RE = /\n/;
-const WHITESPACE_GLOBAL_RE = /\s+/g;
+const YEAR_ONLY_RE = /^\d{4}$/u;
+const MONTH_YEAR_RE = /^(?<month>\d{1,2})\/(?<year>\d{4})$/u;
+const FULL_DATE_RE = /^(?<day>\d{1,2})\/(?<month>\d{1,2})\/(?<year>\d{4})$/u;
+const WHITESPACE_RE = /\s+/u;
+const NEWLINE_RE = /\n/u;
+const WHITESPACE_GLOBAL_RE = /\s+/gu;
 
 // ---------------------------------------------------------------------------
 // Date Sanitization (planning doc section 5)
@@ -84,14 +90,14 @@ export function normalizeDate(raw: string | undefined | null): string | null {
   }
 
   // m/yyyy or mm/yyyy
-  const monthYearMatch = trimmed.match(MONTH_YEAR_RE);
+  const monthYearMatch = MONTH_YEAR_RE.exec(trimmed);
   if (monthYearMatch?.[1] && monthYearMatch[2]) {
     const month = monthYearMatch[1].padStart(2, "0");
     return `${monthYearMatch[2]}-${month}-01`;
   }
 
   // d/m/yyyy or dd/mm/yyyy (with occasional m/d/yyyy legacy outlier)
-  const slashMatch = trimmed.match(FULL_DATE_RE);
+  const slashMatch = FULL_DATE_RE.exec(trimmed);
   if (slashMatch?.[1] && slashMatch[2] && slashMatch[3]) {
     const year = slashMatch[3];
     let day = Number.parseInt(slashMatch[1], 10);

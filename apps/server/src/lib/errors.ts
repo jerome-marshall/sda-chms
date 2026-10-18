@@ -4,7 +4,7 @@ import { DbError } from "@sda-chms/shared/utils/errors";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
-import z from "zod";
+import { z } from "zod";
 
 /** Global Hono error handler — normalizes all errors into a consistent ApiErrorBody JSON response. */
 export const errorHandler = (err: Error, c: Context): Response => {

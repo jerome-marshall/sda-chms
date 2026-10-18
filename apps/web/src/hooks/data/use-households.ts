@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { queryOptions } from "@/lib/query";
 
 /** Fetches all households (used for the household selector on the add-person form). */

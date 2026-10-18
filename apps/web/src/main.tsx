@@ -1,6 +1,5 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
-
 // import { scan } from "react-scan"; // must be imported before React and React DOM
 
 import type { BreadcrumbValue } from "./components/header";
@@ -35,7 +34,7 @@ declare module "@tanstack/react-router" {
   }
 }
 
-const rootElement = document.getElementById("app");
+const rootElement = document.querySelector("#app");
 
 if (!rootElement) {
   throw new Error("Root element not found");

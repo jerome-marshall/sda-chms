@@ -1,4 +1,5 @@
 import { Mail, Phone } from "lucide-react";
+
 import HouseholdTooltip from "@/components/household-tooltip";
 
 interface ContactChipsProps {

@@ -1,4 +1,5 @@
 import { hc } from "hono/client";
+
 import type { THonoApp } from "./index";
 
 /** Pre-calculated Hono client type — imported by the web app for end-to-end type-safe API calls. */

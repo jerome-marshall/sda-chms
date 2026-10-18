@@ -1,3 +1,4 @@
+/* oxlint-disable vitest/prefer-importing-vitest-globals -- Playwright spec: test/expect come from @playwright/test, not Vitest */
 import { expect, test } from "@playwright/test";
 
 test("the People directory page loads and lists seeded people", async ({

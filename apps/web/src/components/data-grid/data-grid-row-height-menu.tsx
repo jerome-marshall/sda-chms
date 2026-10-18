@@ -8,6 +8,7 @@ import {
   MinusIcon,
 } from "lucide-react";
 import { useMemo } from "react";
+
 import {
   Select,
   SelectContent,
@@ -15,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { RowHeightValue } from "@/types/data-grid";
 
 const rowHeights = [
   { label: "Short", value: "short" as const, icon: MinusIcon },
@@ -28,8 +28,9 @@ const rowHeights = [
   },
 ];
 
-interface DataGridRowHeightMenuProps<TData>
-  extends React.ComponentProps<typeof SelectContent> {
+interface DataGridRowHeightMenuProps<TData> extends React.ComponentProps<
+  typeof SelectContent
+> {
   disabled?: boolean;
   table: Table<TData>;
 }
@@ -51,7 +52,12 @@ export function DataGridRowHeightMenu<TData>({
   return (
     <Select
       disabled={disabled}
-      onValueChange={(value) => onRowHeightChange?.(value as RowHeightValue)}
+      onValueChange={(value) => {
+        const option = rowHeights.find((item) => item.value === value);
+        if (option !== undefined) {
+          onRowHeightChange?.(option.value);
+        }
+      }}
       value={rowHeight}
     >
       <SelectTrigger className="[&_svg:nth-child(2)]:hidden" size="sm">

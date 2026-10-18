@@ -30,15 +30,19 @@ Review the current git diff for any changes that affect domain rules, and update
 ## Output Format
 
 ### Changes Detected
+
 - **Added**: [brief description of new rule]
 - **Modified**: [what changed, old → new]
 - **Removed**: [what was removed and why]
 
 ### Updated Sections
+
 - List which sections of `business-logic.mdc` were touched
 
 ### No Changes
+
 If nothing business-logic-related was found, say:
+
 > No business logic changes detected in this diff. `business-logic.mdc` is up to date.
 
 ## Constraints

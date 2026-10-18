@@ -2,6 +2,7 @@ import {
   QueryClient,
   queryOptions as tsQueryOptions,
 } from "@tanstack/react-query";
+
 import { apiClient, fetchApi } from "./api";
 
 export const queryClient = new QueryClient();

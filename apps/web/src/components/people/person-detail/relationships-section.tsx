@@ -2,12 +2,13 @@ import {
   HOUSEHOLD_ROLE,
   RELATIONSHIP_TYPE,
   RELATIONSHIP_TYPE_OPTIONS,
-  type RELATIONSHIP_TYPE_VALUES,
   SPOUSE_STATE_OPTIONS,
-  type SPOUSE_STATE_VALUES,
+  SPOUSE_STATE_VALUES,
 } from "@sda-chms/shared/constants/people";
+import type { RELATIONSHIP_TYPE_VALUES } from "@sda-chms/shared/constants/people";
 import { Sparkles, Trash2, Users } from "lucide-react";
 import { useState } from "react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ import {
   useUpdateRelationshipState,
 } from "@/hooks/data/use-relationships";
 import type { PersonDetail } from "@/types/api";
+
 import { SectionCard } from "./section-card";
 import { formatLabel, getInitials } from "./utils";
 
@@ -45,13 +47,20 @@ function SpouseStateControl({
 }) {
   if (!editable) {
     return (
-      <p className="text-muted-foreground text-sm">{formatLabel(state)}</p>
+      <p className="text-sm text-muted-foreground">{formatLabel(state)}</p>
     );
   }
 
   return (
     <Select
-      onValueChange={(value) => onChange(relationshipId, value as SpouseState)}
+      onValueChange={(value) => {
+        const next = SPOUSE_STATE_VALUES.find(
+          (candidate) => candidate === value
+        );
+        if (next !== undefined) {
+          onChange(relationshipId, next);
+        }
+      }}
       value={state}
     >
       <SelectTrigger aria-label="Spouse lifecycle state">
@@ -174,10 +183,10 @@ export function RelationshipsSection({
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-sm">
+                <p className="truncate text-sm font-medium">
                   {relationship.relatedPerson.fullName}
                 </p>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-xs text-muted-foreground">
                   {formatLabel(relationship.type)}
                 </p>
               </div>
@@ -211,7 +220,7 @@ export function RelationshipsSection({
           ))}
         </ul>
       ) : (
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Users className="size-4" />
           No relationships recorded yet.
         </div>
@@ -219,7 +228,7 @@ export function RelationshipsSection({
 
       {editable && spousePrefill ? (
         <div className="flex items-center justify-between gap-2 rounded-lg border border-dashed p-2">
-          <p className="text-muted-foreground text-xs">
+          <p className="text-xs text-muted-foreground">
             {spousePrefill.fullName} is this household's{" "}
             {formatLabel(complementaryRole ?? "")}. Pre-fill a spouse link?
           </p>
@@ -281,7 +290,14 @@ export function RelationshipsSection({
 
           {isSpouse ? (
             <Select
-              onValueChange={(value) => setState(value as SpouseState)}
+              onValueChange={(value) => {
+                const next = SPOUSE_STATE_VALUES.find(
+                  (candidate) => candidate === value
+                );
+                if (next !== undefined) {
+                  setState(next);
+                }
+              }}
               value={state}
             >
               <SelectTrigger

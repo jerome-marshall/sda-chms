@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Briefcase, MapPin, Pencil } from "lucide-react";
+
 import HouseholdTooltip from "@/components/household-tooltip";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PersonDetail } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
+
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
 import { ContactChips } from "./contact-chips";
@@ -32,34 +34,36 @@ export function ProfileHeader({ person }: ProfileHeaderProps) {
         {person.photoUrl ? (
           <AvatarImage alt={person.fullName} src={person.photoUrl} />
         ) : null}
-        <AvatarFallback className="bg-primary/10 font-semibold text-primary text-xl">
+        <AvatarFallback className="bg-primary/10 text-xl font-semibold text-primary">
           {getInitials(person.firstName, person.lastName)}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex flex-1 flex-col gap-2">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-semibold text-2xl tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight">
             {person.fullName}
           </h1>
           <Badge
             className={cn(
-              "border font-medium text-[11px]",
+              "border text-[11px] font-medium",
               getMembershipColor(person.membershipStatus)
             )}
           >
             {formatLabel(person.membershipStatus)}
           </Badge>
           {!person.isActive && (
-            <Badge className="border border-rose-500/25 bg-rose-500/15 font-medium text-[11px] text-rose-400">
+            <Badge className="border border-rose-500/25 bg-rose-500/15 text-[11px] font-medium text-rose-400">
               Inactive
             </Badge>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           {person.gender && <span className="capitalize">{person.gender}</span>}
-          {person.age != null && <span>Age {person.age}</span>}
+          {person.age !== null && person.age !== undefined && (
+            <span>Age {person.age}</span>
+          )}
           {person.occupation && (
             <span className="flex items-center gap-1.5">
               <Briefcase className="size-3.5" />

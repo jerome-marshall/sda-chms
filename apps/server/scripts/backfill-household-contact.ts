@@ -1,9 +1,8 @@
+import { eq, getDb } from "@sda-chms/db";
+import { householdsTable, peopleTable } from "@sda-chms/db/schema/people";
 import dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
-
-import { eq, getDb } from "@sda-chms/db";
-import { householdsTable, peopleTable } from "@sda-chms/db/schema/people";
 
 const db = getDb();
 
@@ -123,12 +122,11 @@ async function backfillHouseholdContact() {
   console.log("======================================\n");
 }
 
-backfillHouseholdContact()
-  .then(() => {
-    console.log("Script completed successfully.");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("Script failed:", error);
-    process.exit(1);
-  });
+try {
+  await backfillHouseholdContact();
+  console.log("Script completed successfully.");
+  process.exit(0);
+} catch (error) {
+  console.error("Script failed:", error);
+  process.exit(1);
+}

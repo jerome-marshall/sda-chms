@@ -1,20 +1,29 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { householdsTable, peopleTable } from "./schema/people";
-import { createTestDb, type TestDb } from "./test-db";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
 
-describe("createTestDb", () => {
+import { householdsTable, peopleTable } from "./schema/people";
+import { createTestDb } from "./test-db";
+import type { TestDb } from "./test-db";
+
+describe(createTestDb, () => {
   let testDb: TestDb;
 
   beforeAll(async () => {
     testDb = await createTestDb();
   });
 
-  afterAll(async () => {
-    await testDb.close();
-  });
-
   beforeEach(async () => {
     await testDb.reset();
+  });
+
+  afterAll(async () => {
+    await testDb.close();
   });
 
   it("applies the live schema and round-trips a person", async () => {

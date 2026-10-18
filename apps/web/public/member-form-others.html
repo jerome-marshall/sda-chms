@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spouse - Member Information Form</title>
-    <link rel="stylesheet" href="member-form.css">
+    <link rel="stylesheet" href="member-form.css" />
   </head>
   <body>
     <div class="header">
@@ -101,15 +101,15 @@
       <div class="section-title">Dietary Preference</div>
       <div class="checkbox-group">
         <div class="checkbox-item">
-          <input type="checkbox" id="diet-none">
+          <input type="checkbox" id="diet-none" />
           <label for="diet-none">None</label>
         </div>
         <div class="checkbox-item">
-          <input type="checkbox" id="diet-vegetarian">
+          <input type="checkbox" id="diet-vegetarian" />
           <label for="diet-vegetarian">Vegetarian</label>
         </div>
         <div class="checkbox-item">
-          <input type="checkbox" id="diet-vegan">
+          <input type="checkbox" id="diet-vegan" />
           <label for="diet-vegan">Vegan</label>
         </div>
       </div>
@@ -207,35 +207,35 @@
       <div class="section-title">Dietary Preference</div>
       <div class="checkbox-group">
         <div class="checkbox-item">
-          <input type="checkbox" id="diet-none">
+          <input type="checkbox" id="diet-none" />
           <label for="diet-none">None</label>
         </div>
         <div class="checkbox-item">
-          <input type="checkbox" id="diet-vegetarian">
+          <input type="checkbox" id="diet-vegetarian" />
           <label for="diet-vegetarian">Vegetarian</label>
         </div>
         <div class="checkbox-item">
-          <input type="checkbox" id="diet-vegan">
+          <input type="checkbox" id="diet-vegan" />
           <label for="diet-vegan">Vegan</label>
         </div>
       </div>
     </div>
 
     <script>
-    "use strict";
-    // Optional: Add print button functionality
-    window.addEventListener("load", () => {
-      // Add print button (hidden when printing)
-      const printButton = document.createElement("button");
-      printButton.textContent = "Print Form";
-      printButton.style.cssText =
-        "position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; z-index: 1000;";
-      printButton.className = "no-print";
-      printButton.onclick = () => {
-        window.print();
-      };
-      document.body.appendChild(printButton);
-    });
+      "use strict";
+      // Optional: Add print button functionality
+      window.addEventListener("load", () => {
+        // Add print button (hidden when printing)
+        const printButton = document.createElement("button");
+        printButton.textContent = "Print Form";
+        printButton.style.cssText =
+          "position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; z-index: 1000;";
+        printButton.className = "no-print";
+        printButton.onclick = () => {
+          window.print();
+        };
+        document.body.appendChild(printButton);
+      });
     </script>
   </body>
 </html>

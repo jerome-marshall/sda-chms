@@ -1,6 +1,7 @@
 import type { SPOUSE_STATE_VALUES } from "@sda-chms/shared/constants/people";
 import type { RelationshipCreate } from "@sda-chms/shared/schema/people";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { apiClient, fetchApi } from "@/lib/api";
 import { queryKeys, queryOptions } from "@/lib/query";
 
@@ -25,13 +26,13 @@ export const useAddRelationship = ({
     mutationFn: (data: RelationshipCreate) =>
       fetchApi(apiClient.relationships.$post({ json: data })),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: queryKeys.relationships(variables.personId),
       });
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: queryKeys.relationships(variables.relatedPersonId),
       });
-      queryClient.invalidateQueries({ queryKey: queryKeys.people() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.people() });
       onSuccess?.();
     },
     onError: (error) => onError?.(error),
@@ -67,8 +68,8 @@ export const useUpdateRelationshipState = ({
         })
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["relationships"] });
-      queryClient.invalidateQueries({ queryKey: queryKeys.people() });
+      void queryClient.invalidateQueries({ queryKey: ["relationships"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.people() });
       onSuccess?.();
     },
     onError: (error) => onError?.(error),
@@ -90,8 +91,8 @@ export const useRemoveRelationship = ({
       fetchApi(apiClient.relationships[":id"].$delete({ param: { id } })),
     onSuccess: () => {
       // The reciprocal side is unknown here, so refetch all relationship lists.
-      queryClient.invalidateQueries({ queryKey: ["relationships"] });
-      queryClient.invalidateQueries({ queryKey: queryKeys.people() });
+      void queryClient.invalidateQueries({ queryKey: ["relationships"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.people() });
       onSuccess?.();
     },
     onError: (error) => onError?.(error),

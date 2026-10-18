@@ -11,7 +11,7 @@ This guide walks you through setting up a local PostgreSQL database for developm
 The database starts automatically when you run the dev command:
 
 ```bash
-bun dev
+pnpm dev
 ```
 
 ### Manual Database Control
@@ -19,13 +19,13 @@ bun dev
 To start the database manually:
 
 ```bash
-bun db:start
+pnpm db:start
 ```
 
 To stop the database:
 
 ```bash
-bun db:stop
+pnpm db:stop
 ```
 
 This will start a PostgreSQL 17.2 container with:
@@ -100,15 +100,13 @@ docker exec -it sda-chms-db psql -U postgres -d sda_chms
 After starting the database, run Drizzle migrations:
 
 ```bash
-# From the packages/db directory
-cd packages/db
-bun run drizzle-kit push
+pnpm db:push
 ```
 
 Or if you have migration files:
 
 ```bash
-bun run drizzle-kit migrate
+pnpm db:migrate
 ```
 
 ## Troubleshooting

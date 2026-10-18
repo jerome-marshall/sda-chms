@@ -3,6 +3,7 @@ import { env } from "@sda-chms/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+
 import { errorHandler } from "./lib/errors";
 import groupsRoutes from "./routes/groups";
 import householdRoutes from "./routes/household";
@@ -33,7 +34,7 @@ export default app;
 export type THonoApp = typeof routes;
 
 // Only bind a port when run directly (`tsx watch src/index.ts` / `node
-// dist/index.js`). Test files import the app and drive it via `app.request()`,
+// dist/index.mjs`). Test files import the app and drive it via `app.request()`,
 // so serving on import would steal :3000 from the dev server and fail.
 if (import.meta.main) {
   serve({ fetch: app.fetch, port: 3000 }, (info) => {

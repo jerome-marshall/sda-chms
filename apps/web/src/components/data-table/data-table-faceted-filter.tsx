@@ -1,6 +1,7 @@
 import type { Column } from "@tanstack/react-table";
 import { Check, PlusCircle, XCircle } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,7 +56,7 @@ export function DataTableFacetedFilter<TData, TValue>({
         } else {
           newSelectedValues.add(option.value);
         }
-        const filterValues = Array.from(newSelectedValues);
+        const filterValues = [...newSelectedValues];
         column.setFilterValue(filterValues.length ? filterValues : undefined);
       } else {
         column.setFilterValue(isSelected ? undefined : [option.value]);
@@ -87,7 +88,7 @@ export function DataTableFacetedFilter<TData, TValue>({
         {selectedValues?.size > 0 ? (
           <button
             aria-label={`Clear ${title} filter`}
-            className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
             onClick={onReset}
             type="button"
           >
@@ -139,7 +140,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           <CommandInput placeholder={title} />
           <CommandList className="max-h-full">
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup className="max-h-[300px] scroll-py-1 overflow-y-auto overflow-x-hidden">
+            <CommandGroup className="max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto">
               {options.map((option) => {
                 const isSelected = selectedValues.has(option.value);
 

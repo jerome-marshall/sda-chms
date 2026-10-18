@@ -5,7 +5,7 @@ Review recently modified or selected code for opportunities to improve readabili
 ## Scope
 
 - Only files in the current `git diff` (staged + unstaged), or a specific file/selection if provided
-- Focus on logic, structure, and naming — not formatting (Biome handles that)
+- Focus on logic, structure, and naming — not formatting (`vp check` handles that)
 - Skip code that is already clear and well-structured
 
 ## What to Look For
@@ -21,12 +21,12 @@ Review recently modified or selected code for opportunities to improve readabili
 ## Steps
 
 1. Identify the target code — either from `git diff` or the provided selection
-2. Read through each section and ask: *"Would a teammate understand this on first read?"*
+2. Read through each section and ask: _"Would a teammate understand this on first read?"_
 3. For each opportunity found:
    - Describe what makes the current code harder to follow
    - Apply the simplification directly
    - Verify the behavior is identical
-4. After all changes, run `bun x ultracite fix` to ensure formatting compliance
+4. After all changes, run `pnpm exec vp check --fix` to ensure formatting compliance
 5. Summarize what was changed and why
 
 ## Simplification Principles
@@ -42,10 +42,12 @@ Review recently modified or selected code for opportunities to improve readabili
 For each simplified file:
 
 ### `path/to/file.ts`
+
 - **Before**: Brief description of the issue
 - **After**: What was changed and why it's clearer
 
 ### Overall
+
 - Files simplified, number of changes applied
 
 ## Constraints

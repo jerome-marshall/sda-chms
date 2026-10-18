@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+
+import { describe, expect, it } from "vite-plus/test";
+
 import { generateSchemaStatements } from "./schema-sql";
 
 /**
@@ -11,16 +13,13 @@ import { generateSchemaStatements } from "./schema-sql";
  * migration) would drift silently and only surface in production.
  *
  * This locks the two together: if they diverge, regenerate the baseline with
- * `bun run db:generate`.
+ * `pnpm db:generate`.
  */
-const migrationPath = new URL(
-  "./migrations/0000_baseline.sql",
-  import.meta.url
-);
+const migrationPath = new URL("migrations/0000_baseline.sql", import.meta.url);
 
 /** Drizzle joins statements with this marker when it writes a migration file. */
-const STATEMENT_BREAKPOINT = /-->\s*statement-breakpoint/;
-const TRAILING_SEMICOLON = /;\s*$/;
+const STATEMENT_BREAKPOINT = /-->\s*statement-breakpoint/u;
+const TRAILING_SEMICOLON = /;\s*$/u;
 
 // drizzle-kit emits the same statements but not in a stable order, so compare as
 // sets: drift = a statement added, removed, or changed (a real schema change),
@@ -29,11 +28,11 @@ const normalize = (statement: string) =>
   statement.trim().replace(TRAILING_SEMICOLON, "");
 
 const asSortedStatements = (statements: string[]) =>
-  statements.map(normalize).filter(Boolean).sort();
+  statements.map(normalize).filter(Boolean).toSorted();
 
 const statementsFromMigrationFile = () =>
   asSortedStatements(
-    readFileSync(migrationPath, "utf8").split(STATEMENT_BREAKPOINT)
+    readFileSync(migrationPath, "utf-8").split(STATEMENT_BREAKPOINT)
   );
 
 describe("schema / migration drift", () => {
@@ -41,6 +40,6 @@ describe("schema / migration drift", () => {
     const generated = asSortedStatements(await generateSchemaStatements());
     const fromFile = statementsFromMigrationFile();
 
-    expect(generated).toEqual(fromFile);
+    expect(generated).toStrictEqual(fromFile);
   });
 });
