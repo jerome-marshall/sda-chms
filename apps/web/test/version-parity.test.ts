@@ -6,10 +6,13 @@ import { describe, expect, it } from "vite-plus/test";
 
 /**
  * `drizzle-orm` and `hono` are pinned in the pnpm catalog to the exact versions
- * Void bundles, so the app shares Void's single installed copy — two copies
- * produce incompatible Drizzle `Column` types across `void/schema-pg` and
- * `relations`. This test fails when Void upgrades past the pin (or pnpm stops
- * deduping), naming the constraint instead of surfacing as a type error.
+ * Void bundles, and the workspace overrides force every graph edge onto those
+ * pins, so the app and Void share one installed copy. Two copies produce
+ * incompatible Drizzle `Column` types across `void/schema-pg` and `relations`.
+ * The same-file assertion also catches pnpm installing one version twice under
+ * different peer sets, which the override alone cannot prevent. When Void
+ * moves past a pin, the range assertion fails; bump the catalog pin (and with
+ * it the override) in pnpm-workspace.yaml rather than chasing type errors.
  */
 describe("version parity with Void's bundled dependencies", () => {
   const require = createRequire(import.meta.url);
@@ -29,7 +32,10 @@ describe("version parity with Void's bundled dependencies", () => {
       const voidCopy = realpathSync(
         require.resolve(name, { paths: [voidDir] })
       );
-      expect(appCopy).toBe(voidCopy);
+      expect(
+        appCopy,
+        `${name}: the app and Void resolved different installed copies; align the catalog pin and override in pnpm-workspace.yaml with Void's version`
+      ).toBe(voidCopy);
     }
   );
 
@@ -43,7 +49,7 @@ describe("version parity with Void's bundled dependencies", () => {
       const installed = packageVersion(realpathSync(require.resolve(name)));
       expect(
         satisfies(installed, range),
-        `${name}@${installed} does not satisfy void's ${range}`
+        `${name}@${installed} does not satisfy void's ${range}; bump the catalog pin in pnpm-workspace.yaml to a version Void accepts`
       ).toBe(true);
     }
   );

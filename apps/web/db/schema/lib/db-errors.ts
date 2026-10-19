@@ -1,5 +1,3 @@
-import { DrizzleError } from "drizzle-orm";
-
 /**
  * The structural shape of a Postgres driver error. Both `pg`'s `DatabaseError`
  * (production) and PGlite's `DatabaseError` (tests) expose these fields but are
@@ -164,7 +162,7 @@ export function getDbErrorMessage(error: unknown): DbErrorResult {
   // Fallback for generic Drizzle errors or other Error instances. A Drizzle
   // failure always carries the raw SQL statement in its message, so it must
   // never reach the response body — the real error stays in the server log.
-  if (error instanceof DrizzleError || error instanceof Error) {
+  if (error instanceof Error) {
     return {
       message: isDrizzleErrorLike(error)
         ? "An unexpected database error occurred."
