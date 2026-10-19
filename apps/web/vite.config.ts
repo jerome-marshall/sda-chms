@@ -13,7 +13,9 @@ export default defineConfig({
     tailwindcss(),
     tanstackRouter({}),
     react(),
-    voidPlugin(),
+    // voidPlugin snapshots process.cwd() as its codegen root, so the root
+    // Vitest run would emit a stray root .void/. Tests alias void/db instead.
+    ...(process.env.VITEST ? [] : [voidPlugin()]),
   ]),
   resolve: {
     alias: {

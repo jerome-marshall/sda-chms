@@ -148,8 +148,21 @@ export default defineConfig({
     tasks: {
       // Single dev server (API + SPA on one origin); the script `dev` runs it directly.
       "dev:web": { command: "vp -C apps/web run dev", cache: false },
+      // Same drift gate CI runs: regenerate migrations, then fail on schema drift.
+      "db:drift": {
+        command: [
+          "pnpm run db:generate",
+          "git diff --exit-code -- apps/web/db",
+        ],
+        cache: false,
+      },
       // Local equivalent of the CI test job, steps in order.
-      verify: ["vp run -r check-types", "vp check", "vp test run"],
+      verify: [
+        "vp run -r check-types",
+        "vp check",
+        "vp run db:drift",
+        "vp test run",
+      ],
     },
   },
 });

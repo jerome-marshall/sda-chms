@@ -70,6 +70,7 @@ sda-chms/
 - `pnpm build`: Build the worker (`apps/web/dist/ssr/index.js` + `wrangler.json`)
 - `pnpm check-types`: Check TypeScript types across all packages
 - `pnpm db:migrate`: Apply pending migrations through `void db`
+- `pnpm db:generate`: Regenerate migrations from the schema (same gate CI runs; `vp run db:drift` fails on drift)
 - `pnpm db:seed`: Seed faker data (localhost-only guard; wipes `public` first)
 - `pnpm test`: Run Vitest through `vp` (`pnpm test:watch` for watch mode)
 - `pnpm check`: Run `vp check --fix` (format, lint, type check)
