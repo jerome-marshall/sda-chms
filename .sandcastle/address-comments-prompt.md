@@ -33,7 +33,8 @@ Triage each comment:
 
 - **Actionable** (a change is requested): make the change. If you're adding or
   altering behaviour, do it test-first (RGR) — prefer an integration test using
-  the PGlite `getDb`/`setTestDb` seam over a mock.
+  the PGlite `void/db` alias (Vitest maps it to `apps/web/test/void-db.ts`)
+  over a mock.
 - **A question**: answer it in a reply; change code only if the answer implies one.
 - **Out of scope / you disagree**: don't silently ignore it. Reply explaining why,
   and leave it for the human to decide.
@@ -53,7 +54,8 @@ This is a Vite+ monorepo (no `npm`). Before committing, run and pass:
 A throwaway Postgres runs locally in this sandbox and `DATABASE_URL` already
 points at it. NEVER point `DATABASE_URL` at a cloud/production database, and never
 run `pnpm db:start` (docker compose is unavailable). Headless Playwright E2E is
-allowed: `pnpm db:push` then `pnpm test:e2e`, targeting the local DB only.
+allowed: `pnpm db:migrate`, write `apps/web/.env` with the sandbox
+`DATABASE_URL`, then `pnpm test:e2e` — targeting the local DB only.
 
 # COMMIT
 

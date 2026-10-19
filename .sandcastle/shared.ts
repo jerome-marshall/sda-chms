@@ -14,9 +14,11 @@ export const BASE_BRANCH = "main";
 // Dockerfile, started by the onSandboxReady hook below). Pinning DATABASE_URL
 // to it is the load-bearing prod-DB guard: the sandbox never receives the
 // production Neon URL (only .sandcastle/.env, which holds just the OAuth + GH
-// tokens), so every command an agent runs — dev server, drizzle push, headless
-// Playwright E2E — resolves to this local instance and can never reach prod.
-// Vitest ignores it entirely (it injects PGlite via setTestDb).
+// tokens), so every command an agent runs — dev server, `void db migrate`,
+// headless Playwright E2E — resolves to this local instance and can never
+// reach prod. Vitest never connects (it aliases `void/db` to a PGlite
+// stand-in). Known gap: Void and scripts/seed.ts read only apps/web/.env —
+// write this URL there before dev, seeding, or e2e in the sandbox.
 const LOCAL_DB_URL = "postgresql://postgres:password@localhost:5432/sda_chms";
 
 // Hooks run inside the sandbox before the agent starts each iteration:

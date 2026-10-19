@@ -22,7 +22,7 @@ Routes → Use Cases → Data Access → Database
 
 - One Void route file per URL shape in `routes/api/` (e.g., `people/index.ts` for GET/POST, `people/[id].ts` for GET/PUT)
 - Define handlers with `defineHandler`, validating bodies and params with `defineHandler.withValidator` and the Zod schemas from `@sda-chms/shared/schema/*`
-- Return plain values (they serialize to JSON with status 200). A handler that must return a `Response` (e.g., a non-200 status) is the documented exception — list it in the PR with why.
+- Return plain values (they serialize to JSON with status 200). A handler that must return a `Response` (e.g., a non-200 status) is the documented exception — list it in the PR with why. Current exceptions: `routes/api/index.ts` and `routes/api/[...path].ts` return `c.json(..., 404)` for the API 404 contract.
 - For the route pattern, see `routes/api/people/index.ts`
 
 ## Use Cases

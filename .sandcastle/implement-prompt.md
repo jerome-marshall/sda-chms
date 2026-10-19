@@ -38,7 +38,8 @@ Use RGR (red-green-refactor) to complete the task.
 
 1. RED: write one failing test. Prefer an **integration test** that drives the
    real code path (for the server, that means a test using the PGlite-backed
-   `getDb`/`setTestDb` seam — never a mock of the database) over a shallow unit
+   `void/db` alias — Vitest maps `void/db` to `apps/web/test/void-db.ts`;
+   never a mock of the database) over a shallow unit
    test. Only drop to a unit test when an integration test genuinely can't reach
    the behaviour.
 2. GREEN: write the minimal implementation to pass that test.
@@ -64,10 +65,11 @@ points at it. The production database is NOT reachable from here.
   one. Use the `DATABASE_URL` already in the environment.
 - Do NOT run `pnpm db:start` (it uses docker compose, which is unavailable
   here — Postgres is already running).
-- You MAY run headless Playwright E2E. To do so: apply the schema to the local DB
-  with `pnpm db:push`, then run `pnpm test:e2e` (Playwright is headless by
-  default). E2E targets the local sandbox Postgres via `DATABASE_URL`.
-- `pnpm db:push` / `db:migrate` / seeding are only ever acceptable against this
+- You MAY run headless Playwright E2E. To do so: apply the migration history
+  with `pnpm db:migrate` and write `apps/web/.env` containing the sandbox
+  `DATABASE_URL` (Void reads only that file), then run `pnpm test:e2e`
+  (Playwright is headless by default). E2E targets the local sandbox Postgres.
+- `pnpm db:migrate` / `db:seed` are only ever acceptable against this
   local sandbox DB — which is the only DB you can reach. Treat them as E2E setup,
   not as something to run "to be safe."
 
