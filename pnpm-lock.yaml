@@ -15,12 +15,6 @@ catalogs:
     dotenv:
       specifier: ^17.4.2
       version: 17.4.2
-    drizzle-orm:
-      specifier: 0.45.4
-      version: 0.45.4
-    hono:
-      specifier: 4.13.13
-      version: 4.13.13
     tsx:
       specifier: ^4.20.3
       version: 4.23.13
@@ -39,6 +33,8 @@ catalogs:
 
 overrides:
   vite@*: npm:@voidzero-dev/vite-plus-core@1.3.0
+  drizzle-orm: 0.45.4
+  hono: 4.13.13
 
 importers:
 
@@ -51,9 +47,6 @@ importers:
         specifier: 'catalog:'
         version: 4.5.4
     devDependencies:
-      '@ai-hero/sandcastle':
-        specifier: ^0.10.0
-        version: 0.10.0
       '@playwright/test':
         specifier: ^1.61.1
         version: 1.63.0
@@ -127,13 +120,13 @@ importers:
         specifier: 'catalog:'
         version: 17.4.2
       drizzle-orm:
-        specifier: 'catalog:'
+        specifier: 0.45.4
         version: 0.45.4(@cloudflare/workers-types@5.20261016.1)(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(better-sqlite3@13.0.3)(kysely@0.29.7)(mysql2@3.24.6(@types/node@26.4.1))(pg@8.23.1)
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.7)
       hono:
-        specifier: 'catalog:'
+        specifier: 4.13.13
         version: 4.13.13
       input-otp:
         specifier: ^1.4.2
@@ -272,18 +265,6 @@ packages:
 
   '@adobe/css-tools@4.5.0':
     resolution: {integrity: sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q==}
-
-  '@ai-hero/sandcastle@0.10.0':
-    resolution: {integrity: sha512-7iUX90cF/RWP80OfcOf/1fkJyoPRAJo4ICyttpWWokKoFGGnuQ82lvxKpU3IEiWPbwT/g8O2PotTzgiimtQT7g==}
-    hasBin: true
-    peerDependencies:
-      '@daytona/sdk': ^0.164.0
-      '@vercel/sandbox': '>=1.0.0'
-    peerDependenciesMeta:
-      '@daytona/sdk':
-        optional: true
-      '@vercel/sandbox':
-        optional: true
 
   '@ark/schema@0.56.7':
     resolution: {integrity: sha512-jmoOJlYIc4k1uv8oYBDNOFnAsKk2a2D9t/D6npF2JUfW4ecPB0v6ce6lruKg7lkBxIBA8Z7UtxfmvephYbhUGQ==}
@@ -488,7 +469,7 @@ packages:
     peerDependencies:
       '@better-auth/core': ^1.7.10
       '@better-auth/utils': ^0.4.2 || ^0.5.0
-      drizzle-orm: ^0.45.2 || >=1.0.0-rc.1 <2.0.0
+      drizzle-orm: 0.45.4
     peerDependenciesMeta:
       drizzle-orm:
         optional: true
@@ -1242,7 +1223,7 @@ packages:
     resolution: {integrity: sha512-ELuehkj5VCBdgEw9zs+ivkKwyzzUCSQuE96YmiPvn1ECBoZCczbFXJLeEGMTYjphP6gydh4pHMqEYPVMYUVgQg==}
     engines: {node: '>=20'}
     peerDependencies:
-      hono: ^4
+      hono: 4.13.13
 
   '@hookform/resolvers@5.9.1':
     resolution: {integrity: sha512-7b7vsbraJxKgjVSA1Nur9tLwj539WGJUBLA7QNvXnFoT2pM5Z7G+6rlukk4B2/QrTZy6huRtH6wKeESPKuIr6w==}
@@ -3894,7 +3875,7 @@ packages:
       '@tanstack/react-start': ^1.0.0
       '@tanstack/solid-start': ^1.0.0
       drizzle-kit: '>=0.31.4 || >=1.0.0-beta.1'
-      drizzle-orm: ^0.45.2 || >=1.0.0-rc.1 <2.0.0
+      drizzle-orm: 0.45.4
       mongodb: ^6.0.0 || ^7.0.0
       mysql2: ^3.0.0
       next: ^14.0.0 || ^15.0.0 || ^16.0.0
@@ -4319,7 +4300,7 @@ packages:
     resolution: {integrity: sha512-X66GB2pz7Nb+NmCZefDXpdoglxjGYnB2yRU5umAK2stVkl4rvV6i6XbMg1+w1HiY/ydC8gJVq4jKAARYazpb3g==}
     peerDependencies:
       arktype: '>=2.0.0'
-      drizzle-orm: '>=0.36.0'
+      drizzle-orm: 0.45.4
 
   drizzle-kit@0.31.11:
     resolution: {integrity: sha512-YCYqxTLIB2OCqf6w9/Vef13baBVbwQIPcbT4Y56AfO6B9ajZhDhD8Jkveg/hJvT/iuMloKD/IYYkyMMNhr7Kqg==}
@@ -4423,13 +4404,13 @@ packages:
   drizzle-valibot@0.4.2:
     resolution: {integrity: sha512-tzjT7g0Di/HX7426marIy8IDtWODjPgrwvgscdevLQRUe5rzYzRhx6bDsYLdDFF9VI/eaYgnjNeF/fznWJoUjg==}
     peerDependencies:
-      drizzle-orm: '>=0.36.0'
+      drizzle-orm: 0.45.4
       valibot: '>=1.0.0-beta.7'
 
   drizzle-zod@0.8.3:
     resolution: {integrity: sha512-66yVOuvGhKJnTdiqj1/Xaaz9/qzOdRJADpDa68enqS6g3t0kpNkwNYjUuaeXgZfO/UWuIM9HIhSlJ6C5ZraMww==}
     peerDependencies:
-      drizzle-orm: '>=0.36.0'
+      drizzle-orm: 0.45.4
       zod: ^3.25.0 || ^4.0.0
 
   dunder-proto@1.0.1:
@@ -6664,10 +6645,6 @@ packages:
 snapshots:
 
   '@adobe/css-tools@4.5.0': {}
-
-  '@ai-hero/sandcastle@0.10.0':
-    dependencies:
-      '@clack/prompts': 1.7.0
 
   '@ark/schema@0.56.7':
     dependencies:
