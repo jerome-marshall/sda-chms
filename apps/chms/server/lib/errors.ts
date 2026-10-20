@@ -11,6 +11,15 @@ export interface MappedError {
 }
 
 /**
+ * Details safe for the wire. A Drizzle failure carries the SQL statement and
+ * bound values as enumerable own fields (DrizzleQueryError query/params), so
+ * the raw error must never reach the response body — it stays server-side in
+ * the middleware log.
+ */
+const safeDetails = (err: unknown): unknown =>
+  isDrizzleErrorLike(err) ? undefined : err;
+
+/**
  * Normalizes any error into the single ApiErrorBody contract, exactly as the
  * legacy error handler did. Pure (no Response), so the Void middleware and
  * unit tests share it. `instanceof` is sound here: hono resolves to Void's
@@ -48,7 +57,7 @@ export const mapErrorToBody = (err: unknown): MappedError => {
         message: violation.constraint
           ? `${violation.constraint} - ${violation.message}`
           : violation.message,
-        details: err,
+        details: safeDetails(err),
       },
     };
   }
@@ -69,7 +78,7 @@ export const mapErrorToBody = (err: unknown): MappedError => {
       message: isDrizzleErrorLike(err)
         ? "Internal Server Error"
         : "Unknown error",
-      details: err,
+      details: safeDetails(err),
     },
   };
 };

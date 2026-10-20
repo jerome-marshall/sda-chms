@@ -1,3 +1,4 @@
+import type { PeopleInsertDb } from "@schema";
 import { HTTPException } from "hono/http-exception";
 import { inferSchema, initParser } from "udsv";
 import { defineHandler } from "void/handler";
@@ -39,7 +40,7 @@ export const POST = defineHandler.withValidator({
     .map((row, i) => isValidRow(row, i + 2))
     .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
 
-  const householdGroups = groupByHousehold(validEntries);
+  const { groups: householdGroups, rejected } = groupByHousehold(validEntries);
 
   const summary: ImportSummary = {
     total: allRows.length,
@@ -49,12 +50,6 @@ export const POST = defineHandler.withValidator({
     failed: 0,
     failures: [],
   };
-
-  const groupedRowNums = new Set(
-    householdGroups.flatMap((group) =>
-      group.members.map((member) => member.csvRowNum)
-    )
-  );
 
   for (const group of householdGroups) {
     summary.attempted += group.members.length;
@@ -73,7 +68,7 @@ export const POST = defineHandler.withValidator({
     // plus every member — goes in one batch: all-or-nothing per group, and
     // the summary can never count a row as both succeeded and failed.
     const householdId = crypto.randomUUID();
-    let peopleData;
+    let peopleData: { csvRowNum: number; data: PeopleInsertDb; row: CsvRow }[];
     try {
       peopleData = group.members.map(({ row, csvRowNum }) => ({
         row,
@@ -100,16 +95,15 @@ export const POST = defineHandler.withValidator({
   }
 
   // Spouse/child rows without a Family belong to no group. They were valid
-  // rows, so they count as failed with the reason instead of vanishing.
-  for (const entry of validEntries) {
-    if (!groupedRowNums.has(entry.csvRowNum)) {
-      summary.failed += 1;
-      summary.failures.push({
-        csvRowNum: entry.csvRowNum,
-        name: String(entry.row.Name),
-        reason: "relation is spouse or child without Family — skipping",
-      });
-    }
+  // rows, so they count as failed with the resolver's reason instead of
+  // vanishing from the summary.
+  for (const { row, csvRowNum, reason } of rejected) {
+    summary.failed += 1;
+    summary.failures.push({
+      csvRowNum,
+      name: String(row.Name),
+      reason,
+    });
   }
 
   return summary;

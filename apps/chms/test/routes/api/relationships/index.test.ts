@@ -102,6 +102,18 @@ describe("POST /api/relationships (integration, SQLite)", () => {
     expect(res.status).toBe(400);
   });
 
+  it("rejects a link to an unknown person with 422 DB_ERROR", async () => {
+    const { a } = await seedTwoPeople();
+    const res = await postRelationship({
+      personId: a.id,
+      relatedPersonId: "00000000-0000-4000-8000-000000000000",
+      type: "spouse",
+    });
+    expect(res.status).toBe(422);
+    const body = await json<{ code: string }>(res);
+    expect(body.code).toBe("DB_ERROR");
+  });
+
   it("creates a spouse link with an explicit lifecycle state", async () => {
     const { a, b } = await seedTwoPeople();
     const created = await postRelationship({

@@ -9,7 +9,7 @@ import { eq } from "void/db";
 import { getDb } from "./db";
 import { insertHouseholdStmt, updateHouseholdStmt } from "./households";
 import {
-  getGoverningMaritalStatus,
+  governingMaritalStatusInGraph,
   planMaritalStatusUpdates,
   readSpouseLinkGraph,
 } from "./marital-status";
@@ -131,11 +131,6 @@ const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => ({
   ...personFormToDbFields(data),
   isActive: true,
 });
-
-/** Maps the client-submitted update form data to the DB shape without overriding isActive. */
-const personUpdateApiToDb = (
-  data: PersonInsertForm
-): Omit<PeopleInsertDb, "isActive"> => personFormToDbFields(data);
 
 /** Adds computed fields (fullName, age) to a DB person record for the API response. */
 const personDbToApi = (personData: PeopleSelectDb) => {
@@ -269,9 +264,18 @@ export const addPerson = async (data: PersonInsertForm) => {
  * person writes plus every Marital Status rewrite.
  */
 export const updatePerson = async (id: string, data: PersonInsertForm) => {
+  const [current, { rows, affected }] = await Promise.all([
+    getPersonById(id),
+    readSpouseLinkGraph([id]),
+  ]);
+  if (!current) {
+    throw new Error("Person not found");
+  }
+
   // A governing spouse link is the source of truth (ADR-0003); a manual value
-  // that disagrees is rejected so the two cannot drift (issue #8).
-  const governingMaritalStatus = await getGoverningMaritalStatus(id);
+  // that disagrees is rejected so the two cannot drift (issue #8). The check
+  // reads the same graph the plans below derive from.
+  const governingMaritalStatus = governingMaritalStatusInGraph(rows, id);
   if (governingMaritalStatus && data.maritalStatus !== governingMaritalStatus) {
     throw new HTTPException(400, {
       message:
@@ -279,17 +283,11 @@ export const updatePerson = async (id: string, data: PersonInsertForm) => {
     });
   }
 
-  const current = await getPersonWithHouseholdRowById(id);
-  if (!current) {
-    throw new Error("Person not found");
-  }
-
   if (!data.householdId && data.householdRole !== HOUSEHOLD_ROLE.HEAD) {
     throw new Error("Only Head of Household can create a household");
   }
 
-  const personData = personUpdateApiToDb(data);
-  const { rows, affected } = await readSpouseLinkGraph([id]);
+  const personData = personFormToDbFields(data);
   const overrides = new Map([
     [id, data.membershipStatus ?? current.membershipStatus],
   ]);

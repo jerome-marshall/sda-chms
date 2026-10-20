@@ -76,11 +76,14 @@ const toSpouseLinksForPerson = (
     });
 
 /**
- * The Marital Status implied by a Person's governing spouse link, or null when
- * no spouse Relationship exists (Marital Status stays manual).
+ * Pure: the Marital Status implied by a person's governing spouse link within
+ * an already-read graph, or null when no spouse link exists. Lets callers
+ * reuse one readSpouseLinkGraph result instead of querying twice.
  */
-export const getGoverningMaritalStatus = async (personId: string) => {
-  const rows = await getSpouseLinksForPeople([personId]);
+export const governingMaritalStatusInGraph = (
+  rows: SpouseLinkRow[],
+  personId: string
+) => {
   const governing = selectGoverningSpouseState(
     toSpouseLinksForPerson(rows, personId)
   );

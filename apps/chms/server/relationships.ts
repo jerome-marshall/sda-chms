@@ -77,6 +77,16 @@ const deleteRelationshipStmt = (id: string) =>
     .where(eq(relationshipsTable.id, id))
     .returning();
 
+/** Inserts one link and returns its row; every writer here goes through a batch. */
+const insertLinkOnly = async (link: RelationshipsInsertDb) => {
+  const [createdRows] = await getDb().batch([insertRelationshipStmt(link)]);
+  const created = (createdRows as unknown[])[0];
+  if (!created) {
+    throw new Error("Failed to create relationship");
+  }
+  return created;
+};
+
 // Inferred from the query so it stays in sync with the columns selected.
 type RelationshipRow = Awaited<
   ReturnType<typeof getRelationshipsForPersonRows>
@@ -154,12 +164,7 @@ export const addRelationship = async (data: RelationshipCreate) => {
   const link = { ...data, id, state };
 
   if (data.type !== RELATIONSHIP_TYPE.SPOUSE) {
-    const [createdRows] = await getDb().batch([insertRelationshipStmt(link)]);
-    const created = (createdRows as unknown[])[0];
-    if (!created) {
-      throw new Error("Failed to create relationship");
-    }
-    return created;
+    return await insertLinkOnly(link);
   }
 
   const [person, relatedPerson] = await Promise.all([
@@ -170,12 +175,7 @@ export const addRelationship = async (data: RelationshipCreate) => {
     // Let the database enforce the link: the insert below fails on the
     // foreign key, so the API keeps the 422 it has always returned for
     // unknown ids instead of inventing a new error.
-    const [createdRows] = await getDb().batch([insertRelationshipStmt(link)]);
-    const created = (createdRows as unknown[])[0];
-    if (!created) {
-      throw new Error("Failed to create relationship");
-    }
-    return created;
+    return await insertLinkOnly(link);
   }
   const { rows, affected } = await readSpouseLinkGraph([
     data.personId,

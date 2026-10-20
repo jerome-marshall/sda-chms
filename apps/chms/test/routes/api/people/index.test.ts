@@ -117,9 +117,9 @@ describe("POST /api/people (integration, SQLite)", () => {
       isActive: true,
     } satisfies PeopleInsertDb;
     await insertPerson(row);
-    await expect(insertPerson(row)).rejects.toMatchObject({
-      code: "SQLITE_CONSTRAINT_UNIQUE",
-    });
+    await expect(insertPerson(row)).rejects.toThrow(
+      /UNIQUE constraint failed/u
+    );
   });
 
   it("the response has no identity_ key", async () => {
@@ -150,9 +150,6 @@ describe("POST /api/people (integration, SQLite)", () => {
     });
     expect(third.status).toBe(200);
   });
-
-  // (The HTTP-level 409 assertion needs the error middleware, which maps a
-  // DbError thrown from a route into ApiErrorBody.)
 
   it("POST /api/people surfaces a clear 'may already exist' 409 for a duplicate", async () => {
     // validHead has no last name; a second identical POST is a null-lastName

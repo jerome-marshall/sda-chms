@@ -70,15 +70,29 @@ describe("mapErrorToBody (unit)", () => {
     expect(body.message).toBeTypeOf("string");
   });
 
-  it("maps a raw unique violation to 409 DB_ERROR", () => {
-    const error = Object.assign(
+  it("never puts SQL text or bound values in a DB_ERROR body", () => {
+    // Production D1 failures arrive as DrizzleQueryError, whose enumerable
+    // query/params own fields would serialize into details. The stand-in
+    // throws the unwrapped SqliteError, so this shape is pinned here.
+    const cause = Object.assign(
       new Error("UNIQUE constraint failed: people.email"),
       { name: "SqliteError", code: "SQLITE_CONSTRAINT_UNIQUE" }
+    );
+    const error = Object.assign(
+      new Error("Failed query: insert into people (email) values (?)"),
+      {
+        name: "DrizzleQueryError",
+        query: "insert into people (email) values (?)",
+        params: ["a@b.c"],
+        cause,
+      }
     );
     const { status, body } = mapErrorToBody(error);
     expect(status).toBe(409);
     expect(body.code).toBe("DB_ERROR");
-    expect(body.message).toContain("duplicate");
+    expect(body.details).toBeUndefined();
+    expect(JSON.stringify(body)).not.toContain("insert into");
+    expect(JSON.stringify(body)).not.toContain("a@b.c");
   });
 
   it("maps unknown errors to 500 HTTP_ERROR", () => {

@@ -49,6 +49,25 @@ const snapshotAt = (index: number, tag: string): Snapshot => {
   return snapshot;
 };
 
+/** Replays the journaled migration history into a fresh in-memory database. */
+const applyMigrations = (
+  client: { exec: (sql: string) => unknown },
+  entries: { tag: string }[]
+): void => {
+  for (const entry of entries) {
+    const sql = migrationSql[`../../db/migrations/${entry.tag}.sql`];
+    if (typeof sql !== "string") {
+      throw new TypeError(`test: SQL missing for ${entry.tag}`);
+    }
+    for (const statement of sql.split("--> statement-breakpoint")) {
+      const trimmed = statement.trim();
+      if (trimmed.length > 0) {
+        client.exec(trimmed);
+      }
+    }
+  }
+};
+
 describe("committed SQL matches the migration snapshots", () => {
   it("builds the snapshotted tables, columns, and types on SQLite", () => {
     if (!isJournal(journal)) {
@@ -60,16 +79,7 @@ describe("committed SQL matches the migration snapshots", () => {
       const expectedTables = new Map<string, Map<string, string>>();
 
       for (const [index, entry] of journal.entries.entries()) {
-        const sql = migrationSql[`../../db/migrations/${entry.tag}.sql`];
-        if (typeof sql !== "string") {
-          throw new TypeError(`test: SQL missing for ${entry.tag}`);
-        }
-        for (const statement of sql.split("--> statement-breakpoint")) {
-          const trimmed = statement.trim();
-          if (trimmed.length > 0) {
-            client.exec(trimmed);
-          }
-        }
+        applyMigrations(client, [entry]);
 
         const snapshot = snapshotAt(index, entry.tag);
         for (const [name, table] of Object.entries(snapshot.tables)) {
@@ -128,18 +138,7 @@ describe("committed SQL matches the migration snapshots", () => {
 
     const client = new Database(":memory:");
     try {
-      for (const entry of journal.entries) {
-        const sql = migrationSql[`../../db/migrations/${entry.tag}.sql`];
-        if (typeof sql !== "string") {
-          throw new TypeError(`test: SQL missing for ${entry.tag}`);
-        }
-        for (const statement of sql.split("--> statement-breakpoint")) {
-          const trimmed = statement.trim();
-          if (trimmed.length > 0) {
-            client.exec(trimmed);
-          }
-        }
-      }
+      applyMigrations(client, journal.entries);
 
       const people = client
         .prepare("select sql from sqlite_master where name = 'people'")
@@ -159,18 +158,7 @@ describe("committed SQL matches the migration snapshots", () => {
 
     const client = new Database(":memory:");
     try {
-      for (const entry of journal.entries) {
-        const sql = migrationSql[`../../db/migrations/${entry.tag}.sql`];
-        if (typeof sql !== "string") {
-          throw new TypeError(`test: SQL missing for ${entry.tag}`);
-        }
-        for (const statement of sql.split("--> statement-breakpoint")) {
-          const trimmed = statement.trim();
-          if (trimmed.length > 0) {
-            client.exec(trimmed);
-          }
-        }
-      }
+      applyMigrations(client, journal.entries);
 
       const identity = client
         .prepare(

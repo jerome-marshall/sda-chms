@@ -87,4 +87,42 @@ describe("POST /api/import (integration, SQLite)", () => {
     });
     expect(res.status).toBe(400);
   });
+
+  it("rolls a failing group back entirely with no double count", async () => {
+    // "bogus" is no gender: transformRow throws before any write, so the
+    // household insert must not survive either.
+    const badCsv = [
+      "Name,Gender,DOB,Family,Relation,Phone",
+      "Bad Head,bogus,01/02/1990,Bads,head,",
+      "Bad Child,male,03/04/2015,Bads,child,",
+    ].join("\n");
+    const res = await app.request("/api/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ csv: badCsv }),
+    });
+    expect(res.status).toBe(200);
+    const summary = await json<ImportSummary>(res);
+    expect(summary).toMatchObject({
+      attempted: 2,
+      succeeded: 0,
+      failed: 2,
+    });
+
+    const people = await json<unknown[]>(await app.request("/api/people"));
+    expect(people).toStrictEqual([]);
+    const households = await json<unknown[]>(
+      await app.request("/api/households")
+    );
+    expect(households).toStrictEqual([]);
+  });
+
+  it("rejects an oversized payload with 400", async () => {
+    const res = await app.request("/api/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ csv: `${csv}\n${"x".repeat(5_000_000)}` }),
+    });
+    expect(res.status).toBe(400);
+  });
 });
