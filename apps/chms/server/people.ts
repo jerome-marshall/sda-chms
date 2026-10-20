@@ -73,19 +73,6 @@ export const insertPerson = async (data: PeopleInsertDb) => {
   return person[0];
 };
 
-/** Updates a person record by ID (single write; batch paths use `updatePersonStmt`). */
-export const updatePersonById = async (
-  id: string,
-  data: Partial<PeopleInsertDb>
-) => {
-  const result = await getDb()
-    .update(peopleTable)
-    .set(data)
-    .where(eq(peopleTable.id, id))
-    .returning();
-  return result[0];
-};
-
 // Inferred from the query so it stays in sync with the selected columns.
 type PersonWithHouseholdRow = Awaited<
   ReturnType<typeof getAllPeopleWithHouseholdRows>
@@ -214,15 +201,6 @@ const NULL_PERSON_CONTACT = {
 export const getAllPeopleWithHousehold = async () => {
   const people = await getAllPeopleWithHouseholdRows();
   return people.map(personWithHouseholdDbToApi);
-};
-
-/** Returns a single person without the Household's shared contact fields (used internally). */
-export const getPersonApiById = async (id: string) => {
-  const person = await getPersonById(id);
-  if (!person) {
-    throw new Error("Person not found");
-  }
-  return personDbToApi(person);
 };
 
 /** Retrieves a person by ID with their Household's shared contact fields for the effective-value rule. */
