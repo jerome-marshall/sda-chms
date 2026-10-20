@@ -9,8 +9,8 @@ const baseURL = `http://localhost:${PORT}`;
  * provisions the local file under apps/chms/.void/, then the database is
  * seeded and served. Locally the dev server serves for fast iteration; in CI
  * the production build is served through the built worker so E2E exercises
- * the real artifact. (The Wrangler webServer path moves to the Void preview
- * path in a later PR.)
+ * the real artifact, reading the same local D1 state under `.void/`. (The
+ * Wrangler webServer path moves to the Void preview path in a later PR.)
  */
 export default defineConfig({
   testDir: "./e2e",
@@ -26,7 +26,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: process.env.CI
-      ? "pnpm exec void db migrate && pnpm run db:seed && pnpm run build && pnpm exec wrangler dev --config dist/ssr/wrangler.json --port 3001"
+      ? "pnpm exec void db migrate && pnpm run db:seed && pnpm run build && pnpm exec wrangler dev --config dist/ssr/wrangler.json --port 3001 --persist-to .void"
       : "pnpm exec void db migrate && pnpm run db:seed && pnpm run dev",
     cwd: "apps/chms",
     url: baseURL,

@@ -14,7 +14,7 @@ env:
   NODE_VERSION: "24"
 
 jobs:
-  # Type-check + unit/integration tests. PGlite is in-process, so no DB service.
+  # Type-check + unit/integration tests. The D1 test harness is in-process, so no DB service.
   test:
     runs-on: ubuntu-latest
     steps:
@@ -24,9 +24,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
-
-      - name: Write apps/chms/.env
-        run: printf 'DATABASE_URL=%s\n' "postgresql://postgres:postgres@localhost:55432/sda_chms_ci" > apps/chms/.env
 
       - name: Void codegen
         run: pnpm --dir apps/chms exec void prepare
@@ -45,30 +42,12 @@ jobs:
       - name: Unit + integration tests
         run: vp test run
 
-  # End-to-end tests against the real stack + a throwaway Postgres.
-  # Heavier (real Postgres + browser), so run only on pushes to main — not on
-  # every PR. PRs get the fast `test` job; the migration PR itself is proven
-  # with a local `pnpm test:e2e` before landing (see its trail).
+  # End-to-end tests against the built worker on local D1. Heavier (browser),
+  # so run only on pushes to main — not on every PR. PRs get the fast `test` job.
   e2e:
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push'
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: sda_chms_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sda_chms_test
     steps:
       - uses: actions/checkout@v4
 
@@ -77,20 +56,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
 
-      - name: Write apps/chms/.env
-        run: printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > apps/chms/.env
-
       - name: Void codegen
         run: pnpm --dir apps/chms exec void prepare
-
-      - name: Apply migrations
-        run: pnpm --dir apps/chms exec void db migrate
-
-      - name: Seed throwaway database
-        run: SEED_COUNT=20 pnpm run db:seed
-
-      - name: Production build
-        run: pnpm --dir apps/chms run build
 
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
