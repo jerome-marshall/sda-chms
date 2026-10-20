@@ -1,44 +1,48 @@
 ---
-description: "Frontend conventions for the React + Vite web app — routing, data fetching, components, styling"
-globs: "apps/chms/**"
+description: "Frontend conventions for the React + Void app — pages, loaders, data fetching, components, styling"
+globs: "apps/chms/src/**"
 alwaysApply: false
 ---
 
 # Frontend (apps/chms)
 
-React 19 app using Vite, TanStack Router (file-based), TanStack Query, shadcn/ui, and Tailwind CSS v4.
+React 19 app using Void pages, Tailwind CSS v4, and shadcn/ui. Every route is a page file under `src/pages/`.
 
 ## Routing
 
-- File-based routing in `src/routes/` using TanStack Router
-- Each route file exports `Route` from `createFileRoute()` and a named route component function
-- Dynamic segments use `$param` syntax as directory routes (e.g., `people/$peopleId/route.tsx`)
-- Route loaders access `queryClient` from router context to prefetch data
-- For the route + loader pattern, see `src/routes/people/$peopleId/route.tsx`
+- `src/pages/` is the router. A file path becomes a URL: `index.tsx` renders `/`, `people/index.tsx` renders `/people`, `people/add.tsx` renders `/people/add`, and `people/[id]/index.tsx` renders `/people/:id`
+- `src/pages/layout.tsx` wraps every page with the app shell, theme, breadcrumbs, and toaster
+- A page's server half lives beside it as `<name>.server.ts` and exports `loader` and, when the page submits, `action`. Both use `defineHandler`; an action that validates a form body uses `defineHandler.withValidator`
+- The page's default export receives the loader's result as props. Type them with `InferProps<typeof loader>` and import the type from the `.server` file
+- A loader reads through the API with `fetch` from `void/client`, not by importing a server module
+- An action calls the API and returns `c.redirect(...)` on success. On `FetchError`, forward the contract body so the form sees the same failure it would get from a direct API call
+- For the page + loader pattern, see `src/pages/people/index.tsx` and `src/pages/people/index.server.ts`
 
 ## Data Fetching
 
-- Use `fetch` from `void/client` (typed by the generated RouteMap) + `fetchApi` wrapper + `queryKeys`/`queryOptions` from `@/lib/query`
-- Data hooks live in `src/hooks/data/` and wrap TanStack Query (`useQuery`, `useMutation`)
-- `fetchApi` handles error parsing — it throws `ApiError` on non-ok responses
-- Add all query keys to the `queryKeys` object in `@/lib/query` — never define keys inline
-- For the data hook pattern, see `src/hooks/data/use-people.ts`
+- The API under `/api/*` is the only data contract. `fetch` from `void/client` is typed by Void's generated `RouteMap`, runs in-process during SSR, and forwards credentials
+- Pass route params through the typed `params` option (`fetch("/api/people/:id", { params: { id } })`). Never hand-build a URL string
+- Client mutations call `fetch` from `void/client`, then `router.refresh()` from `@void/react` to reload the page's loader data
+- Form submissions call the page action with `action` from `@void/react`; the action redirects, and the router renders the destination
+- `FetchError` carries the contract body in `data` and the status in `status`. Show its `message` in a toast or map a known constraint to a friendlier sentence
+- For the mutation pattern, see `src/components/people/person-detail/relationships-section.tsx`
 
 ## Components
 
-- Default export for feature/page components (e.g., `AddPersonForm`, `PersonDetail`)
+- Default export for feature and page components (e.g., `AddPersonForm`, `PersonDetail`)
 - Named exports for compound UI components (e.g., `Card`, `CardHeader`, `CardContent`)
-- Props typed via interfaces (e.g., `interface PersonDetailProps { person: PersonData }`)
-- Colocate types in a `types.ts` file within the component folder when needed
+- Props typed via interfaces (e.g., `interface PersonDetailProps { person: PersonDetail }`)
+- Colocate types in a `types.ts` file within the component folder when needed, or in `src/types/` when they describe an API payload
 - For the form component pattern, see `src/components/people/add-person-form.tsx`
 
 ## Forms
 
 - Use React Hook Form with `@hookform/resolvers/zod` for validation
-- Zod schemas come from `@sda-chms/shared/schema/*`
+- Zod schemas come from `@sda-chms/shared/schema/*`; the same schema validates the API body, so the client and the contract cannot drift
 - Reusable form field components in `src/components/form/` (`FormInput`, `FormSelect`, `FormDatePicker`)
-- On success: show toast via `sonner` and invalidate relevant queries
-- On error: parse `ApiError` and show descriptive toast message
+- Submit through the page action with `action` from `@void/react`, or through `fetch` from `void/client` when the control writes on its own
+- On success: show a toast via `sonner` and let the redirect or `router.refresh()` update the page
+- On error: read `FetchError.data` and show a descriptive toast message
 
 ## Styling
 
@@ -50,25 +54,27 @@ React 19 app using Vite, TanStack Router (file-based), TanStack Query, shadcn/ui
 
 ## State Management
 
-- **Server state**: TanStack Query — all API data flows through query hooks
-- **URL state**: none in the live app (`nuqs` is installed for the unused data-table scaffold)
+- **Server data**: page loaders. There is no client query cache
+- **URL state**: none. The data grid keeps sorting, filtering, column visibility, and row height in local state (`useDataGrid`)
 - **Form state**: React Hook Form
+- **Local UI state**: `useState` in the component that owns it
 - No global client stores (no Redux, Zustand, etc.)
 
 ## Examples
 
-- Route with loader: `src/routes/people/$peopleId/route.tsx`
-- Data hooks: `src/hooks/data/use-people.ts`
-- API client setup: `src/lib/api.ts`
+- Page with a loader: `src/pages/people/index.tsx` and `src/pages/people/index.server.ts`
+- Page with a loader and action: `src/pages/people/add.tsx` and `src/pages/people/add.server.ts`
+- Client mutation: `src/components/people/person-detail/relationships-section.tsx`
 - Form pattern: `src/components/people/add-person-form.tsx`
-- Root layout + providers: `src/routes/__root.tsx`
+- Root layout: `src/pages/layout.tsx`
 
 ## Avoid
 
-- Don't hand-roll fetch calls — use the `queryOptions` in `@/lib/query` so types and `retry: 0` stay uniform
-- Don't create query keys inline — add them to `queryKeys` in `@/lib/query`
+- Don't add a client-side routing library or a client query cache — Void pages and their loaders own routing and data
+- Don't hand-roll a fetch URL or call `window.fetch` for app data — use `void/client` so the RouteMap types and the SSR in-process path stay intact
+- Don't import a server module into a page or component to read data — go through `/api`
 - Don't use CSS modules or styled-components — use Tailwind utilities
-- Don't install a global state library — use TanStack Query for server state, `nuqs` for URL state
-- Don't import from barrel files — import directly from the component/module file
+- Don't install a global state library
+- Don't import from barrel files — import directly from the component or module file
 - Don't add boolean props to customize component behavior — use composition instead
 - Don't use `forwardRef` — pass refs directly as props (React 19)
