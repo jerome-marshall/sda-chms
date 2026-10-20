@@ -1,24 +1,47 @@
 /**
- * The structural shape of a Postgres driver error. Both `pg`'s `DatabaseError`
- * (production) and PGlite's `DatabaseError` (tests) expose these fields but are
- * distinct classes — matching by shape rather than `instanceof` keeps the same
- * error mapping working under both drivers.
+ * The structural shape of a SQLite driver error. better-sqlite3 throws its
+ * `SqliteError` (with `code` like `SQLITE_CONSTRAINT_UNIQUE`) unwrapped —
+ * drizzle does not wrap sync-driver failures — while D1 surfaces failures
+ * with the constraint text inside the message, so matching covers both the
+ * `code` and the message.
  */
-interface PostgresError {
+interface SqliteError {
   code?: string;
-  column?: string;
-  constraint?: string;
   message: string;
 }
 
-const isPostgresError = (error: unknown): error is PostgresError =>
-  error instanceof Error && "code" in error && "constraint" in error;
+const SQLITE_CODE = (error: unknown): string | null =>
+  error !== null &&
+  typeof error === "object" &&
+  "code" in error &&
+  typeof (error as { code?: unknown }).code === "string"
+    ? (error as { code: string }).code
+    : null;
 
-/** The `cause` of a wrapped error, when it has one. */
+/** The `cause` of a wrapped error, when it has one (Drizzle/proxy wrappers). */
 const errorCause = (error: unknown): unknown =>
   error !== null && typeof error === "object" && "cause" in error
     ? (error as { cause?: unknown }).cause
     : undefined;
+
+/** Walks an error and its cause chain looking for a SQLite failure. */
+const findSqliteError = (error: unknown): SqliteError | null => {
+  let current: unknown = error;
+  const seen = new Set<unknown>();
+  while (current instanceof Error && !seen.has(current)) {
+    seen.add(current);
+    const code = SQLITE_CODE(current) ?? "";
+    // A SQLite code, or D1-remote text carrying the constraint failure.
+    if (
+      code.startsWith("SQLITE_") ||
+      /constraint failed/iu.test(current.message)
+    ) {
+      return current;
+    }
+    current = errorCause(current);
+  }
+  return null;
+};
 
 /**
  * True for Drizzle failures from any copy of drizzle-orm in the graph.
@@ -32,95 +55,80 @@ export const isDrizzleErrorLike = (error: unknown): boolean =>
   (error.name.startsWith("Drizzle") ||
     error.message.startsWith("Failed query:"));
 
+/** Columns of the person-identity unique index (via the stored identity_* columns). */
+const isIdentityConflict = (message: string): boolean =>
+  /unique_person_identity/iu.test(message) ||
+  (/people\.(?:first_name|identity_last_name|identity_date_of_birth)/iu.test(
+    message
+  ) &&
+    /first_name/iu.test(message));
+
 // Defines the shape of the error handler functions
-type ErrorHandler = (error: PostgresError) => {
+type ErrorHandler = (message: string) => {
   message: string;
   constraint: string | null;
   httpCode: number;
 };
 
-// Maps PostgreSQL error codes to specific handler functions
-const PostgresErrorHandlers: Record<string, ErrorHandler> = {
-  // Unique violation - resource already exists
-  "23505": (error) => ({
-    message:
-      error.constraint === "unique_person_identity"
+// Maps SQLite failure kinds (by code, falling back to message text so D1
+// remote errors without codes map the same way) to handler functions.
+const SqliteErrorHandlers: {
+  test: (code: string, message: string) => boolean;
+  handle: ErrorHandler;
+}[] = [
+  {
+    test: (code, message) =>
+      code === "SQLITE_CONSTRAINT_UNIQUE" ||
+      (/UNIQUE constraint failed/iu.test(message) &&
+        !code.startsWith("SQLITE_")),
+    handle: (message) => ({
+      message: isIdentityConflict(message)
         ? "This person may already exist — someone with the same name and date of birth is already recorded."
         : "A duplicate entry was found for a unique field.",
-    constraint: error.constraint || null,
-    httpCode: 409, // Conflict
-  }),
-  // Foreign key violation - referenced resource doesn't exist
-  "23503": (error) => ({
-    message:
-      "A foreign key violation occurred. The record you are trying to link does not exist.",
-    constraint: error.constraint || null,
-    httpCode: 422, // Unprocessable Content
-  }),
-  // Invalid text representation (e.g., invalid UUID)
-  "22P02": () => ({
-    message:
-      "The data provided is in an invalid format (e.g., not a valid UUID).",
-    constraint: null,
-    httpCode: 400, // Bad Request
-  }),
-  // Check constraint violation
-  "23514": (error) => ({
-    message: "A check constraint was violated.",
-    constraint: error.constraint || null,
-    httpCode: 422, // Unprocessable Content
-  }),
-  // Not null violation
-  "23502": (error) => ({
-    message: `A required field is missing. The column '${error.column}' cannot be null.`,
-    constraint: error.column || null,
-    httpCode: 400, // Bad Request
-  }),
-  // Undefined column
-  "42703": (error) => ({
-    message: "An undefined column was referenced in the query.",
-    constraint: error.column || null,
-    httpCode: 500, // Internal Server Error
-  }),
-  // Syntax error
-  "42601": () => ({
-    message: "There's a syntax error in the database query.",
-    constraint: null,
-    httpCode: 500, // Internal Server Error
-  }),
-  // Invalid transaction state
-  "25000": () => ({
-    message:
-      "Transaction failed: a data integrity issue occurred within a database transaction.",
-    constraint: null,
-    httpCode: 500, // Internal Server Error
-  }),
-  // Connection failure
-  "08006": () => ({
-    message: "Database connection failed. The database may be unavailable.",
-    constraint: null,
-    httpCode: 503, // Service Unavailable
-  }),
-  // Undefined table
-  "42P01": () => ({
-    message: "A referenced table does not exist in the database.",
-    constraint: null,
-    httpCode: 500, // Internal Server Error
-  }),
-  // Serialization failure
-  "40001": () => ({
-    message:
-      "Transaction serialization failure. Please retry the transaction as it could not be completed due to concurrent modifications.",
-    constraint: null,
-    httpCode: 503, // Service Unavailable (retry-able)
-  }),
-  // Default handler
-  default: (error) => ({
-    message: `A database error occurred: ${error.message}`,
-    constraint: null,
-    httpCode: 500, // Internal Server Error
-  }),
-};
+      constraint: isIdentityConflict(message)
+        ? "unique_person_identity"
+        : (/UNIQUE constraint failed:\s*(?<column>[\w.]+)/iu.exec(message)
+            ?.groups?.column ?? null),
+      httpCode: 409, // Conflict
+    }),
+  },
+  {
+    test: (code, message) =>
+      code === "SQLITE_CONSTRAINT_FOREIGNKEY" ||
+      (/FOREIGN KEY constraint failed/iu.test(message) &&
+        !code.startsWith("SQLITE_")),
+    handle: () => ({
+      message:
+        "A foreign key violation occurred. The record you are trying to link does not exist.",
+      constraint: null,
+      httpCode: 422, // Unprocessable Content
+    }),
+  },
+  {
+    test: (code, message) =>
+      code === "SQLITE_CONSTRAINT_NOTNULL" ||
+      (/NOT NULL constraint failed/iu.test(message) &&
+        !code.startsWith("SQLITE_")),
+    handle: (message) => ({
+      message: `A required field is missing. The column '${/NOT NULL constraint failed:\s*(?<column>[\w.]+)/iu.exec(message)?.groups?.column ?? "unknown"}' cannot be null.`,
+      constraint:
+        /NOT NULL constraint failed:\s*(?<column>[\w.]+)/iu.exec(message)
+          ?.groups?.column ?? null,
+      httpCode: 400, // Bad Request
+    }),
+  },
+  {
+    test: (code, message) =>
+      code === "SQLITE_CONSTRAINT_CHECK" ||
+      (/CHECK constraint failed/iu.test(message) &&
+        !code.startsWith("SQLITE_")),
+    handle: () => ({
+      message: "A check constraint was violated.",
+      constraint: null,
+      httpCode: 422, // Unprocessable Content
+    }),
+  },
+];
 
 export interface DbErrorResult {
   constraint: string | null;
@@ -129,31 +137,47 @@ export interface DbErrorResult {
 }
 
 /**
- * Extracts a user-friendly message, constraint, and HTTP status code from a Drizzle ORM error.
- * @param error The error object from Drizzle.
- * @returns An object with the main error message, constraint name (if applicable), and HTTP status code.
+ * Maps a recognized SQLite/D1 constraint failure to its user-facing result,
+ * or null when the error is not one. The error middleware uses this to turn
+ * raw driver failures into the DB_ERROR contract in one place, so server
+ * code never catches database errors itself. Unrecognized failures fall
+ * through to the generic 500 path, never to a DB_ERROR guess.
+ */
+export function getDbConstraintViolation(error: unknown): DbErrorResult | null {
+  const sqliteError = findSqliteError(error);
+  if (!sqliteError) {
+    return null;
+  }
+  const code = SQLITE_CODE(sqliteError) ?? "";
+  const message = sqliteError.message;
+  for (const { test, handle } of SqliteErrorHandlers) {
+    if (test(code, message)) {
+      return handle(message);
+    }
+  }
+  return null;
+}
+
+/**
+ * Extracts a user-friendly message, constraint, and HTTP status code from a
+ * SQLite/D1 error. Matches on the driver's `code` first, then on the
+ * constraint text in the message (D1 remote failures may lack codes).
  */
 export function getDbErrorMessage(error: unknown): DbErrorResult {
-  // Match on the Postgres cause first: the wrapper's class identity (and
-  // even its `name`) does not survive the split dev/prod module graphs, but
-  // the driver cause keeps its `code` and `constraint` in every environment.
-  const cause = errorCause(error);
-  let pgError: PostgresError | null = null;
-  if (isPostgresError(cause)) {
-    pgError = cause;
-  } else if (isPostgresError(error)) {
-    pgError = error;
+  // Match on the SQLite failure itself, unwrapping any Drizzle/proxy wrapper
+  // first: the wrapper's class identity (and even its `name`) does not
+  // survive the split dev/prod module graphs, but the driver failure keeps
+  // its `code` and message in every environment.
+  const violation = getDbConstraintViolation(error);
+  if (violation) {
+    return violation;
   }
-  if (pgError) {
-    const handler = PostgresErrorHandlers[pgError.code ?? "default"];
 
-    if (handler) {
-      return handler(pgError);
-    }
-
-    // Default case for any other unhandled DatabaseError
+  const sqliteError = findSqliteError(error);
+  if (sqliteError) {
+    // Default case for any other SQLite failure.
     return {
-      message: `A database error occurred: ${pgError.message}`,
+      message: `A database error occurred: ${sqliteError.message}`,
       constraint: null,
       httpCode: 500,
     };
