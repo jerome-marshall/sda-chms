@@ -39,7 +39,7 @@ export default defineConfig({
     include: [...testInclude, "test/**/*.test.{ts,tsx}"],
     setupFiles: ["./vitest.setup.ts"],
     // Mirrors what voidPlugin provides in dev/build, which does not run under
-    // Vitest: the PGlite stand-in for void/db and the schema barrel for @schema.
+    // Vitest: the SQLite stand-in for void/db and the schema barrel for @schema.
     alias: [
       {
         find: "@schema",

@@ -68,11 +68,11 @@ describe("void/db stand-in surface parity", () => {
 });
 
 /**
- * The real baseline migration (`db/migrations/0000_baseline.sql`) applies in
- * PGlite through the drizzle migrator, so tests exercise the committed
- * migration history rather than a re-derived schema.
+ * The real baseline migration (`db/migrations/*.sql`) applies in SQLite, so
+ * tests exercise the committed migration history rather than a re-derived
+ * schema.
  */
-describe("real baseline migration in PGlite", () => {
+describe("real baseline migration in SQLite", () => {
   it("insert, read back, and truncate across related tables", async () => {
     await resetDb();
 
@@ -95,5 +95,33 @@ describe("real baseline migration in PGlite", () => {
     await resetDb();
     await expect(db.select().from(peopleTable)).resolves.toStrictEqual([]);
     await expect(db.select().from(householdsTable)).resolves.toStrictEqual([]);
+  });
+
+  it("a failing statement in batch rolls back the earlier statements", async () => {
+    await resetDb();
+
+    // The second insert violates the person-identity unique index, so the
+    // batch must leave no trace of the first insert either — D1 runs a
+    // batch as one SQL transaction.
+    const first = db
+      .insert(peopleTable)
+      .values({
+        firstName: "Jo",
+        maritalStatus: "single",
+        membershipStatus: "member",
+      })
+      .returning();
+    const duplicate = db
+      .insert(peopleTable)
+      .values({
+        firstName: "Jo",
+        maritalStatus: "single",
+        membershipStatus: "member",
+      })
+      .returning();
+    await expect(db.batch([first, duplicate])).rejects.toThrow(
+      /UNIQUE constraint failed/u
+    );
+    await expect(db.select().from(peopleTable)).resolves.toStrictEqual([]);
   });
 });
