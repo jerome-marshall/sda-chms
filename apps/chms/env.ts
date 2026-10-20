@@ -1,5 +1,5 @@
-import { defineEnv, url } from "void/env";
+import { defineEnv } from "void/env";
 
-export default defineEnv({
-  DATABASE_URL: url(),
-});
+// D1 needs no connection string: Void provisions the local binding itself,
+// so there are no required server variables.
+export default defineEnv({});

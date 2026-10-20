@@ -4,8 +4,6 @@
   "type": "module",
   "scripts": {
     "check": "vp check --fix",
-    "db:start": "docker compose up -d",
-    "db:stop": "docker compose down",
     "dev": "vp -C apps/chms run dev",
     "build": "vp run -r build",
     "check-types": "vp run -r check-types",
