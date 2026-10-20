@@ -17,10 +17,6 @@
     "db:generate": "pnpm --dir apps/web exec void db generate",
     "prepare": "node scripts/prepare.mjs"
   },
-  "dependencies": {
-    "dotenv": "catalog:",
-    "zod": "catalog:"
-  },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "@sda-chms/config": "workspace:*",
