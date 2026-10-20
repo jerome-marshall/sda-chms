@@ -1,4 +1,4 @@
-import { householdsTable, peopleTable } from "@schema";
+import { HTTPException } from "hono/http-exception";
 import { inferSchema, initParser } from "udsv";
 import { defineHandler } from "void/handler";
 import { z } from "zod";
@@ -7,6 +7,14 @@ import { groupByHousehold } from "../../scripts/household-resolver";
 import { isValidRow, transformRow } from "../../scripts/import-helpers";
 import type { CsvRow, ImportSummary } from "../../scripts/import-helpers";
 import { getDb } from "../../server/db";
+import { insertHouseholdStmt } from "../../server/households";
+import { insertPersonStmt } from "../../server/people";
+
+/** Rejects past this before parsing: the whole CSV sits in memory twice. */
+const MAX_CSV_CHARS = 5_000_000;
+
+/** Rejects past this: one batch per household group must stay reasonable. */
+const MAX_ROWS = 50_000;
 
 /**
  * Development-only CSV import (the `.dev` suffix keeps it out of builds and
@@ -16,11 +24,16 @@ import { getDb } from "../../server/db";
  * POSTs it here as `{ csv }`.
  */
 export const POST = defineHandler.withValidator({
-  body: z.object({ csv: z.string().min(1) }),
+  body: z.object({ csv: z.string().min(1).max(MAX_CSV_CHARS) }),
 })(async (_c, { body }) => {
   const csvSchema = inferSchema(body.csv);
   const parser = initParser(csvSchema);
   const allRows = parser.typedObjs(body.csv) as unknown as CsvRow[];
+  if (allRows.length > MAX_ROWS) {
+    throw new HTTPException(400, {
+      message: `CSV has ${allRows.length} rows, limit is ${MAX_ROWS}`,
+    });
+  }
 
   const validEntries = allRows
     .map((row, i) => isValidRow(row, i + 2))
@@ -37,40 +50,65 @@ export const POST = defineHandler.withValidator({
     failures: [],
   };
 
+  const groupedRowNums = new Set(
+    householdGroups.flatMap((group) =>
+      group.members.map((member) => member.csvRowNum)
+    )
+  );
+
   for (const group of householdGroups) {
     summary.attempted += group.members.length;
-    // No transaction: D1 issues plain sequential writes; a mid-group failure
-    // records per-row failures below.
-    try {
-      const [household] = await getDb()
-        .insert(householdsTable)
-        .values({})
-        .returning();
-
-      if (!household) {
-        throw new Error("Household insert returned no result");
-      }
-
-      for (const { row, csvRowNum } of group.members) {
-        const personData = transformRow(
-          row,
-          group.role(row),
-          household.id,
-          csvRowNum
-        );
-        await getDb().insert(peopleTable).values(personData);
-        summary.succeeded++;
-      }
-    } catch (error) {
-      const err = error instanceof Error ? error.message : String(error);
+    const failGroup = (reason: string) => {
       for (const { row, csvRowNum } of group.members) {
         summary.failures.push({
           csvRowNum,
           name: String(row.Name),
-          reason: err,
+          reason,
         });
       }
       summary.failed += group.members.length;
+    };
+
+    // The household id is client-generated so the whole group — household
+    // plus every member — goes in one batch: all-or-nothing per group, and
+    // the summary can never count a row as both succeeded and failed.
+    const householdId = crypto.randomUUID();
+    let peopleData;
+    try {
+      peopleData = group.members.map(({ row, csvRowNum }) => ({
+        row,
+        csvRowNum,
+        data: transformRow(row, group.role(row), householdId, csvRowNum),
+      }));
+    } catch (error) {
+      failGroup(error instanceof Error ? error.message : String(error));
+      continue;
+    }
+
+    try {
+      await getDb().batch([
+        insertHouseholdStmt({
+          id: householdId,
+          familyName: group.familyName,
+        }),
+        ...peopleData.map(({ data }) => insertPersonStmt(data)),
+      ]);
+      summary.succeeded += group.members.length;
+    } catch (error) {
+      failGroup(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  // Spouse/child rows without a Family belong to no group. They were valid
+  // rows, so they count as failed with the reason instead of vanishing.
+  for (const entry of validEntries) {
+    if (!groupedRowNums.has(entry.csvRowNum)) {
+      summary.failed += 1;
+      summary.failures.push({
+        csvRowNum: entry.csvRowNum,
+        name: String(entry.row.Name),
+        reason: "relation is spouse or child without Family — skipping",
+      });
     }
   }
 

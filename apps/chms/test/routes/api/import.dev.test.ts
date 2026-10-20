@@ -18,6 +18,7 @@ const csv = [
   "Name,Gender,DOB,Family,Relation,Phone",
   "Test Head,male,01/02/1990,Testers,head,9000000000",
   "Test Child,male,03/04/2015,Testers,child,",
+  "Test Orphan,male,05/06/2000,,spouse,",
 ].join("\n");
 
 describe("POST /api/import (integration, SQLite)", () => {
@@ -40,11 +41,11 @@ describe("POST /api/import (integration, SQLite)", () => {
     expect(res.status).toBe(200);
     const summary = await json<ImportSummary>(res);
     expect(summary).toMatchObject({
-      total: 2,
+      total: 3,
       skipped: 0,
       attempted: 2,
       succeeded: 2,
-      failed: 0,
+      failed: 1,
     });
 
     const people = await json<Record<string, unknown>[]>(
@@ -56,6 +57,26 @@ describe("POST /api/import (integration, SQLite)", () => {
         .flatMap((person) => Object.keys(person))
         .filter((key) => key.startsWith("identity_"))
     ).toStrictEqual([]);
+
+    const households = await json<{ name: string }[]>(
+      await app.request("/api/households")
+    );
+    expect(households).toHaveLength(1);
+  });
+
+  it("stores the grouped family name on the household", async () => {
+    const res = await app.request("/api/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ csv }),
+    });
+    expect(res.status).toBe(200);
+
+    const households = await json<{ name: string }[]>(
+      await app.request("/api/households")
+    );
+    expect(households).toHaveLength(1);
+    expect(households[0]?.name).toBe("Testers");
   });
 
   it("rejects an empty payload with 400", async () => {

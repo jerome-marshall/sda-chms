@@ -11,6 +11,7 @@ import {
   isPartnerDeceased,
   resolveSpouseState,
 } from "@sda-chms/shared/utils/marital-status";
+import { HTTPException } from "hono/http-exception";
 import { eq } from "void/db";
 
 import { getDb } from "./db";
@@ -230,15 +231,12 @@ export const updateRelationshipState = async (
     throw new Error("Relationship not found");
   }
 
+  // Only a spouse link carries a lifecycle state; persisting one on any
+  // other type would violate the column's invariant.
   if (existing.type !== RELATIONSHIP_TYPE.SPOUSE) {
-    const [updatedRows] = await getDb().batch([
-      updateRelationshipStateStmt(id, state),
-    ]);
-    const updated = (updatedRows as unknown[])[0];
-    if (!updated) {
-      throw new Error("Relationship not found");
-    }
-    return updated;
+    throw new HTTPException(400, {
+      message: "Only a spouse relationship can carry a lifecycle state",
+    });
   }
 
   const { rows, affected } = await readSpouseLinkGraph([

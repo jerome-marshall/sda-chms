@@ -10,7 +10,7 @@ import type { ImportSummary } from "./import-helpers";
  */
 const csvPath =
   process.argv[2] ?? "~/Downloads/SDA Appavu Nagar Church Members Info.csv";
-const resolvedPath = csvPath.replace("~", process.env.HOME ?? "");
+const resolvedPath = csvPath.replace(/^~/u, process.env.HOME ?? "");
 const baseUrl =
   process.argv[3] ?? process.env.CHMS_URL ?? "http://localhost:3001";
 
