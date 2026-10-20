@@ -1,7 +1,4 @@
-import type {
-  PersonInsertForm,
-  PersonUpdateForm,
-} from "@sda-chms/shared/schema/people";
+import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetch } from "void/client";
 
@@ -48,7 +45,7 @@ export const useUpdatePerson = ({
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: PersonUpdateForm) =>
+    mutationFn: (data: PersonInsertForm) =>
       fetchApi(
         fetch("/api/people/:id", {
           method: "PUT",

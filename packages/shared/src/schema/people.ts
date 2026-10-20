@@ -129,10 +129,6 @@ export const personInsertFormSchema = z
   );
 export type PersonInsertForm = z.infer<typeof personInsertFormSchema>;
 
-/** Zod schema for the "edit person" form — same fields as insert, validated on both client and server. */
-export const personUpdateFormSchema = personInsertFormSchema;
-export type PersonUpdateForm = z.infer<typeof personUpdateFormSchema>;
-
 /**
  * Zod schema for creating a Relationship (ADR-0003). The link is stored as a
  * single row "relatedPerson is `type` of person"; the reciprocal is derived on

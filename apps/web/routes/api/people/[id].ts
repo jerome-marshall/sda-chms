@@ -1,4 +1,4 @@
-import { personUpdateFormSchema } from "@sda-chms/shared/schema/people";
+import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import { defineHandler } from "void/handler";
 import { z } from "zod";
 
@@ -15,5 +15,5 @@ export const GET = defineHandler.withValidator({ params: paramsSchema })(
 
 export const PUT = defineHandler.withValidator({
   params: paramsSchema,
-  body: personUpdateFormSchema,
+  body: personInsertFormSchema,
 })((_c, { body, params }) => updatePersonUseCase(params.id, body));
