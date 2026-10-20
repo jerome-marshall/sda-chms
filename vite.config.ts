@@ -22,13 +22,13 @@ for (const override of vitest.overrides ?? []) {
 
 export default defineConfig({
   test: {
-    projects: ["apps/web/vite.config.ts", "packages/shared/vite.config.ts"],
+    projects: ["apps/chms/vite.config.ts", "packages/shared/vite.config.ts"],
   },
   fmt: {
     ...oxfmtPreset,
     // Biome's useSortedClasses equivalent: sort Tailwind classes on format.
     sortTailwindcss: {
-      stylesheet: "./apps/web/src/index.css",
+      stylesheet: "./apps/chms/src/index.css",
       functions: ["cn", "clsx"],
     },
     ignorePatterns: [
@@ -138,7 +138,7 @@ export default defineConfig({
     // route tree and web static assets stay out of lint. Bracket files are
     // Void dynamic route segments ([id], [personId]) — kebab-case renames
     // would break file-based routing.
-    ignorePatterns: ["**/routeTree.gen.ts", "apps/web/public/**", "**/*\\[*"],
+    ignorePatterns: ["**/routeTree.gen.ts", "apps/chms/public/**", "**/*\\[*"],
     options: { typeAware: true, typeCheck: true },
   },
   staged: {
@@ -146,13 +146,11 @@ export default defineConfig({
   },
   run: {
     tasks: {
-      // Single dev server (API + SPA on one origin); the script `dev` runs it directly.
-      "dev:web": { command: "vp -C apps/web run dev", cache: false },
       // Same drift gate CI runs: regenerate migrations, then fail on schema drift.
       "db:drift": {
         command: [
           "pnpm run db:generate",
-          "git diff --exit-code -- apps/web/db",
+          "git diff --exit-code -- apps/chms/db",
         ],
         cache: false,
       },

@@ -10,12 +10,12 @@ import { groupByHousehold } from "./household-resolver";
 import { isValidRow, transformRow } from "./import-helpers";
 import type { CsvRow, ImportSummary } from "./import-helpers";
 
-// Local tooling, run from apps/web so `.env` resolves to the app's file.
+// Local tooling, run from apps/chms so `.env` resolves to the app's file.
 dotenv.config({ path: ".env" });
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set — create apps/web/.env first");
+  throw new Error("DATABASE_URL is not set — create apps/chms/.env first");
 }
 const db = drizzle(databaseUrl, { schema });
 

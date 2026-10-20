@@ -23,7 +23,7 @@ src/
 - One file per domain (e.g., `people.ts`)
 - Always export both the Zod schema and its inferred type together
 - Use `z.infer<typeof schema>` for the type export
-- These are form/API-level schemas — DB-level schemas live in `apps/web/db`
+- These are form/API-level schemas — DB-level schemas live in `apps/chms/db`
 - Include `.refine()` for cross-field validation rules
 - Use descriptive error messages via the `error` option on each field
 
@@ -57,5 +57,5 @@ Consumers import via subpath exports:
 
 - Don't put app-specific logic here — only code genuinely shared between layers
 - Don't import from `@schema` or `void/*` — shared must not depend on app packages
-- Don't duplicate DB-level schemas — those belong in `apps/web/db` using `void/drizzle-zod`
+- Don't duplicate DB-level schemas — those belong in `apps/chms/db` using `void/drizzle-zod`
 - Don't add UI components or server route logic — this package is framework-agnostic

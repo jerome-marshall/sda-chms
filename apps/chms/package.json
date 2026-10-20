@@ -1,5 +1,5 @@
 {
-  "name": "@sda-chms/web",
+  "name": "@sda-chms/chms",
   "version": "0.0.0",
   "private": true,
   "type": "module",

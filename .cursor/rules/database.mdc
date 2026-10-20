@@ -1,12 +1,12 @@
 ---
 description: "Database conventions for Drizzle ORM — schema definitions, migrations, naming, Zod integration"
-globs: "apps/web/db/**"
+globs: "apps/chms/db/**"
 alwaysApply: false
 ---
 
 > **Skill available**: When working on database tasks, use the `drizzle-orm` skill at `.cursor/skills/drizzle-orm/SKILL.md` for detailed patterns on CRUD, relations, filtering, joins, transactions, and migrations.
 
-# Database (apps/web/db)
+# Database (apps/chms/db)
 
 PostgreSQL database managed with Drizzle ORM. Schemas, migrations, and seed data live here.
 
@@ -50,7 +50,7 @@ Tables that support soft deletes include:
 
 ## Migration Commands
 
-- Never hand-write SQL for schema changes; use `void db generate` from `apps/web`, then apply with `void db migrate`
+- Never hand-write SQL for schema changes; use `void db generate` from `apps/chms`, then apply with `void db migrate`
 - The drift gate is `void db generate` plus `git diff --exit-code` — a schema change with no regenerated migration fails it (`void db status` only reports applied vs pending)
 - Never run raw `void db seed` — it wipes `public` before any guard can run. Always seed through `pnpm db:seed`, which refuses non-local databases first and then delegates to it
 - `pnpm db:seed` wipes `public` and reseeds from `db/seed.ts` — throwaway databases only

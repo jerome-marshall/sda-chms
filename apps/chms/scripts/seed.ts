@@ -27,7 +27,7 @@ const readDatabaseUrl = (): string | undefined => {
 const databaseUrl = readDatabaseUrl();
 if (databaseUrl === undefined) {
   throw new Error(
-    `seed: cannot read DATABASE_URL from ${appDir}/.env. Create it first — see apps/web/ENV.md.`
+    `seed: cannot read DATABASE_URL from ${appDir}/.env. Create it first — see apps/chms/ENV.md.`
   );
 }
 
