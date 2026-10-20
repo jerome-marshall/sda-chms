@@ -51,6 +51,11 @@ export interface FilterValue {
   value?: string | number | string[];
 }
 
+export interface ColumnOption {
+  label: string;
+  value: string;
+}
+
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
     cell?: {
@@ -64,6 +69,8 @@ declare module "@tanstack/react-table" {
         | "date"
         | "url";
     };
+    label?: string;
+    options?: ColumnOption[];
   }
 
   interface TableMeta<TData extends RowData> {
