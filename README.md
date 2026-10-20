@@ -58,10 +58,9 @@ Open [http://localhost:3001](http://localhost:3001) in your browser. The SPA and
 ```
 sda-chms/
 ├── apps/
-│   └── web/         # Void app: React SPA (src/) + API file routes (routes/api/) + Drizzle schema (db/)
+│   └── chms/        # Void app: React SPA (src/) + API file routes (routes/api/) + Drizzle schema (db/)
 ├── packages/
-│   ├── shared/      # Zod schemas, constants, types, utils
-│   └── config/      # Shared TypeScript config
+│   └── shared/      # Zod schemas, constants, types, utils
 ```
 
 ## Available Scripts

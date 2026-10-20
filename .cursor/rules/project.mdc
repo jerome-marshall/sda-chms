@@ -11,7 +11,7 @@ SDA-CHMS is a church management system built as a Vite+ monorepo. The stack is p
 
 ```
 apps/
-  web/           → the Void app: React 19 + Vite + TanStack Router SPA in src/, API file routes in routes/api/**, Drizzle schema + migrations in db/
+  chms/          → the Void app: React 19 + Vite + TanStack Router SPA in src/, API file routes in routes/api/**, Drizzle schema + migrations in db/
 packages/
   shared/        → Zod schemas, constants, types shared across the app
   config/        → Shared TypeScript config
