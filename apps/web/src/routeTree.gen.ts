@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ExampleRouteImport } from './routes/example'
 import { Route as PeopleRouteRouteImport } from './routes/people/route'
 import { Route as PeopleIndexRouteImport } from './routes/people/index'
 import { Route as PeoplePeopleIdRouteRouteImport } from './routes/people/$peopleId/route'
@@ -21,11 +20,6 @@ import { Route as PeoplePeopleIdEditRouteImport } from './routes/people/$peopleI
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExampleRoute = ExampleRouteImport.update({
-  id: '/example',
-  path: '/example',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PeopleRouteRoute = PeopleRouteRouteImport.update({
@@ -62,7 +56,6 @@ const PeoplePeopleIdEditRoute = PeoplePeopleIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/people': typeof PeopleRouteRouteWithChildren
-  '/example': typeof ExampleRoute
   '/people/$peopleId': typeof PeoplePeopleIdRouteRouteWithChildren
   '/people/add': typeof PeopleAddRoute
   '/people/': typeof PeopleIndexRoute
@@ -71,7 +64,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/example': typeof ExampleRoute
   '/people/add': typeof PeopleAddRoute
   '/people': typeof PeopleIndexRoute
   '/people/$peopleId/edit': typeof PeoplePeopleIdEditRoute
@@ -81,7 +73,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/people': typeof PeopleRouteRouteWithChildren
-  '/example': typeof ExampleRoute
   '/people/$peopleId': typeof PeoplePeopleIdRouteRouteWithChildren
   '/people/add': typeof PeopleAddRoute
   '/people/': typeof PeopleIndexRoute
@@ -93,7 +84,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/people'
-    | '/example'
     | '/people/$peopleId'
     | '/people/add'
     | '/people/'
@@ -102,7 +92,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/example'
     | '/people/add'
     | '/people'
     | '/people/$peopleId/edit'
@@ -111,7 +100,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/people'
-    | '/example'
     | '/people/$peopleId'
     | '/people/add'
     | '/people/'
@@ -122,7 +110,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PeopleRouteRoute: typeof PeopleRouteRouteWithChildren
-  ExampleRoute: typeof ExampleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -132,13 +119,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/example': {
-      id: '/example'
-      path: '/example'
-      fullPath: '/example'
-      preLoaderRoute: typeof ExampleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/people': {
@@ -218,7 +198,6 @@ const PeopleRouteRouteWithChildren = PeopleRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PeopleRouteRoute: PeopleRouteRouteWithChildren,
-  ExampleRoute: ExampleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
