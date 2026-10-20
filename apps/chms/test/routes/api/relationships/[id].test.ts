@@ -34,7 +34,7 @@ interface RelationshipItem {
 
 const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
-describe("PATCH and DELETE /api/relationships/:id (integration, PGlite)", () => {
+describe("PATCH and DELETE /api/relationships/:id (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {

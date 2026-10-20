@@ -34,7 +34,7 @@ interface RelationshipItem {
 
 const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
-describe("GET /api/relationships/person/:personId (integration, PGlite)", () => {
+describe("GET /api/relationships/person/:personId (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {

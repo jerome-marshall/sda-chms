@@ -4,7 +4,7 @@ import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 import { createTestApp } from "../../../routes";
 import { resetDb } from "../../../void-db";
 
-describe("GET /api/groups (integration, PGlite)", () => {
+describe("GET /api/groups (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {

@@ -1,43 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import dotenv from "dotenv";
-
-import { assertSeedableHost } from "../server/lib/seed-guard";
-
 /**
- * The only supported way to seed: refuses non-local databases BEFORE Void
- * connects (`void db seed` wipes `public` first, so nothing later can
- * prevent that), then delegates to it. Run via `pnpm db:seed`.
+ * The only supported way to seed: delegates to Void, which resets the local
+ * D1 database, runs migrations, and runs `db/seed.ts`. No connection string
+ * and no host guard — the local D1 database is a file by construction, so
+ * there is no remote to protect against. Run via `pnpm db:seed`.
  */
 const appDir = fileURLToPath(new URL("..", import.meta.url));
-
-const readDatabaseUrl = (): string | undefined => {
-  try {
-    const parsed = dotenv.parse(readFileSync(`${appDir}/.env`, "utf-8"));
-    return typeof parsed.DATABASE_URL === "string" && parsed.DATABASE_URL !== ""
-      ? parsed.DATABASE_URL
-      : undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-const databaseUrl = readDatabaseUrl();
-if (databaseUrl === undefined) {
-  throw new Error(
-    `seed: cannot read DATABASE_URL from ${appDir}/.env. Create it first — see apps/chms/ENV.md.`
-  );
-}
-
-let hostname: unknown;
-try {
-  hostname = new URL(databaseUrl).hostname;
-} catch {
-  hostname = undefined;
-}
-assertSeedableHost(hostname);
 
 execFileSync(
   fileURLToPath(new URL("../node_modules/.bin/void", import.meta.url)),

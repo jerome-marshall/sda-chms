@@ -27,7 +27,7 @@ interface HouseholdResponse {
 
 const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
-describe("GET /api/households (integration, PGlite)", () => {
+describe("GET /api/households (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {

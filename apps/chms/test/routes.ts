@@ -28,12 +28,18 @@ interface RouteModule {
   catchAll: boolean;
 }
 
-const toPattern = (filePath: string): Omit<RouteModule, "filePath"> => {
+const toPattern = (filePath: string): Omit<RouteModule, "filePath"> | null => {
   const withoutExtension = filePath.replace(/\.[^.]*$/u, "");
   const segments = withoutExtension.split("/");
   const file = segments.pop();
   if (file !== "index") {
-    segments.push(file ?? "");
+    // A `.dev` or `.prod` suffix includes a route in only one environment
+    // (Void docs, server routing). Tests run dev-like: `.dev` routes are
+    // mounted under their stripped name, `.prod` routes are skipped.
+    if (file?.endsWith(".prod")) {
+      return null;
+    }
+    segments.push((file ?? "").replace(/\.dev$/u, ""));
   }
   let catchAll = false;
   const pattern = `/${segments
@@ -135,9 +141,10 @@ export const createTestApp = (): Hono => {
   });
   const routes = Object.keys(routeModules)
     .filter((filePath) => !filePath.endsWith(".test.ts"))
-    .map((filePath): RouteModule => {
+    .flatMap((filePath): RouteModule[] => {
       const relativePath = filePath.replace(/^\.\.\/routes\//u, "");
-      return { filePath, ...toPattern(relativePath) };
+      const pattern = toPattern(relativePath);
+      return pattern === null ? [] : [{ filePath, ...pattern }];
     })
     .toSorted(compareRouteSpecificity);
 

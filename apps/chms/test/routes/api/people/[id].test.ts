@@ -1,7 +1,7 @@
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
-import { insertPerson } from "../../../../server/data-access/people";
+import { insertPerson } from "../../../../server/people";
 import { createTestApp } from "../../../routes";
 import { resetDb } from "../../../void-db";
 
@@ -39,7 +39,7 @@ interface PersonResponse {
 
 const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
-describe("GET /api/people/:id (integration, PGlite)", () => {
+describe("GET /api/people/:id (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {

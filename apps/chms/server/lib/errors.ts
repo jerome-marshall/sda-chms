@@ -1,6 +1,5 @@
-import { getDbErrorMessage, isDrizzleErrorLike } from "@schema";
+import { getDbConstraintViolation, isDrizzleErrorLike } from "@schema";
 import type { ApiErrorBody } from "@sda-chms/shared/types/errors";
-import { DbError } from "@sda-chms/shared/utils/errors";
 import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { z } from "zod";
@@ -16,6 +15,10 @@ export interface MappedError {
  * legacy error handler did. Pure (no Response), so the Void middleware and
  * unit tests share it. `instanceof` is sound here: hono resolves to Void's
  * single pinned copy (enforced by test/version-parity.test.ts).
+ *
+ * Raw SQLite/D1 failures map here, once, instead of at every query site —
+ * server code lets them propagate and this boundary turns recognized
+ * constraint violations into DB_ERROR with the mapped status.
  */
 export const mapErrorToBody = (err: unknown): MappedError => {
   if (err instanceof HTTPException) {
@@ -36,14 +39,15 @@ export const mapErrorToBody = (err: unknown): MappedError => {
     };
   }
 
-  if (err instanceof DbError) {
+  const violation = getDbConstraintViolation(err);
+  if (violation) {
     return {
-      status: err.httpCode as ContentfulStatusCode,
+      status: violation.httpCode as ContentfulStatusCode,
       body: {
         code: "DB_ERROR",
-        message: err.constraint
-          ? `${err.constraint} - ${err.message}`
-          : err.message,
+        message: violation.constraint
+          ? `${violation.constraint} - ${violation.message}`
+          : violation.message,
         details: err,
       },
     };
@@ -68,24 +72,4 @@ export const mapErrorToBody = (err: unknown): MappedError => {
       details: err,
     },
   };
-};
-
-/** Wraps a data-access operation, catching raw DB errors and re-throwing them as DbError with a user-friendly message. */
-export const withDbErrorHandling = async <T>(
-  operation: () => Promise<T>,
-  context?: string
-): Promise<T> => {
-  try {
-    return await operation();
-  } catch (error) {
-    const { message, constraint, httpCode } = getDbErrorMessage(error);
-
-    console.error("🔴 Database operation failed:", {
-      context,
-      message,
-      constraint,
-    });
-
-    throw new DbError(message, constraint, httpCode);
-  }
 };

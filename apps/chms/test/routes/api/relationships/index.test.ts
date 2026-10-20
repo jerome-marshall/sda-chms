@@ -34,7 +34,7 @@ interface RelationshipItem {
 
 const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
-describe("POST /api/relationships (integration, PGlite)", () => {
+describe("POST /api/relationships (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {
