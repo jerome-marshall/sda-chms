@@ -17,7 +17,7 @@ import type {
 } from "@sda-chms/shared/constants/people";
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
 import { getSabbathSchoolClass } from "@sda-chms/shared/utils/sabbath-school";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { SeedContext } from "void/seed";
 import { defineSeed } from "void/seed";
 
 import { assertSeedableHost } from "../server/lib/seed-guard";
@@ -1024,7 +1024,7 @@ function planVisitorFamily(): FamilyPlan {
 
 // SEED
 
-type SeedDb = NodePgDatabase<typeof schema>;
+type SeedDb = Extract<SeedContext<typeof schema>, { dialect: "sqlite" }>["db"];
 
 interface StaticSeedData {
   allDepartments: (typeof departmentsTable.$inferSelect)[];
@@ -1368,10 +1368,15 @@ async function insertAccumulated(
  * `void db seed` wipes every object in `public` before this callback runs,
  * so the guard below is only the second line of defense, never the first.
  */
-export default defineSeed<typeof schema>(async ({ db }) => {
-  const host = (db as unknown as { $client?: { host?: unknown } }).$client
-    ?.host;
-  assertSeedableHost(host);
+export default defineSeed<typeof schema>(async ({ db, dialect }) => {
+  if (dialect === "sqlite") {
+    // Local D1 / better-sqlite3 databases are files or :memory: by
+    // construction — there is no host to check, and nothing remote to wipe.
+  } else {
+    const host = (db as unknown as { $client?: { host?: unknown } }).$client
+      ?.host;
+    assertSeedableHost(host);
+  }
   const target = Number.parseInt(process.env.SEED_COUNT ?? "100", 10);
   console.log(`Seeding ~${target} people across family households...`);
 

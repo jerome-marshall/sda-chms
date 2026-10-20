@@ -8,135 +8,146 @@ import {
   SPOUSE_STATE_VALUES,
 } from "@sda-chms/shared/constants/people";
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "void/drizzle-zod";
-import {
-  boolean,
-  date,
-  jsonb,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  unique,
-  uniqueIndex,
-  uuid,
-  varchar,
-} from "void/schema-pg";
+import { integer, sqliteTable, text, uniqueIndex } from "void/schema-d1";
 import type z from "zod";
 
 // ============================================================================
-// ENUMS
+// COLUMN HELPERS (D1 / SQLite mapping)
 // ============================================================================
 
-export const genderEnum = pgEnum("gender", GENDER_VALUES);
+/**
+ * Postgres `uuid PRIMARY KEY DEFAULT gen_random_uuid()` becomes TEXT with a
+ * client-generated v4 UUID. D1 has no server-side uuid default, and
+ * client-generated ids let a batch insert reference an earlier insert's id
+ * (household → person) without a round trip.
+ */
+const uuidPk = (name: string) =>
+  text(name)
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID());
 
-export const membershipStatusEnum = pgEnum(
-  "membership_status",
-  MEMBERSHIP_STATUS_VALUES
-);
+/** Postgres `timestamp DEFAULT now()` becomes integer milliseconds + a client default. */
+const createdAt = (name: string) =>
+  integer(name, { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date());
 
-export const maritalStatusEnum = pgEnum(
-  "marital_status",
-  MARITAL_STATUS_VALUES
-);
+const updatedAt = (name: string) =>
+  integer(name, { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date());
 
-export const householdRoleEnum = pgEnum(
-  "household_role",
-  HOUSEHOLD_ROLE_VALUES
-);
+/**
+ * Postgres `date` columns (date_of_birth, wedding_date, …) arrive as
+ * 'YYYY-MM-DD' strings in both drivers, so they stay plain TEXT holding ISO
+ * date strings — no conversion anywhere up the stack.
+ */
+const isoDate = (name: string) => text(name);
 
-export const sabbathSchoolClassEnum = pgEnum(
-  "sabbath_school_class",
-  SABBATH_SCHOOL_CLASS_VALUES
-);
-
-export const relationshipTypeEnum = pgEnum(
-  "relationship_type",
-  RELATIONSHIP_TYPE_VALUES
-);
-
-export const spouseStateEnum = pgEnum("spouse_state", SPOUSE_STATE_VALUES);
+/** Postgres `boolean` becomes integer 0/1 via boolean mode. */
+const booleanCol = (name: string) =>
+  integer(name, { mode: "boolean" }).notNull().default(true);
 
 // ============================================================================
 // CORE TABLES
 // ============================================================================
 
-export const peopleTable = pgTable(
+export const peopleTable = sqliteTable(
   "people",
   {
-    id: uuid().primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at")
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
+    id: uuidPk("id"),
+    createdAt: createdAt("created_at"),
+    updatedAt: updatedAt("updated_at"),
 
     // Basic Info
-    firstName: varchar("first_name", { length: 100 }).notNull(),
-    lastName: varchar("last_name", { length: 100 }),
-    preferredName: varchar("preferred_name", { length: 100 }),
-    gender: genderEnum(),
-    dateOfBirth: date("date_of_birth"),
+    firstName: text("first_name", { length: 100 }).notNull(),
+    lastName: text("last_name", { length: 100 }),
+    preferredName: text("preferred_name", { length: 100 }),
+    gender: text("gender", { enum: GENDER_VALUES }),
+    dateOfBirth: isoDate("date_of_birth"),
     photoUrl: text("photo_url"),
 
     // Contact Info
-    email: varchar({ length: 255 }).unique(),
-    phone: varchar({ length: 50 }),
+    email: text("email", { length: 255 }).unique(),
+    phone: text("phone", { length: 50 }),
 
     // Address
-    addressLine1: varchar("address_line_1", { length: 255 }),
-    addressLine2: varchar("address_line_2", { length: 255 }),
-    city: varchar({ length: 100 }),
-    state: varchar({ length: 100 }),
-    country: varchar({ length: 100 }),
+    addressLine1: text("address_line_1", { length: 255 }),
+    addressLine2: text("address_line_2", { length: 255 }),
+    city: text("city", { length: 100 }),
+    state: text("state", { length: 100 }),
+    country: text("country", { length: 100 }),
 
     // Personal Details
-    occupation: varchar({ length: 255 }),
-    fathersName: varchar("fathers_name", { length: 255 }),
-    mothersName: varchar("mothers_name", { length: 255 }),
-    maritalStatus: maritalStatusEnum("marital_status").notNull(),
-    weddingDate: date("wedding_date"),
-    memorialDay: date("memorial_day"),
+    occupation: text("occupation", { length: 255 }),
+    fathersName: text("fathers_name", { length: 255 }),
+    mothersName: text("mothers_name", { length: 255 }),
+    maritalStatus: text("marital_status", {
+      enum: MARITAL_STATUS_VALUES,
+    }).notNull(),
+    weddingDate: isoDate("wedding_date"),
+    memorialDay: isoDate("memorial_day"),
 
     // Church Membership
-    membershipStatus: membershipStatusEnum("membership_status").notNull(),
-    baptismDate: date("baptism_date"),
-    baptismPlace: varchar("baptism_place", { length: 255 }),
-    dateJoinedChurch: date("date_joined_church"),
-    sabbathSchoolClass: sabbathSchoolClassEnum("sabbath_school_class"),
+    membershipStatus: text("membership_status", {
+      enum: MEMBERSHIP_STATUS_VALUES,
+    }).notNull(),
+    baptismDate: isoDate("baptism_date"),
+    baptismPlace: text("baptism_place", { length: 255 }),
+    dateJoinedChurch: isoDate("date_joined_church"),
+    sabbathSchoolClass: text("sabbath_school_class", {
+      enum: SABBATH_SCHOOL_CLASS_VALUES,
+    }),
 
     // Preferences
     dietaryPreference: text("dietary_preference"),
     preferredVisitingTime: text("preferred_visiting_time"),
 
     // Important Dates
-    importantDates: jsonb("important_dates")
+    importantDates: text("important_dates", { mode: "json" })
       .$type<ImportantDate[]>()
-      .default([]),
+      .$defaultFn((): ImportantDate[] => []),
 
     // Private Notes
     visitationNotes: text("visitation_notes"),
     pastoralNotes: text("pastoral_notes"),
 
     // Household
-    householdId: uuid("household_id").references(() => householdsTable.id, {
+    householdId: text("household_id").references(() => householdsTable.id, {
       onDelete: "set null",
     }),
-    householdRole: householdRoleEnum("household_role"),
+    householdRole: text("household_role", { enum: HOUSEHOLD_ROLE_VALUES }),
 
     // Soft delete
-    isActive: boolean("is_active").notNull().default(true),
+    isActive: booleanCol("is_active"),
+
+    // Identity-dedupe helpers: SQLite rejects expressions in CREATE TABLE
+    // UNIQUE constraints (which is all drizzle-kit emits for uniqueIndexes
+    // carrying sql`` on sqlite), and treats NULLs as distinct. Stored
+    // generated columns materialize the coalesce so a plain uniqueIndex over
+    // real columns reproduces the old `NULLS NOT DISTINCT` semantics.
+    identityLastName: text("identity_last_name").generatedAlwaysAs(
+      sql`coalesce(last_name, '')`,
+      { mode: "stored" }
+    ),
+    identityDateOfBirth: text("identity_date_of_birth").generatedAlwaysAs(
+      sql`coalesce(date_of_birth, '')`,
+      { mode: "stored" }
+    ),
   },
   (table) => [
     // Unique constraint on name + date of birth to prevent duplicate entries.
-    // NULLS NOT DISTINCT (Postgres 15+) makes null last_name / date_of_birth
-    // compare equal, so partial-data People (e.g. visitors with no DOB) can't be
-    // duplicated — Postgres's default treats nulls as distinct, which silently
-    // let these through (issue #2).
-    unique("unique_person_identity")
-      .on(table.firstName, table.lastName, table.dateOfBirth)
-      .nullsNotDistinct(),
+    // Null last_name / date_of_birth compare equal through the generated
+    // identity_* columns, so partial-data People (e.g. visitors with no DOB)
+    // can't be duplicated (issue #2).
+    uniqueIndex("unique_person_identity").on(
+      table.firstName,
+      table.identityLastName,
+      table.identityDateOfBirth
+    ),
   ]
 );
 
@@ -144,121 +155,109 @@ export const peopleTable = pgTable(
 // HOUSEHOLDS
 // ============================================================================
 
-export const householdsTable = pgTable("households", {
-  id: uuid().primaryKey().defaultRandom(),
+export const householdsTable = sqliteTable("households", {
+  id: uuidPk("id"),
   // Stored, user-set display/grouping label for the family (ADR-0001).
   // Independent of any member's lastName so blended families and kept
   // surnames are represented without contortion. Nullable: existing rows
   // fall back to a head-derived name until backfilled/edited.
-  familyName: varchar("family_name", { length: 255 }),
+  familyName: text("family_name", { length: 255 }),
 
   // Shared contact details owned by the Household (ADR-0001). A member's
   // effective value for any of these is their own if set, otherwise the
   // Household's — the per-Person columns of the same name are overrides.
   // This replaces the old "fall back to the Head's value" logic. Nullable so
   // the same shapes as the Person columns line up for the effective-value rule.
-  addressLine1: varchar("address_line_1", { length: 255 }),
-  addressLine2: varchar("address_line_2", { length: 255 }),
-  city: varchar({ length: 100 }),
-  state: varchar({ length: 100 }),
-  country: varchar({ length: 100 }),
-  phone: varchar({ length: 50 }),
+  addressLine1: text("address_line_1", { length: 255 }),
+  addressLine2: text("address_line_2", { length: 255 }),
+  city: text("city", { length: 100 }),
+  state: text("state", { length: 100 }),
+  country: text("country", { length: 100 }),
+  phone: text("phone", { length: 50 }),
   preferredVisitingTime: text("preferred_visiting_time"),
 
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
+  createdAt: createdAt("created_at"),
+  updatedAt: updatedAt("updated_at"),
 });
 
 // ============================================================================
 // DEPARTMENTS & GROUPS
 // ============================================================================
 
-export const departmentsTable = pgTable("departments", {
-  id: uuid().primaryKey().defaultRandom(),
-  name: varchar({ length: 255 }).notNull().unique(),
-  description: text(),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
+export const departmentsTable = sqliteTable("departments", {
+  id: uuidPk("id"),
+  name: text("name", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  isActive: booleanCol("is_active"),
+  createdAt: createdAt("created_at"),
+  updatedAt: updatedAt("updated_at"),
 });
 
-export const peopleDepartmentsTable = pgTable("people_departments", {
-  id: uuid().primaryKey().defaultRandom(),
-  personId: uuid("person_id")
+export const peopleDepartmentsTable = sqliteTable("people_departments", {
+  id: uuidPk("id"),
+  personId: text("person_id")
     .notNull()
     .references(() => peopleTable.id, { onDelete: "cascade" }),
-  departmentId: uuid("department_id")
+  departmentId: text("department_id")
     .notNull()
     .references(() => departmentsTable.id, { onDelete: "cascade" }),
-  joinedAt: date("joined_at"),
-  leftAt: date("left_at"),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  joinedAt: isoDate("joined_at"),
+  leftAt: isoDate("left_at"),
+  isActive: booleanCol("is_active"),
+  createdAt: createdAt("created_at"),
 });
 
-export const groupsTable = pgTable("groups", {
-  id: uuid().primaryKey().defaultRandom(),
-  name: varchar({ length: 255 }).notNull().unique(),
-  description: text(),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
+export const groupsTable = sqliteTable("groups", {
+  id: uuidPk("id"),
+  name: text("name", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  isActive: booleanCol("is_active"),
+  createdAt: createdAt("created_at"),
+  updatedAt: updatedAt("updated_at"),
 });
 
-export const peopleGroupsTable = pgTable("people_groups", {
-  id: uuid().primaryKey().defaultRandom(),
-  personId: uuid("person_id")
+export const peopleGroupsTable = sqliteTable("people_groups", {
+  id: uuidPk("id"),
+  personId: text("person_id")
     .notNull()
     .references(() => peopleTable.id, { onDelete: "cascade" }),
-  groupId: uuid("group_id")
+  groupId: text("group_id")
     .notNull()
     .references(() => groupsTable.id, { onDelete: "cascade" }),
-  joinedAt: date("joined_at"),
-  leftAt: date("left_at"),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  joinedAt: isoDate("joined_at"),
+  leftAt: isoDate("left_at"),
+  isActive: booleanCol("is_active"),
+  createdAt: createdAt("created_at"),
 });
 
 // ============================================================================
 // POSITIONS & ROLES
 // ============================================================================
 
-export const positionsTable = pgTable("positions", {
-  id: uuid().primaryKey().defaultRandom(),
-  name: varchar({ length: 255 }).notNull().unique(),
-  description: text(),
-  departmentId: uuid("department_id").references(() => departmentsTable.id, {
+export const positionsTable = sqliteTable("positions", {
+  id: uuidPk("id"),
+  name: text("name", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  departmentId: text("department_id").references(() => departmentsTable.id, {
     onDelete: "set null",
   }),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  isActive: booleanCol("is_active"),
+  createdAt: createdAt("created_at"),
 });
 
-export const positionHistoryTable = pgTable("position_history", {
-  id: uuid().primaryKey().defaultRandom(),
-  personId: uuid("person_id")
+export const positionHistoryTable = sqliteTable("position_history", {
+  id: uuidPk("id"),
+  personId: text("person_id")
     .notNull()
     .references(() => peopleTable.id, { onDelete: "cascade" }),
-  positionId: uuid("position_id")
+  positionId: text("position_id")
     .notNull()
     .references(() => positionsTable.id, { onDelete: "cascade" }),
-  termStart: date("term_start").notNull(),
-  termEnd: date("term_end"),
-  notes: text(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
+  termStart: isoDate("term_start").notNull(),
+  termEnd: isoDate("term_end"),
+  notes: text("notes"),
+  createdAt: createdAt("created_at"),
+  updatedAt: updatedAt("updated_at"),
 });
 
 // ============================================================================
@@ -273,23 +272,23 @@ export const positionHistoryTable = pgTable("position_history", {
  * so a link lives in exactly one row and is removed by deleting that row.
  * Independent of Household: the two People need not share one.
  */
-export const relationshipsTable = pgTable(
+export const relationshipsTable = sqliteTable(
   "relationships",
   {
-    id: uuid().primaryKey().defaultRandom(),
-    personId: uuid("person_id")
+    id: uuidPk("id"),
+    personId: text("person_id")
       .notNull()
       .references(() => peopleTable.id, { onDelete: "cascade" }),
-    relatedPersonId: uuid("related_person_id")
+    relatedPersonId: text("related_person_id")
       .notNull()
       .references(() => peopleTable.id, { onDelete: "cascade" }),
-    type: relationshipTypeEnum().notNull(),
+    type: text("type", { enum: RELATIONSHIP_TYPE_VALUES }).notNull(),
     // Lifecycle state for a spouse link (ADR-0003): married → separated →
     // divorced / widowed. Nullable because only spouse links carry a state; the
     // link persists through every state change (divorce/death is a state, not a
     // deletion). A Person may hold several spouse links in different states.
-    state: spouseStateEnum(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    state: text("state", { enum: SPOUSE_STATE_VALUES }),
+    createdAt: createdAt("created_at"),
   },
   (table) => [
     // One link of a given type per ordered pair — re-adding the same link is a no-op error.
