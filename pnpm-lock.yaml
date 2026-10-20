@@ -43,9 +43,6 @@ importers:
       '@playwright/test':
         specifier: ^1.61.1
         version: 1.63.0
-      '@sda-chms/config':
-        specifier: workspace:*
-        version: link:packages/config
       '@total-typescript/ts-reset':
         specifier: ^0.6.1
         version: 0.6.1
@@ -167,9 +164,6 @@ importers:
       '@faker-js/faker':
         specifier: 'catalog:'
         version: 10.6.0
-      '@sda-chms/config':
-        specifier: workspace:*
-        version: link:../../packages/config
       '@tanstack/react-query-devtools':
         specifier: ^5.101.1
         version: 5.102.8(@tanstack/react-query@5.102.8(react@19.2.7))(react@19.2.7)
@@ -221,8 +215,6 @@ importers:
       wrangler:
         specifier: 4.151.1
         version: 4.151.1(@cloudflare/workers-types@5.20261016.1)(@types/node@26.4.1)
-
-  packages/config: {}
 
   packages/shared:
     dependencies:

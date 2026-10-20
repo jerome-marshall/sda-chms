@@ -1,13 +1,11 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "strict": true,
-    "esModuleInterop": true,
     "jsx": "react-jsx",
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "verbatimModuleSyntax": true,
-    "skipLibCheck": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    // The app predates the root config fold and has never been checked with
+    // this rule; enabling it needs code changes outside a path-only rename.
+    "noUncheckedIndexedAccess": false,
     "types": ["vite/client"],
     "rootDirs": ["."],
     "paths": {

@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
-    "@sda-chms/config": "workspace:*",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/node": "catalog:",
     "tsx": "catalog:",
