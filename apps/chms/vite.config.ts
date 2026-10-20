@@ -43,7 +43,7 @@ export default defineConfig({
     alias: [
       {
         find: "@schema",
-        replacement: path.resolve(import.meta.dirname, "./db/schema.ts"),
+        replacement: path.resolve(import.meta.dirname, "./src/db/schema.ts"),
       },
       {
         find: "void/db",

@@ -20,7 +20,7 @@ import { getSabbathSchoolClass } from "@sda-chms/shared/utils/sabbath-school";
 import type { SeedContext } from "void/seed";
 import { defineSeed } from "void/seed";
 
-import { assertSeedableHost } from "../server/lib/seed-guard";
+import { assertSeedableHost } from "../../server/lib/seed-guard";
 import type * as schema from "./schema";
 import {
   departmentsTable,

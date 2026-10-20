@@ -5,7 +5,7 @@ import {
 } from "@sda-chms/shared/constants/people";
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
 
-import type { PeopleInsertDb } from "../db/schema/people";
+import type { PeopleInsertDb } from "../src/db/schema/people";
 
 // ---------------------------------------------------------------------------
 // Types

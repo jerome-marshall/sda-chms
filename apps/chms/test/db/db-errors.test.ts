@@ -3,7 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import {
   getDbConstraintViolation,
   isDrizzleErrorLike,
-} from "../../db/schema/lib/db-errors";
+} from "../../src/db/schema/lib/db-errors";
 
 /** A better-sqlite3 SqliteError shape: code + constraint text in the message. */
 const sqliteCause = (overrides: object = {}) =>

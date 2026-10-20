@@ -1,6 +1,6 @@
 import { defineMiddleware } from "void/handler";
 
-import { mapErrorToBody } from "../server/lib/errors";
+import { mapErrorToBody } from "../../server/lib/errors";
 
 /** Void's own validator responses, rewritten into the ApiErrorBody contract. */
 const VALIDATOR_ERRORS = new Set(["Validation failed", "Invalid JSON body"]);

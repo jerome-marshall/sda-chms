@@ -1,15 +1,15 @@
 import Database from "better-sqlite3";
 import { describe, expect, it } from "vite-plus/test";
 
-import journal from "../../db/migrations/meta/_journal.json";
+import journal from "../../src/db/migrations/meta/_journal.json";
 
-const migrationSql = import.meta.glob("../../db/migrations/*.sql", {
+const migrationSql = import.meta.glob("../../src/db/migrations/*.sql", {
   query: "?raw",
   import: "default",
   eager: true,
 });
 
-const migrationSnapshots = import.meta.glob("../../db/migrations/meta/*.json", {
+const migrationSnapshots = import.meta.glob("../../src/db/migrations/meta/*.json", {
   eager: true,
 });
 
@@ -55,7 +55,7 @@ const applyMigrations = (
   entries: { tag: string }[]
 ): void => {
   for (const entry of entries) {
-    const sql = migrationSql[`../../db/migrations/${entry.tag}.sql`];
+    const sql = migrationSql[`../../src/db/migrations/${entry.tag}.sql`];
     if (typeof sql !== "string") {
       throw new TypeError(`test: SQL missing for ${entry.tag}`);
     }

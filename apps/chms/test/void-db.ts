@@ -5,7 +5,7 @@ import { getTableName, is } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { SQLiteTable } from "drizzle-orm/sqlite-core";
 
-import migrationJournal from "../db/migrations/meta/_journal.json";
+import migrationJournal from "../src/db/migrations/meta/_journal.json";
 
 export {
   and,
@@ -89,7 +89,7 @@ export const db = Object.assign(base, { batch });
  * bundled with `?raw` so no filesystem path has to survive module
  * transformation; `import.meta` URLs are not stable across the test runner.
  */
-const migrationSql = import.meta.glob("../db/migrations/*.sql", {
+const migrationSql = import.meta.glob("../src/db/migrations/*.sql", {
   query: "?raw",
   import: "default",
   eager: true,
@@ -97,7 +97,7 @@ const migrationSql = import.meta.glob("../db/migrations/*.sql", {
 
 const journal = migrationJournal as { entries: { tag: string }[] };
 for (const entry of journal.entries) {
-  const key = `../db/migrations/${entry.tag}.sql`;
+  const key = `../src/db/migrations/${entry.tag}.sql`;
   const sqlText = migrationSql[key] as string | undefined;
   if (sqlText === undefined) {
     throw new Error(

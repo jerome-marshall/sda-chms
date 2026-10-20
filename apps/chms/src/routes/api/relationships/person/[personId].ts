@@ -1,7 +1,7 @@
 import { defineHandler } from "void/handler";
 import { z } from "zod";
 
-import { getPersonRelationships } from "../../../../server/relationships";
+import { getPersonRelationships } from "../../../../../server/relationships";
 
 const paramsSchema = z.object({ personId: z.string().min(1) });
 

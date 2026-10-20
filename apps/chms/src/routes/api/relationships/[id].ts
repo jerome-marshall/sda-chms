@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   removeRelationship,
   updateRelationshipState,
-} from "../../../server/relationships";
+} from "../../../../server/relationships";
 
 const paramsSchema = z.object({ id: z.string().min(1) });
 

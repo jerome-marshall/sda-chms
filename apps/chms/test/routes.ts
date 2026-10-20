@@ -121,7 +121,7 @@ export const createTestApp = (): Hono => {
   const app = new Hono();
 
   const middlewareModules: Record<string, { default?: unknown }> =
-    import.meta.glob("../middleware/*.ts", {
+    import.meta.glob("../src/middleware/*.ts", {
       eager: true,
     });
   for (const filePath of sortMiddlewareFiles(Object.keys(middlewareModules))) {
@@ -136,13 +136,13 @@ export const createTestApp = (): Hono => {
   const routeModules: Record<
     string,
     Record<string, unknown>
-  > = import.meta.glob("../routes/**/*.ts", {
+  > = import.meta.glob("../src/routes/**/*.ts", {
     eager: true,
   });
   const routes = Object.keys(routeModules)
     .filter((filePath) => !filePath.endsWith(".test.ts"))
     .flatMap((filePath): RouteModule[] => {
-      const relativePath = filePath.replace(/^\.\.\/routes\//u, "");
+      const relativePath = filePath.replace(/^\.\.\/src\/routes\//u, "");
       const pattern = toPattern(relativePath);
       return pattern === null ? [] : [{ filePath, ...pattern }];
     })
