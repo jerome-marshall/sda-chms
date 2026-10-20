@@ -3,11 +3,13 @@ import { useMemo } from "react";
 
 import { AgeGroupChart } from "@/components/dashboard/age-group-chart";
 import { CelebrationsCard } from "@/components/dashboard/celebrations-card";
+import { DashboardCardSkeleton } from "@/components/dashboard/dashboard-card";
 import { ImportantDatesCard } from "@/components/dashboard/important-dates-card";
 import { MembershipBreakdownCard } from "@/components/dashboard/membership-breakdown-card";
 import { MemorialWatchCard } from "@/components/dashboard/memorial-watch-card";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { useBreadcrumbs } from "@/components/header";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { getPeopleStats } from "@/utils/people";
 
 import type { Props } from "./index.server";
@@ -15,6 +17,7 @@ import type { Props } from "./index.server";
 export default function DashboardPage({ people, households }: Props) {
   const crumbs = useMemo(() => [{ label: "Home" }], []);
   useBreadcrumbs(crumbs);
+  const hydrated = useHydrated();
 
   const peopleStats = getPeopleStats(people ?? []);
 
@@ -58,9 +61,19 @@ export default function DashboardPage({ people, households }: Props) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <CelebrationsCard people={people ?? []} />
-        <ImportantDatesCard people={people ?? []} />
-        <MemorialWatchCard people={people ?? []} />
+        {hydrated ? (
+          <>
+            <CelebrationsCard people={people ?? []} />
+            <ImportantDatesCard people={people ?? []} />
+            <MemorialWatchCard people={people ?? []} />
+          </>
+        ) : (
+          <>
+            <DashboardCardSkeleton />
+            <DashboardCardSkeleton />
+            <DashboardCardSkeleton />
+          </>
+        )}
         <AgeGroupChart people={people ?? []} />
         <MembershipBreakdownCard people={people ?? []} />
       </div>
