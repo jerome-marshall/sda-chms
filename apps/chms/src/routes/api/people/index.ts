@@ -1,7 +1,10 @@
 import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import { defineHandler } from "void/handler";
 
-import { addPerson, getAllPeopleWithHousehold } from "../../../../server/people";
+import {
+  addPerson,
+  getAllPeopleWithHousehold,
+} from "../../../../server/people";
 
 export const GET = defineHandler(() => getAllPeopleWithHousehold());
 

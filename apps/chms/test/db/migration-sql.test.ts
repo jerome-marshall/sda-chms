@@ -9,9 +9,12 @@ const migrationSql = import.meta.glob("../../src/db/migrations/*.sql", {
   eager: true,
 });
 
-const migrationSnapshots = import.meta.glob("../../src/db/migrations/meta/*.json", {
-  eager: true,
-});
+const migrationSnapshots = import.meta.glob(
+  "../../src/db/migrations/meta/*.json",
+  {
+    eager: true,
+  }
+);
 
 /** Snapshot files per migration index (`<tag>_snapshot.json`), zipped with the journal order. */
 const snapshotKeys = Object.keys(migrationSnapshots)

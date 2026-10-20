@@ -2,7 +2,10 @@ import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import { defineHandler } from "void/handler";
 import { z } from "zod";
 
-import { getPersonWithHousehold, updatePerson } from "../../../../server/people";
+import {
+  getPersonWithHousehold,
+  updatePerson,
+} from "../../../../server/people";
 
 const paramsSchema = z.object({ id: z.string().min(1) });
 
