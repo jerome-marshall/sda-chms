@@ -4,21 +4,33 @@
 
 ### Completed ✅
 
-- [x] People list page with data table (filtering, sorting, pagination)
+- [x] People list page with data grid (client-side filtering and sorting; no pagination)
 - [x] Add person form (personal info, contact, address, church, family, dietary, notes)
-- [x] Person detail page with tabbed layout (Overview, Church, Notes)
+- [x] Person detail page with stacked sections (ProfileHeader, Overview, Church, Notes)
 - [x] Profile header with avatar, membership badge, and contact chips
-- [x] API: Get all people, Get person by ID, Create person
+- [x] API: Get all people, Get person by ID, Create person, Update person
 - [x] Database schema for people table
 - [x] Zod validation schema for person creation
-- [x] Data hooks: `usePeople`, `useAddPerson`
+- [x] Data hooks: `usePeople`, `useAddPerson`, `useUpdatePerson`
+- [x] Edit person form (full replace; marital status locked to the spouse link)
 
 ### To Do 📋
 
-- [ ] Edit person (form, API endpoint, route or dialog)
 - [ ] Delete person (confirmation dialog, API endpoint)
 - [ ] Photo upload for profile pictures
 - [ ] Search/filter on person detail or across the app
+
+---
+
+## Relationships
+
+### Completed ✅
+
+- [x] Database schema for relationships table (explicit typed links, ADR-0003)
+- [x] API: Create, update state, delete, list per person
+- [x] Marital status synchronized from the governing spouse link (ADR-0003)
+- [x] Spouse pre-fill from complementary household roles in the edit form
+- [x] Data hooks: `useRelationships`, `useAddRelationship`, `useUpdateRelationshipState`, `useRemoveRelationship`
 
 ---
 
@@ -28,6 +40,7 @@
 
 - [x] Database schema for households table
 - [x] Auto-create household when adding a head of household
+- [x] Household contact details edited through the head's person form (ADR-0001)
 - [x] API: Get all households (with members)
 - [x] Data hook: `useHouseholds`
 
@@ -46,7 +59,7 @@
 
 - [x] Database schema for groups table and people-groups join table
 - [x] API: Get all groups
-- [x] Data hook: `useGroups`
+- [x] Data hook: `useGroups` (fetched; no UI renders groups yet)
 
 ### To Do 📋
 
@@ -61,6 +74,8 @@
 ---
 
 ## Departments
+
+Schema-only by design so far. The API and UI are the next milestone.
 
 ### Completed ✅
 
@@ -77,6 +92,8 @@
 ---
 
 ## Positions
+
+Schema-only by design so far. The API and UI are the next milestone.
 
 ### Completed ✅
 
@@ -96,16 +113,16 @@
 ### Completed ✅
 
 - [x] App layout with sidebar navigation
-- [x] Dark/light theme toggle
-- [x] Type-safe API client (Hono RPC)
-- [x] Reusable data table components
+- [x] Type-safe API client (`void/client` fetch typed by the generated RouteMap)
+- [x] Reusable data grid components (the data-table stack is unused scaffold)
+- [x] Dashboard with real data (stat cards, celebrations, memorial watch, important dates, age chart, membership breakdown)
 - [x] Reusable form components (input, select, multi-select, date picker, textarea)
 - [x] Error handling (DB errors, API validation)
 - [x] Shared constants for enums (gender, membership status, etc.)
 
 ### To Do 📋
 
-- [ ] Dashboard / home page (currently a placeholder)
+- [ ] Mount the theme toggle (theme infrastructure exists; the toggle is unreachable through the UI)
 - [ ] Loading states and error boundaries for routes
 - [ ] Global search across people, groups, departments
 - [ ] User authentication and authorization

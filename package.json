@@ -14,16 +14,14 @@
     "test:e2e": "playwright test",
     "db:seed": "pnpm --dir apps/web run db:seed",
     "db:migrate": "pnpm --dir apps/web exec void db migrate",
-    "prepare": "node scripts/prepare.mjs",
-    "sandcastle": "pnpm exec tsx .sandcastle/main.ts",
-    "sandcastle:pr-comments": "pnpm exec tsx .sandcastle/address-comments.ts"
+    "db:generate": "pnpm --dir apps/web exec void db generate",
+    "prepare": "node scripts/prepare.mjs"
   },
   "dependencies": {
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@ai-hero/sandcastle": "^0.10.0",
     "@playwright/test": "^1.61.1",
     "@sda-chms/config": "workspace:*",
     "@total-typescript/ts-reset": "^0.6.1",

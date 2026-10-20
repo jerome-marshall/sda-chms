@@ -5,7 +5,7 @@ alwaysApply: true
 
 # SDA-CHMS Project
 
-SDA-CHMS is a church management system built as a Vite+ monorepo. The stack is Node.js + pnpm, TypeScript, Void (SPA + API file routes on one origin), React 19 + Vite (web frontend), Drizzle ORM, and PostgreSQL.
+SDA-CHMS is a church management system built as a Vite+ monorepo. The stack is pnpm + TypeScript, with one Void app (SPA + API file routes on a single origin) that runs as a Workers-style worker (`nodejs_compat`); Node is only the toolchain host. The web frontend is React 19, the data layer Drizzle ORM over PostgreSQL.
 
 ## Monorepo Structure
 
@@ -24,7 +24,7 @@ Workspace packages are imported as `@sda-chms/shared`, `@sda-chms/config`. The w
 - NEVER commit secrets, API keys, or `.env` files
 - NEVER use the `any` type — use `unknown` with type guards
 - ALL validation MUST use Zod schemas from `@sda-chms/shared`, wired through `defineHandler.withValidator`
-- ALL database access MUST go through the data-access layer in `apps/web/server/data-access/` — never query the DB directly from routes or use cases. Data-access is the only layer that imports `db` from `void/db`
+- ALL database access MUST go through the data-access layer in `apps/web/server/data-access/` — never query the DB directly from routes or use cases. Data-access and `server/db.ts` (which names the shared types) are the only importers of `db` from `void/db`
 - ALWAYS use pnpm as package manager — never npm or yarn
 - ALWAYS run `pnpm exec vp check` before committing to ensure lint/format compliance
 

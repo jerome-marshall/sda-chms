@@ -7,9 +7,12 @@ catalog:
   "@types/node": ^24.0.0
   dotenv: ^17.4.2
   # Pinned to the exact versions Void 1.1.11 resolves its own drizzle-orm and
-  # hono dependencies to, so the app shares Void's single installed copy (two
-  # copies produce incompatible Drizzle `Column` types across `void/schema-pg`
-  # and `relations`). test/version-parity.test.ts fails when they diverge.
+  # hono dependencies to, and forced graph-wide via the overrides below, so the
+  # app and Void share one installed copy (two copies produce incompatible
+  # Drizzle `Column` types across `void/schema-pg` and `relations`). Void
+  # re-exports neither `relations` nor the hono symbols the app imports
+  # directly, so the app must keep declaring both. When Void moves past a pin,
+  # test/version-parity.test.ts names the constraint; bump the pin there.
   drizzle-orm: 0.45.4
   hono: 4.13.13
   tsx: ^4.20.3
@@ -19,6 +22,8 @@ catalog:
   vite-plus: 1.3.0
 overrides:
   vite@*: "catalog:"
+  drizzle-orm: "catalog:"
+  hono: "catalog:"
 peerDependencyRules:
   allowAny:
     - vite

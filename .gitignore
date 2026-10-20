@@ -48,6 +48,7 @@ test-results
 playwright-report
 blob-report
 playwright/.cache
+.playwright-cli/
 
 # Misc
 *.tgz
@@ -55,8 +56,3 @@ playwright/.cache
 tmp
 temp
 .vitest/
-
-# Void generated code (materialized at the repo root when repo-level tooling
-# loads apps/web/vite.config.ts; the app's own codegen lives in apps/web/.void)
-.void/
-void.json

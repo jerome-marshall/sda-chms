@@ -1,6 +1,6 @@
 # sda-chms
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, Hono, and more.
+A church management system built as a Vite+ monorepo. One Void app in `apps/web` serves the React SPA and the API (`/api/*`) from a single origin and builds to a Cloudflare-Workers-style worker.
 
 ## Features
 
@@ -8,8 +8,8 @@ This project was created with [Better-T-Stack](https://github.com/AmanVarshney01
 - **TanStack Router** - File-based routing with full type safety
 - **TailwindCSS** - Utility-first CSS for rapid UI development
 - **shadcn/ui** - Reusable UI components
-- **Hono** - Lightweight, performant server framework
-- **Node.js** - Runtime environment
+- **Hono** - HTTP layer under Void's file-route dispatch
+- **Void** - App framework: one worker serves the SPA and `/api/*` (Workers-style runtime; Node is only the toolchain host)
 - **Drizzle** - TypeScript-first ORM
 - **PostgreSQL** - Database engine
 - **Vite+** - Unified toolchain (dev, build, test, lint, format, tasks)
@@ -39,6 +39,12 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/sda_chms
 pnpm db:migrate
 ```
 
+4. Optionally seed faker data:
+
+```bash
+pnpm db:seed
+```
+
 Then, run the development server:
 
 ```bash
@@ -61,7 +67,11 @@ sda-chms/
 ## Available Scripts
 
 - `pnpm dev`: Start the Void dev server (SPA + API on :3001)
-- `pnpm build`: Build all applications
-- `pnpm check-types`: Check TypeScript types across all apps
+- `pnpm build`: Build the worker (`apps/web/dist/ssr/index.js` + `wrangler.json`)
+- `pnpm check-types`: Check TypeScript types across all packages
 - `pnpm db:migrate`: Apply pending migrations through `void db`
+- `pnpm db:generate`: Regenerate migrations from the schema (same gate CI runs; `vp run db:drift` fails on drift)
+- `pnpm db:seed`: Seed faker data (localhost-only guard; wipes `public` first)
+- `pnpm test`: Run Vitest through `vp` (`pnpm test:watch` for watch mode)
 - `pnpm check`: Run `vp check --fix` (format, lint, type check)
+- `vp run verify`: Run the CI-equivalent gate chain locally

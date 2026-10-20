@@ -8,11 +8,16 @@ This guide walks you through setting up a local PostgreSQL database for developm
 
 ## Quick Start
 
-The database starts automatically when you run the dev command:
+Run, in order:
 
 ```bash
-pnpm dev
+pnpm db:start      # start the Postgres container
+pnpm db:migrate    # apply migrations (needs apps/web/.env, see below)
+pnpm db:seed       # optional faker data (localhost-only; wipes `public`)
+pnpm dev           # start the app on :3001
 ```
+
+`pnpm dev` does not start the database. Run `pnpm db:start` first.
 
 ### Manual Database Control
 
@@ -28,7 +33,7 @@ To stop the database:
 pnpm db:stop
 ```
 
-This will start a PostgreSQL 17.2 container with:
+This will start a PostgreSQL 17.7 container with:
 
 | Setting             | Value         |
 | ------------------- | ------------- |
@@ -148,6 +153,9 @@ To completely reset the database:
 docker compose down -v
 docker compose up -d
 ```
+
+The wiped volume has no schema. Run `pnpm db:migrate` again, then optionally
+`pnpm db:seed`.
 
 ## Connecting with a GUI Client
 

@@ -12,16 +12,16 @@ React 19 app using Vite, TanStack Router (file-based), TanStack Query, shadcn/ui
 
 - File-based routing in `src/routes/` using TanStack Router
 - Each route file exports `Route` from `createFileRoute()` and a named route component function
-- Dynamic segments use `$param` syntax (e.g., `$peopleId.tsx`)
-- Route loaders access `queryClient` and `apiClient` from router context to prefetch data
-- For the route + loader pattern, see `src/routes/people/$peopleId.tsx`
+- Dynamic segments use `$param` syntax as directory routes (e.g., `people/$peopleId/route.tsx`)
+- Route loaders access `queryClient` from router context to prefetch data
+- For the route + loader pattern, see `src/routes/people/$peopleId/route.tsx`
 
 ## Data Fetching
 
-- Use `apiClient` (Hono RPC) + `fetchApi` wrapper + `queryKeys` from `@/lib/api`
+- Use `fetch` from `void/client` (typed by the generated RouteMap) + `fetchApi` wrapper + `queryKeys`/`queryOptions` from `@/lib/query`
 - Data hooks live in `src/hooks/data/` and wrap TanStack Query (`useQuery`, `useMutation`)
 - `fetchApi` handles error parsing — it throws `ApiError` on non-ok responses
-- Add all query keys to the `queryKeys` object in `@/lib/api` — never define keys inline
+- Add all query keys to the `queryKeys` object in `@/lib/query` — never define keys inline
 - For the data hook pattern, see `src/hooks/data/use-people.ts`
 
 ## Components
@@ -51,32 +51,24 @@ React 19 app using Vite, TanStack Router (file-based), TanStack Query, shadcn/ui
 ## State Management
 
 - **Server state**: TanStack Query — all API data flows through query hooks
-- **URL state**: `nuqs` for search params and filter state
+- **URL state**: none in the live app (`nuqs` is installed for the unused data-table scaffold)
 - **Form state**: React Hook Form
 - No global client stores (no Redux, Zustand, etc.)
 
 ## Examples
 
-- Route with loader: `src/routes/people/$peopleId.tsx`
+- Route with loader: `src/routes/people/$peopleId/route.tsx`
 - Data hooks: `src/hooks/data/use-people.ts`
 - API client setup: `src/lib/api.ts`
 - Form pattern: `src/components/people/add-person-form.tsx`
 - Root layout + providers: `src/routes/__root.tsx`
 
-## Agent Skills
-
-Use these skills when working on frontend tasks — they contain detailed guidance and code examples:
-
-- **`frontend-design`** — Use when building or styling any UI: components, pages, dashboards, forms, or layouts. Provides guidelines for typography, color, motion, and spatial composition to produce distinctive, production-grade interfaces. Avoid generic AI aesthetics.
-- **`vercel-react-best-practices`** — Use when writing, reviewing, or refactoring React components. Covers 57 prioritized rules across data fetching waterfalls, bundle size, re-render optimization, and rendering performance. Especially important when working on data fetching hooks, lazy loading, or performance-sensitive code.
-- **`vercel-composition-patterns`** — Use when designing component APIs or refactoring components that have grown boolean-prop-heavy. Covers compound components, context providers, state lifting, and React 19 composition patterns. Avoids `forwardRef` — use React 19's `use()` and direct ref props instead.
-
 ## Avoid
 
-- Don't use `fetch` directly — use `apiClient` via `fetchApi` from `@/lib/api`
-- Don't create query keys inline — add them to `queryKeys` in `@/lib/api`
+- Don't hand-roll fetch calls — use the `queryOptions` in `@/lib/query` so types and `retry: 0` stay uniform
+- Don't create query keys inline — add them to `queryKeys` in `@/lib/query`
 - Don't use CSS modules or styled-components — use Tailwind utilities
 - Don't install a global state library — use TanStack Query for server state, `nuqs` for URL state
 - Don't import from barrel files — import directly from the component/module file
-- Don't add boolean props to customize component behavior — use composition patterns instead (see `vercel-composition-patterns` skill)
+- Don't add boolean props to customize component behavior — use composition instead
 - Don't use `forwardRef` — pass refs directly as props (React 19)
