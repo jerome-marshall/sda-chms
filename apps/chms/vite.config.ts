@@ -1,8 +1,7 @@
 import path from "node:path";
 
 import tailwindcss from "@tailwindcss/vite";
-import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react";
+import { voidReact } from "@void/react/plugin";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { voidPlugin } from "void";
 
@@ -11,11 +10,10 @@ import { testInclude, workspaceDeps } from "../../vitest.shared";
 export default defineConfig({
   plugins: lazyPlugins(() => [
     tailwindcss(),
-    tanstackRouter({}),
-    react(),
     // voidPlugin snapshots process.cwd() as its codegen root, so the root
     // Vitest run would emit a stray root .void/. Tests alias void/db instead.
-    ...(process.env.VITEST ? [] : [voidPlugin()]),
+    // voidReact already includes @vitejs/plugin-react, so no separate react().
+    ...(process.env.VITEST ? [] : [voidPlugin(), voidReact()]),
   ]),
   resolve: {
     alias: {

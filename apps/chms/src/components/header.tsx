@@ -1,6 +1,13 @@
-import { Link, useMatches } from "@tanstack/react-router";
-import type { AnyRouteMatch } from "@tanstack/react-router";
-import { Fragment } from "react";
+import { Link, useRouter } from "@void/react";
+import {
+  createContext,
+  Fragment,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import type { ReactNode } from "react";
 
 import {
   Breadcrumb,
@@ -10,12 +17,71 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
+/** One breadcrumb: a label, plus a link target when it is not the current page. */
+export interface Crumb {
+  label: string;
+  path?: string;
+}
+
+const OverrideContext = createContext<Crumb[] | null>(null);
+const SetOverrideContext = createContext<
+  ((items: Crumb[] | null) => void) | null
+>(null);
+
+/** Above the header in the layout so one page at a time can override the trail. */
+export function BreadcrumbProvider({ children }: { children: ReactNode }) {
+  const [override, setOverride] = useState<Crumb[] | null>(null);
+  return (
+    <OverrideContext.Provider value={override}>
+      <SetOverrideContext.Provider value={setOverride}>
+        {children}
+      </SetOverrideContext.Provider>
+    </OverrideContext.Provider>
+  );
+}
+
+/** A page names its trail from loader data; the header shows it after mount. */
+export function useBreadcrumbs(items: Crumb[]) {
+  const setOverride = useContext(SetOverrideContext);
+  useEffect(() => {
+    setOverride?.(items);
+    return () => setOverride?.(null);
+  }, [items, setOverride]);
+}
+
+const KNOWN_LABELS: Record<string, string> = {
+  people: "People",
+  add: "Add",
+  edit: "Edit",
+};
+
+/** Fallback trail from the URL path, used for the server render before a page overrides it. */
+const trailFromPath = (path: string): Crumb[] => {
+  const segments = path.split("?")[0]?.split("/").filter(Boolean) ?? [];
+  if (segments.length === 0) {
+    return [{ label: "Home" }];
+  }
+  return segments.map((segment, index) => {
+    const label =
+      KNOWN_LABELS[segment] ??
+      segment.charAt(0).toUpperCase() + segment.slice(1);
+    const isLast = index === segments.length - 1;
+    return isLast
+      ? { label }
+      : { label, path: `/${segments.slice(0, index + 1).join("/")}` };
+  });
+};
+
 export default function Header() {
-  const { breadcrumbs, headerActions } = useHeaderData();
+  const router = useRouter();
+  const override = useContext(OverrideContext);
+  const breadcrumbs = useMemo(
+    () => override ?? trailFromPath(router.path),
+    [override, router.path]
+  );
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 px-6">
@@ -30,13 +96,15 @@ export default function Header() {
             const isLast = index === breadcrumbs.length - 1;
 
             return (
-              <Fragment key={`${crumb.path}-${crumb.label}`}>
+              <Fragment key={`${crumb.path ?? ""}-${crumb.label}`}>
                 <BreadcrumbItem>
-                  {isLast ? (
+                  {isLast || !crumb.path ? (
                     <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                   ) : (
                     <BreadcrumbLink
-                      render={() => <Link to={crumb.path}>{crumb.label}</Link>}
+                      render={() => (
+                        <Link href={crumb.path ?? "/"}>{crumb.label}</Link>
+                      )}
                     />
                   )}
                 </BreadcrumbItem>
@@ -46,57 +114,6 @@ export default function Header() {
           })}
         </BreadcrumbList>
       </Breadcrumb>
-      {headerActions.length > 0 && (
-        <div className="ml-auto">
-          <ButtonGroup>{headerActions}</ButtonGroup>
-        </div>
-      )}
     </header>
   );
 }
-
-/**
- * Breadcrumb label for a route — a static string, multiple labels for multi-segment
- * routes, or a function that resolves dynamically from loaderData at runtime.
- */
-export type BreadcrumbValue =
-  | string
-  | string[]
-  | ((match: AnyRouteMatch) => string | string[]);
-
-interface ResolvedBreadcrumbItem {
-  label: string;
-  path: string;
-}
-
-/** Derives breadcrumbs from the current URL path and resolves dynamic labels from route loaderData. */
-const useHeaderData = () => {
-  const matches = useMatches();
-
-  // Only routes that declare staticData.breadcrumb contribute a crumb
-  const breadcrumbs: ResolvedBreadcrumbItem[] = matches.flatMap((match) => {
-    const staticData = match.staticData;
-    if (!staticData?.breadcrumb) {
-      return [];
-    }
-
-    const resolved =
-      typeof staticData.breadcrumb === "function"
-        ? staticData.breadcrumb(match)
-        : staticData.breadcrumb;
-
-    // Array form lets a single route contribute multiple crumb segments
-    const labels = Array.isArray(resolved) ? resolved : [resolved];
-
-    return labels.map((item) => ({
-      label: item,
-      path: match.pathname,
-    }));
-  });
-
-  // Header actions belong to the active leaf route only, not ancestors
-  const leafMatch = matches.at(-1);
-  const headerActions = leafMatch?.staticData?.headerActions ?? [];
-
-  return { breadcrumbs, headerActions };
-};

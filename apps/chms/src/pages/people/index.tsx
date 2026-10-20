@@ -1,15 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@void/react";
 import { Download, Plus } from "lucide-react";
+import { useMemo } from "react";
 
+import { useBreadcrumbs } from "@/components/header";
 import { PeopleList } from "@/components/people/people-list";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/people/")({
-  component: RouteComponent,
-});
+import type { Props } from "./index.server";
 
-function RouteComponent() {
+export default function PeopleIndexPage({ people }: Props) {
+  const crumbs = useMemo(() => [{ label: "People" }], []);
+  useBreadcrumbs(crumbs);
+
   return (
     <div className="flex min-h-0 flex-1 flex-col space-y-6 overflow-hidden">
       <div className="flex justify-between gap-4">
@@ -23,14 +26,14 @@ function RouteComponent() {
           </Button>
           <Link
             className={cn(buttonVariants({ size: "sm" }), "gap-2 shadow-sm")}
-            to="/people/add"
+            href="/people/add"
           >
             <Plus className="h-4 w-4" />
             Add Person
           </Link>
         </div>
       </div>
-      <PeopleList />
+      <PeopleList people={people ?? []} />
     </div>
   );
 }

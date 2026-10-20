@@ -1,10 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { CalendarHeart } from "lucide-react";
 import { useMemo } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { queryOptions } from "@/lib/query";
+import type { People } from "@/types/api";
 import { isDeceased } from "@/utils/people";
 
 import { Badge } from "../ui/badge";
@@ -130,11 +129,8 @@ function getEntriesForPerson(
 }
 
 /** Scrollable list of member-specific important dates occurring this week. */
-export function ImportantDatesCard() {
-  const { data: people } = useSuspenseQuery({
-    ...queryOptions.people(),
-    select: (data) => data.filter((person) => !isDeceased(person)),
-  });
+export function ImportantDatesCard({ people: allPeople }: { people: People }) {
+  const people = allPeople.filter((person) => !isDeceased(person));
 
   const entries = useMemo(() => {
     const today = new Date();

@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Users2 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
@@ -7,7 +6,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { queryOptions } from "@/lib/query";
+import type { People } from "@/types/api";
 import { isDeceased } from "@/utils/people";
 
 import { DashboardCard } from "./dashboard-card";
@@ -28,11 +27,8 @@ const ageGroupIcon = (
 );
 
 /** Bar chart of member counts broken down by age group. */
-export function AgeGroupChart() {
-  const { data: people } = useSuspenseQuery({
-    ...queryOptions.people(),
-    select: (data) => data.filter((person) => !isDeceased(person)),
-  });
+export function AgeGroupChart({ people: allPeople }: { people: People }) {
+  const people = allPeople.filter((person) => !isDeceased(person));
 
   const chartData = AGE_GROUPS.map(({ label, min, max }) => ({
     group: label,

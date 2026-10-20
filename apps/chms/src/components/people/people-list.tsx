@@ -1,6 +1,6 @@
 import { MEMBERSHIP_STATUS_OPTIONS } from "@sda-chms/shared/constants/people";
-import { Link } from "@tanstack/react-router";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
+import { Link } from "@void/react";
 import { useMemo } from "react";
 
 import { DataGrid } from "@/components/data-grid/data-grid";
@@ -10,10 +10,9 @@ import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select
 import { DataGridSkeleton } from "@/components/data-grid/data-grid-skeleton";
 import { DataGridSortMenu } from "@/components/data-grid/data-grid-sort-menu";
 import { DataGridViewMenu } from "@/components/data-grid/data-grid-view-menu";
-import { usePeople } from "@/hooks/data/use-people";
 import { useDataGrid } from "@/hooks/use-data-grid";
 import { getFilterFn } from "@/lib/data-grid-filters";
-import type { Person } from "@/types/api";
+import type { People, Person } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 
 import HouseholdTooltip from "../household-tooltip";
@@ -22,8 +21,7 @@ function FullNameCell({ row }: CellContext<Person, unknown>) {
   return (
     <Link
       className="underline hover:no-underline"
-      params={{ peopleId: row.original.id }}
-      to="/people/$peopleId"
+      href={`/people/${row.original.id}`}
     >
       {row.getValue<string>("fullName")}
     </Link>
@@ -63,8 +61,15 @@ function MembershipStatusCell({ row }: CellContext<Person, unknown>) {
 }
 
 /** Main people list view rendered as a read-only data grid. */
-export const PeopleList = () => {
-  const { data: people, isLoading, isError } = usePeople();
+export const PeopleList = ({
+  people,
+  isLoading = false,
+  isError = false,
+}: {
+  people: People;
+  isLoading?: boolean;
+  isError?: boolean;
+}) => {
   const filterFn = useMemo(() => getFilterFn<Person>(), []);
 
   const columns = useMemo<ColumnDef<Person>[]>(
