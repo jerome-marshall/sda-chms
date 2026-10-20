@@ -25,21 +25,31 @@ describe("version parity with Void's bundled dependencies", () => {
     readFileSync(path.join(voidDir, "package.json"), "utf-8")
   ) as { dependencies: Record<string, string> };
 
-  it.each(["drizzle-orm", "hono"])(
-    "resolves %s to the same file Void resolves",
-    (name) => {
-      const appCopy = realpathSync(require.resolve(name));
-      const voidCopy = realpathSync(
-        require.resolve(name, { paths: [voidDir] })
-      );
-      expect(
-        appCopy,
-        `${name}: the app and Void resolved different installed copies; align the catalog pin and override in pnpm-workspace.yaml with Void's version`
-      ).toBe(voidCopy);
+  /** Versions the workspace fixes by hand: `void` itself, plus the two catalog pins. */
+  const pinned = {
+    void: "1.1.12",
+    "drizzle-orm": "0.45.4",
+    hono: "4.13.13",
+  };
+  const bundled = ["drizzle-orm", "hono"];
+
+  it.each(Object.entries(pinned))(
+    "installs %s at the pinned version",
+    (name, version) => {
+      expect(packageVersion(realpathSync(require.resolve(name)))).toBe(version);
     }
   );
 
-  it.each(["drizzle-orm", "hono"])(
+  it.each(bundled)("resolves %s to the same file Void resolves", (name) => {
+    const appCopy = realpathSync(require.resolve(name));
+    const voidCopy = realpathSync(require.resolve(name, { paths: [voidDir] }));
+    expect(
+      appCopy,
+      `${name}: the app and Void resolved different installed copies; align the catalog pin and override in pnpm-workspace.yaml with Void's version`
+    ).toBe(voidCopy);
+  });
+
+  it.each(bundled)(
     "installed %s satisfies Void's declared dependency range",
     (name) => {
       const range = voidPkg.dependencies[name];
