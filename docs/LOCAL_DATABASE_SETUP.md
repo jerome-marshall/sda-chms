@@ -1,170 +1,82 @@
 # Local Database Setup
 
-This guide walks you through setting up a local PostgreSQL database for development.
-
-## Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) installed and running
+This guide walks you through setting up the local database for development.
+The app runs on Cloudflare D1 through Void — a local SQLite file, so there
+is no container to start and no connection string to configure.
 
 ## Quick Start
 
 Run, in order:
 
 ```bash
-pnpm db:start      # start the Postgres container
-pnpm db:migrate    # apply migrations (needs apps/chms/.env, see below)
-pnpm db:seed       # optional faker data (localhost-only; wipes `public`)
+pnpm db:migrate    # apply migrations to local D1 (stored under apps/chms/.void/)
+pnpm db:seed       # optional faker data (local file only; resets it first)
 pnpm dev           # start the app on :3001
 ```
 
-`pnpm dev` does not start the database. Run `pnpm db:start` first.
+`pnpm dev` does not migrate or seed. Run those first.
 
-### Manual Database Control
+## Where the data lives
 
-To start the database manually:
-
-```bash
-pnpm db:start
-```
-
-To stop the database:
+The dev server and local `void db` commands share one database file under
+`apps/chms/.void/` (gitignored). To start over, reset it with:
 
 ```bash
-pnpm db:stop
+pnpm --dir apps/chms exec void db reset
 ```
 
-This will start a PostgreSQL 17.7 container with:
-
-| Setting             | Value         |
-| ------------------- | ------------- |
-| Container Name      | `sda-chms-db` |
-| PostgreSQL User     | `postgres`    |
-| PostgreSQL Password | `password`    |
-| Database Name       | `sda_chms`    |
-| Port                | `5432`        |
-
-### Using Docker Run (Alternative)
-
-If you prefer not to use Docker Compose:
-
-```bash
-docker run -d \
-  --name sda-chms-db \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=sda_chms \
-  -p 5432:5432 \
-  -v sda-chms-postgres-data:/var/lib/postgresql/data \
-  postgres:17.7
-```
+then `pnpm db:migrate` and optionally `pnpm db:seed`.
 
 ## Environment Configuration
 
-Create `apps/chms/.env` (see `apps/chms/ENV.md` — Void reads only that file
-and rejects `.env.example`):
-
-```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/sda_chms
-```
+None. Void provisions the local D1 binding itself. If `apps/chms/.env`
+exists from the Postgres era, delete it — see `apps/chms/ENV.md`.
 
 ## Database Commands
 
-### Start the database
+### Apply migrations
 
 ```bash
-docker compose up -d
+pnpm db:migrate
 ```
 
-### Stop the database
-
-```bash
-docker compose down
-```
-
-### Stop and remove all data
-
-```bash
-docker compose down -v
-```
-
-### View database logs
-
-```bash
-docker compose logs -f postgres
-```
-
-### Connect to the database via CLI
-
-```bash
-docker exec -it sda-chms-db psql -U postgres -d sda_chms
-```
-
-## Running Migrations
-
-After starting the database, apply the migration history with Void (run
-from `apps/chms`, with `apps/chms/.env` in place):
-
-```bash
-pnpm --dir apps/chms exec void db migrate
-```
-
-To seed faker data into the throwaway database:
+### Seed faker data
 
 ```bash
 pnpm db:seed
 ```
 
-This refuses anything but a local database before connecting (override
-with `SEED_ALLOW_REMOTE=true`), then wipes `public` and reseeds via
-`db/seed.ts`. Only ever run it against a throwaway database (local
-container or the CI service container).
-
-## Troubleshooting
-
-### Port 5432 already in use
-
-If you have a local PostgreSQL installation, stop it first or change the port mapping in `docker-compose.yml`:
-
-```yaml
-ports:
-  - "5433:5432" # Use port 5433 instead
-```
-
-Then update your `DATABASE_URL`:
-
-```env
-DATABASE_URL=postgresql://postgres:password@localhost:5433/sda_chms
-```
-
-### Container won't start
-
-Check if an old container exists:
+Override the row count with `SEED_COUNT` (default 100):
 
 ```bash
-docker rm -f sda-chms-db
-docker compose up -d
+SEED_COUNT=20 pnpm db:seed
 ```
 
-### Reset the database
+Seeding resets the local database first. Only ever run it where losing the
+local data is fine, and only ever through `pnpm db:seed`.
 
-To completely reset the database:
+### Import the operator CSV
+
+Start the dev server, then run the thin import client against its
+development-only import route:
 
 ```bash
-docker compose down -v
-docker compose up -d
+pnpm dev
+pnpm --dir apps/chms run import-people -- "<csv-path>" [base-url]
 ```
 
-The wiped volume has no schema. Run `pnpm db:migrate` again, then optionally
-`pnpm db:seed`.
+The base URL defaults to `http://localhost:3001` (`CHMS_URL` overrides).
 
-## Connecting with a GUI Client
+## Inspecting the data
 
-You can connect to the database using any PostgreSQL client (e.g., TablePlus, pgAdmin, DBeaver):
+Run SQL against local D1 with Void:
 
-| Field    | Value       |
-| -------- | ----------- |
-| Host     | `localhost` |
-| Port     | `5432`      |
-| User     | `postgres`  |
-| Password | `password`  |
-| Database | `sda_chms`  |
+```bash
+pnpm --dir apps/chms exec void db execute "select count(*) from people"
+```
+
+or open Drizzle Studio:
+
+```bash
+pnpm --dir apps/chms exec void db studio
+```

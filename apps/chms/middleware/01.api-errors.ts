@@ -26,7 +26,7 @@ export default defineMiddleware(async (c, next) => {
 
   if (c.error !== undefined) {
     const { status, body } = mapErrorToBody(c.error);
-    console.error(`🔴 ${body.code} ${body.message}`);
+    console.error(`🔴 ${body.code} ${body.message}`, c.error);
     c.res = c.json(body, status);
     return;
   }

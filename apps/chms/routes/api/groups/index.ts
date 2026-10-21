@@ -1,5 +1,5 @@
 import { defineHandler } from "void/handler";
 
-import { getAllGroupsUseCase } from "../../../server/use-case/groups";
+import { getAllGroups } from "../../../server/groups";
 
-export const GET = defineHandler(() => getAllGroupsUseCase());
+export const GET = defineHandler(() => getAllGroups());

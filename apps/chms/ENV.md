@@ -1,38 +1,23 @@
 # Environment
 
-The app needs one server variable. Void reads it from `apps/chms/.env` —
-the only dotenv file it accepts (it rejects `.env.example`, so the
-example lives here instead of in a file).
-
-## Required variables
-
-| Variable     | Used by | Example                                                |
-| ------------ | ------- | ------------------------------------------------------ |
-| DATABASE_URL | server  | `postgres://postgres:password@localhost:5432/sda_chms` |
+The app needs no server variables. Local D1 is provisioned by Void itself —
+there is no connection string. If `apps/chms/.env` exists from the Postgres
+era, delete it (a stale `DATABASE_URL` there no longer does anything).
 
 ## Local setup
 
-Create `apps/chms/.env` from your shell (never commit it — `.env*` is
-gitignored):
+No database service to start. From the repo root, run in order:
 
 ```bash
-printf 'DATABASE_URL=%s\n' "postgres://postgres:postgres@localhost:5432/sda_chms" > apps/chms/.env
+pnpm db:migrate    # apply migrations to local D1 (stored under apps/chms/.void/)
+pnpm db:seed       # optional faker data (local file only; nothing remote to wipe)
+pnpm dev           # start the app on :3001
 ```
 
-Use the throwaway container from `docs/LOCAL_DATABASE_SETUP.md`, or point
-at any Postgres you own. Seeding wipes every object in `public` first, so
-only ever point it at a throwaway database — and only ever seed through
-`pnpm db:seed`, which refuses non-local databases before connecting
-(`SEED_ALLOW_REMOTE=true` overrides).
+Seeding resets the local database first, so only ever run it where losing
+the local data is fine — and only ever seed through `pnpm db:seed`.
 
 ## CI
 
-CI writes `apps/chms/.env` from its own `DATABASE_URL` (the Postgres
-service container — no secret is involved) before any Void command runs:
-
-```bash
-printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > apps/chms/.env
-```
-
-Production reads `DATABASE_URL` from the deploy environment (or Hyperdrive),
-never from a file.
+CI needs no database service either: migrations apply to a throwaway local
+D1 before the test run (see `.github/workflows/test.yml`).

@@ -2,20 +2,9 @@ import type { PeopleInsertDb } from "@schema";
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
-import { insertPerson } from "../../../../server/data-access/people";
+import { insertPerson } from "../../../../server/people";
 import { createTestApp } from "../../../routes";
 import { resetDb } from "../../../void-db";
-
-/** A bare person row for direct data-access inserts (no household needed). */
-const minimalPerson = (
-  overrides: Partial<PeopleInsertDb> = {}
-): PeopleInsertDb => ({
-  firstName: "Jo",
-  maritalStatus: "single",
-  membershipStatus: "member",
-  isActive: true,
-  ...overrides,
-});
 
 /** Short, lowercase first name exercises issue #1 + the title-casing transformer. */
 const validHead = {
@@ -47,7 +36,7 @@ interface PersonResponse {
 
 const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
-describe("POST /api/people (integration, PGlite)", () => {
+describe("POST /api/people (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {
@@ -94,38 +83,73 @@ describe("POST /api/people (integration, PGlite)", () => {
 
   // Duplicate-Person prevention (issue #2): the unique index over
   // (first_name, last_name, date_of_birth) must hold even when last_name /
-  // date_of_birth are null. Postgres treats nulls as distinct by default, so
-  // the guard needs NULLS NOT DISTINCT to catch partial-data duplicates. The
-  // user must see a clear "may already exist" 409, not a raw DB error. These three target data-access directly and move with it in the
-  // server-code commit; the HTTP 409 below stays here.
+  // date_of_birth are null. SQLite treats nulls as distinct by default, so
+  // the guard coalesces them through stored identity_* columns to catch
+  // partial-data duplicates. The
+  // user must see a clear "may already exist" 409, not a raw DB error.
 
-  it("blocks a second Person with the same first name and null last name + null DOB", async () => {
-    await insertPerson(minimalPerson());
-    await expect(insertPerson(minimalPerson())).rejects.toMatchObject({
-      name: "DbError",
-      httpCode: 409,
-    });
+  it("duplicate identity with a null last name and date of birth returns 409", async () => {
+    // No lastName key: stored null and coalesced to '' by identity_last_name,
+    // so the second POST with the same first name and date of birth is a
+    // duplicate even though last_name is null.
+    const body = {
+      ...validHead,
+      firstName: "null identity",
+      dateOfBirth: "1985-05-05",
+    };
+    const first = await postPerson(body);
+    expect(first.status).toBe(200);
+    const res = await postPerson(body);
+
+    expect(res.status).toBe(409);
+    const response = await json<{ code: string; message: string }>(res);
+    expect(response.code).toBe("DB_ERROR");
+    expect(response.message.toLowerCase()).toContain("already exist");
   });
 
-  it("blocks a second Person with same first + last name and null DOB", async () => {
-    await insertPerson(minimalPerson({ lastName: "Smith" }));
-    await expect(
-      insertPerson(minimalPerson({ lastName: "Smith" }))
-    ).rejects.toMatchObject({ name: "DbError", httpCode: 409 });
+  it("the unique index coalesces a true null date of birth too", async () => {
+    const row = {
+      firstName: "Jo",
+      lastName: null,
+      dateOfBirth: null,
+      maritalStatus: "single",
+      membershipStatus: "member",
+      isActive: true,
+    } satisfies PeopleInsertDb;
+    await insertPerson(row);
+    await expect(insertPerson(row)).rejects.toThrow(
+      /UNIQUE constraint failed/u
+    );
+  });
+
+  it("the response has no identity_ key", async () => {
+    const created = await postPerson(validHead);
+    expect(created.status).toBe(200);
+    const person = await json<Record<string, unknown>>(created);
+    expect(
+      Object.keys(person).filter((key) => key.startsWith("identity_"))
+    ).toStrictEqual([]);
+
+    const listRes = await app.request("/api/people");
+    const list = await json<Record<string, unknown>[]>(listRes);
+    expect(list).toHaveLength(1);
+    expect(
+      Object.keys(list[0] ?? {}).filter((key) => key.startsWith("identity_"))
+    ).toStrictEqual([]);
   });
 
   it("does not block distinct People (no false positives on null fields)", async () => {
-    await insertPerson(minimalPerson({ firstName: "Jo" }));
-    await expect(
-      insertPerson(minimalPerson({ firstName: "Li" }))
-    ).resolves.toBeTruthy();
-    await expect(
-      insertPerson(minimalPerson({ firstName: "Jo", lastName: "Smith" }))
-    ).resolves.toBeTruthy();
+    const first = await postPerson({ ...validHead, firstName: "jo" });
+    expect(first.status).toBe(200);
+    const second = await postPerson({ ...validHead, firstName: "li" });
+    expect(second.status).toBe(200);
+    const third = await postPerson({
+      ...validHead,
+      firstName: "jo",
+      lastName: "Smith",
+    });
+    expect(third.status).toBe(200);
   });
-
-  // (The HTTP-level 409 assertion needs the error middleware, which maps a
-  // DbError thrown from a route into ApiErrorBody.)
 
   it("POST /api/people surfaces a clear 'may already exist' 409 for a duplicate", async () => {
     // validHead has no last name; a second identical POST is a null-lastName

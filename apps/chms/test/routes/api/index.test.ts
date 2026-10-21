@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from "vite-plus/test";
 
 import { createTestApp } from "../../routes";
 
-describe("bare /api (integration, PGlite)", () => {
+describe("bare /api (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {

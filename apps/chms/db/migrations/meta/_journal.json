@@ -1,12 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1783167515484,
-      "tag": "0000_baseline",
+      "version": "6",
+      "when": 1792520301392,
+      "tag": "20261020181821_marvelous_tomorrow_man",
       "breakpoints": true
     }
   ]

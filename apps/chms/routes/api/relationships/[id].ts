@@ -3,19 +3,17 @@ import { defineHandler } from "void/handler";
 import { z } from "zod";
 
 import {
-  removeRelationshipUseCase,
-  updateRelationshipStateUseCase,
-} from "../../../server/use-case/relationships";
+  removeRelationship,
+  updateRelationshipState,
+} from "../../../server/relationships";
 
 const paramsSchema = z.object({ id: z.string().min(1) });
 
 export const PATCH = defineHandler.withValidator({
   params: paramsSchema,
   body: relationshipUpdateSchema,
-})((_c, { body, params }) =>
-  updateRelationshipStateUseCase(params.id, body.state)
-);
+})((_c, { body, params }) => updateRelationshipState(params.id, body.state));
 
 export const DELETE = defineHandler.withValidator({ params: paramsSchema })(
-  (_c, { params }) => removeRelationshipUseCase(params.id)
+  (_c, { params }) => removeRelationship(params.id)
 );

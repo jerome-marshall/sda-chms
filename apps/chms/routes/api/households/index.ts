@@ -1,5 +1,5 @@
 import { defineHandler } from "void/handler";
 
-import { getAllHouseholdUseCase } from "../../../server/use-case/people";
+import { getAllHouseholds } from "../../../server/households";
 
-export const GET = defineHandler(() => getAllHouseholdUseCase());
+export const GET = defineHandler(() => getAllHouseholds());

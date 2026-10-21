@@ -4,21 +4,13 @@ const PORT = 3001;
 const baseURL = `http://localhost:${PORT}`;
 
 /**
- * Local throwaway Postgres for E2E. CI sets DATABASE_URL to the service
- * container; locally this default is used. The webServer command writes it
- * into apps/chms/.env first (Void reads only that file and rejects
- * .env.example), then migrates, seeds, and serves.
- */
-const E2E_DATABASE_URL =
-  process.env.DATABASE_URL ??
-  "postgresql://postgres:password@localhost:5432/sda_chms";
-
-/**
  * E2E runs against one Void server (API + SPA on a single origin) backed by
- * a throwaway Postgres. Locally the dev server serves for fast iteration;
- * in CI the production build is served through the built worker so E2E
- * exercises the real artifact (see the commit trail for the local
- * production proof). Either way the database is migrated and seeded first.
+ * local D1. No database service and no connection string: `void db migrate`
+ * provisions the local file under apps/chms/.void/, then the database is
+ * seeded and served. Locally the dev server serves for fast iteration; in CI
+ * the production build is served through the built worker so E2E exercises
+ * the real artifact, reading the same local D1 state under `.void/`. (The
+ * Wrangler webServer path moves to the Void preview path in a later PR.)
  */
 export default defineConfig({
   testDir: "./e2e",
@@ -34,11 +26,11 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: process.env.CI
-      ? 'printf \'DATABASE_URL=%s\\n\' "$DATABASE_URL" > .env && pnpm exec void db migrate && pnpm run db:seed && pnpm run build && pnpm exec wrangler dev --config dist/ssr/wrangler.json --port 3001 --var "DATABASE_URL:$DATABASE_URL"'
-      : "printf 'DATABASE_URL=%s\\n' \"$DATABASE_URL\" > .env && pnpm exec void db migrate && pnpm run db:seed && pnpm run dev",
+      ? "pnpm exec void db migrate && pnpm run db:seed && pnpm run build && pnpm exec wrangler dev --config dist/ssr/wrangler.json --port 3001 --persist-to .void"
+      : "pnpm exec void db migrate && pnpm run db:seed && pnpm run dev",
     cwd: "apps/chms",
     url: baseURL,
-    env: { DATABASE_URL: E2E_DATABASE_URL, SEED_COUNT: "20" },
+    env: { SEED_COUNT: "20" },
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
   },

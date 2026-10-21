@@ -6,6 +6,12 @@ export interface HouseholdGroup {
   role: (row: CsvRow) => string;
 }
 
+export interface RejectedRow {
+  csvRowNum: number;
+  reason: string;
+  row: CsvRow;
+}
+
 interface ValidEntry {
   csvRowNum: number;
   row: CsvRow;
@@ -37,18 +43,24 @@ function isOrphanedDependent(relation: string, family: string): boolean {
   return !family && ["spouse", "child"].includes(relation);
 }
 
-export function groupByHousehold(validRows: ValidEntry[]): HouseholdGroup[] {
+export function groupByHousehold(validRows: ValidEntry[]): {
+  groups: HouseholdGroup[];
+  rejected: RejectedRow[];
+} {
   const familyMap = new Map<string, ValidEntry[]>();
   const individuals: ValidEntry[] = [];
+  const rejected: RejectedRow[] = [];
 
   for (const entry of validRows) {
     const family = getFamily(entry.row);
     const relation = getRelation(entry.row);
 
     if (isOrphanedDependent(relation, family)) {
-      console.warn(
-        `[Row ${entry.csvRowNum}] ${relation} without Family — skipping`
-      );
+      rejected.push({
+        row: entry.row,
+        csvRowNum: entry.csvRowNum,
+        reason: `relation is ${relation} without Family — skipping`,
+      });
       continue;
     }
 
@@ -80,5 +92,5 @@ export function groupByHousehold(validRows: ValidEntry[]): HouseholdGroup[] {
     });
   }
 
-  return groups;
+  return { groups, rejected };
 }

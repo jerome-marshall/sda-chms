@@ -34,7 +34,7 @@ interface RelationshipItem {
 
 const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
-describe("PATCH and DELETE /api/relationships/:id (integration, PGlite)", () => {
+describe("PATCH and DELETE /api/relationships/:id (integration, SQLite)", () => {
   let app: Hono;
 
   beforeAll(() => {
@@ -80,6 +80,24 @@ describe("PATCH and DELETE /api/relationships/:id (integration, PGlite)", () => 
     expect(a.householdId).not.toBe(b.householdId);
     return { a, b };
   };
+
+  it("refuses a lifecycle state on a non-spouse link", async () => {
+    const { a, b } = await seedTwoPeople();
+    await postRelationship({
+      personId: b.id,
+      relatedPersonId: a.id,
+      type: "parent",
+    });
+    const benList = await json<RelationshipItem[]>(await listFor(b.id));
+    const relId = benList[0]?.id;
+    expect(relId).toBeTruthy();
+
+    const res = await patchState(relId ?? "", "divorced");
+    expect(res.status).toBe(400);
+
+    const unchanged = await json<RelationshipItem[]>(await listFor(b.id));
+    expect(unchanged[0]?.state).toBeNull();
+  });
 
   it("removes a relationship from both perspectives", async () => {
     const { a, b } = await seedTwoPeople();
