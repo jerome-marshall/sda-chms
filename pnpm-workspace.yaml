@@ -6,7 +6,7 @@ catalog:
   "@faker-js/faker": ^10.5.0
   "@types/node": ^24.0.0
   dotenv: ^17.4.2
-  # Pinned to the exact versions Void 1.1.11 resolves its own drizzle-orm and
+  # Pinned to the exact versions Void 1.1.12 resolves its own drizzle-orm and
   # hono dependencies to, and forced graph-wide via the overrides below, so the
   # app and Void share one installed copy (two copies produce incompatible
   # Drizzle `Column` types across `void/schema-pg` and `relations`). Void
