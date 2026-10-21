@@ -94,7 +94,12 @@ CREATE TABLE `people` (
 	`is_active` integer DEFAULT true NOT NULL,
 	`identity_last_name` text GENERATED ALWAYS AS (coalesce(last_name, '')) STORED,
 	`identity_date_of_birth` text GENERATED ALWAYS AS (coalesce(date_of_birth, '')) STORED,
-	FOREIGN KEY (`household_id`) REFERENCES `households`(`id`) ON UPDATE no action ON DELETE set null
+	FOREIGN KEY (`household_id`) REFERENCES `households`(`id`) ON UPDATE no action ON DELETE set null,
+	CONSTRAINT "gender_check" CHECK("gender" IN ('male', 'female', 'other')),
+	CONSTRAINT "marital_status_check" CHECK("marital_status" IN ('single', 'married', 'divorced', 'widowed', 'separated')),
+	CONSTRAINT "membership_status_check" CHECK("membership_status" IN ('member', 'regular_attendee', 'visitor', 'inactive', 'moved', 'deceased')),
+	CONSTRAINT "sabbath_school_class_check" CHECK("sabbath_school_class" IN ('beginner', 'kindergarten', 'primary', 'junior', 'earliteen', 'youth', 'young_adult', 'adult')),
+	CONSTRAINT "household_role_check" CHECK("household_role" IN ('head', 'spouse', 'child', 'other'))
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `people_email_unique` ON `people` (`email`);--> statement-breakpoint
@@ -131,7 +136,9 @@ CREATE TABLE `relationships` (
 	`state` text,
 	`created_at` integer NOT NULL,
 	FOREIGN KEY (`person_id`) REFERENCES `people`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`related_person_id`) REFERENCES `people`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`related_person_id`) REFERENCES `people`(`id`) ON UPDATE no action ON DELETE cascade,
+	CONSTRAINT "type_check" CHECK("type" IN ('parent', 'child', 'spouse', 'sibling', 'grandparent', 'grandchild', 'step_parent', 'step_child', 'step_sibling', 'half_sibling', 'other')),
+	CONSTRAINT "state_check" CHECK("state" IN ('married', 'separated', 'divorced', 'widowed'))
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `unique_relationship` ON `relationships` (`person_id`,`related_person_id`,`type`);

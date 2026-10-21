@@ -10,7 +10,7 @@ import {
 import type { ImportantDate } from "@sda-chms/shared/schema/people";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "void/drizzle-zod";
-import { integer, sqliteTable, text, uniqueIndex } from "void/schema-d1";
+import { check, integer, sqliteTable, text, uniqueIndex } from "void/schema-d1";
 import type z from "zod";
 
 // ============================================================================
@@ -50,6 +50,19 @@ const isoDate = (name: string) => text(name);
 /** Postgres `boolean` becomes integer 0/1 via boolean mode. */
 const booleanCol = (name: string) =>
   integer(name, { mode: "boolean" }).notNull().default(true);
+
+/**
+ * SQLite has no enum type and `text({ enum })` only narrows the TypeScript
+ * type, so each enum column also gets a `CHECK (col IN (...))` the database
+ * enforces. DDL cannot take bound parameters, hence the inlined literals.
+ */
+const enumCheck = (column: string, values: readonly string[]) =>
+  check(
+    `${column}_check`,
+    sql.raw(
+      `"${column}" IN (${values.map((value) => `'${value}'`).join(", ")})`
+    )
+  );
 
 // ============================================================================
 // CORE TABLES
@@ -148,6 +161,11 @@ export const peopleTable = sqliteTable(
       table.identityLastName,
       table.identityDateOfBirth
     ),
+    enumCheck("gender", GENDER_VALUES),
+    enumCheck("marital_status", MARITAL_STATUS_VALUES),
+    enumCheck("membership_status", MEMBERSHIP_STATUS_VALUES),
+    enumCheck("sabbath_school_class", SABBATH_SCHOOL_CLASS_VALUES),
+    enumCheck("household_role", HOUSEHOLD_ROLE_VALUES),
   ]
 );
 
@@ -297,6 +315,8 @@ export const relationshipsTable = sqliteTable(
       table.relatedPersonId,
       table.type
     ),
+    enumCheck("type", RELATIONSHIP_TYPE_VALUES),
+    enumCheck("state", SPOUSE_STATE_VALUES),
   ]
 );
 
