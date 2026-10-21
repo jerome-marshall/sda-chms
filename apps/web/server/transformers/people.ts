@@ -1,8 +1,5 @@
 import type { PeopleInsertDb, PeopleSelectDb } from "@schema";
-import type {
-  PersonInsertForm,
-  PersonUpdateForm,
-} from "@sda-chms/shared/schema/people";
+import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
 
 import type { getAllPeopleWithHousehold } from "../data-access/people";
@@ -119,5 +116,5 @@ export const NULL_PERSON_CONTACT = {
 
 /** Maps the client-submitted update form data to the DB shape without overriding isActive. */
 export const personUpdateApiToDb = (
-  data: PersonUpdateForm
+  data: PersonInsertForm
 ): Omit<PeopleInsertDb, "isActive"> => personFormToDbFields(data);

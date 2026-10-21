@@ -1,8 +1,5 @@
 import { HOUSEHOLD_ROLE } from "@sda-chms/shared/constants/people";
-import type {
-  PersonInsertForm,
-  PersonUpdateForm,
-} from "@sda-chms/shared/schema/people";
+import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { HTTPException } from "hono/http-exception";
 
 import {
@@ -101,7 +98,7 @@ export const addPersonUseCase = async (data: PersonInsertForm) => {
  */
 export const updatePersonUseCase = async (
   id: string,
-  data: PersonUpdateForm
+  data: PersonInsertForm
 ) => {
   // A governing spouse link is the source of truth (ADR-0003); a manual value
   // that disagrees is rejected so the two cannot drift (issue #8).

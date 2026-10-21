@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RELATIONSHIP_TYPE } from "@sda-chms/shared/constants/people";
-import { personUpdateFormSchema } from "@sda-chms/shared/schema/people";
+import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -55,7 +55,7 @@ const EditPersonForm = ({ person }: EditPersonFormProps) => {
   );
 
   const form = useForm<PersonInsertForm>({
-    resolver: zodResolver(personUpdateFormSchema),
+    resolver: zodResolver(personInsertFormSchema),
     defaultValues: personDetailToForm(person),
   });
 

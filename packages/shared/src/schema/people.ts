@@ -48,7 +48,7 @@ export const importantDateSchema = z.object({
 });
 export type ImportantDate = z.infer<typeof importantDateSchema>;
 
-/** Zod schema for the "add person" form — validated on both client and server. */
+/** Zod schema for a person form, shared by the add and edit paths and validated on both client and server. */
 export const personInsertFormSchema = z
   .object({
     firstName: z
@@ -128,10 +128,6 @@ export const personInsertFormSchema = z
     }
   );
 export type PersonInsertForm = z.infer<typeof personInsertFormSchema>;
-
-/** Zod schema for the "edit person" form — same fields as insert, validated on both client and server. */
-export const personUpdateFormSchema = personInsertFormSchema;
-export type PersonUpdateForm = z.infer<typeof personUpdateFormSchema>;
 
 /**
  * Zod schema for creating a Relationship (ADR-0003). The link is stored as a

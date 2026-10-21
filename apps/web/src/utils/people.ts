@@ -1,3 +1,4 @@
+import { MEMBERSHIP_STATUS } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 
 import type { Person, PersonDetail } from "@/types/api";
@@ -114,7 +115,7 @@ export const getPeopleStats = (people: Person[]) => {
   const totalActiveMembers = peopleAlive.filter(
     (person) =>
       person.membershipStatus === "member" ||
-      person.membershipStatus === "regular_attendee"
+      person.membershipStatus === MEMBERSHIP_STATUS.REGULAR_ATTENDEE
   ).length;
   const totalInactiveMembers = peopleAlive.filter(
     (person) =>

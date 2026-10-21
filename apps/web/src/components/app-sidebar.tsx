@@ -1,12 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  BarChart,
-  Calendar,
-  Church,
-  CreditCard,
-  Settings,
-  Users2,
-} from "lucide-react";
+import { Church, CreditCard, Users2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type * as React from "react";
 
@@ -44,24 +37,9 @@ const data: { navMain: NavItem[] } = {
       icon: Users2,
     },
     {
-      title: "Events",
-      url: "/example",
-      icon: Calendar,
-    },
-    {
       title: "Giving",
       url: "/",
       icon: CreditCard,
-    },
-    {
-      title: "Reports",
-      url: "/example",
-      icon: BarChart,
-    },
-    {
-      title: "Settings",
-      url: "/example",
-      icon: Settings,
     },
   ],
 };
