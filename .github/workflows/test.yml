@@ -25,11 +25,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
 
-      - name: Write apps/web/.env
-        run: printf 'DATABASE_URL=%s\n' "postgresql://postgres:postgres@localhost:55432/sda_chms_ci" > apps/web/.env
+      - name: Write apps/chms/.env
+        run: printf 'DATABASE_URL=%s\n' "postgresql://postgres:postgres@localhost:55432/sda_chms_ci" > apps/chms/.env
 
       - name: Void codegen
-        run: pnpm --dir apps/web exec void prepare
+        run: pnpm --dir apps/chms exec void prepare
 
       - name: Type-check
         run: vp run check-types
@@ -39,8 +39,8 @@ jobs:
 
       - name: Drift gate (schema must match committed migrations)
         run: |
-          pnpm --dir apps/web exec void db generate
-          git diff --exit-code -- apps/web/db
+          pnpm --dir apps/chms exec void db generate
+          git diff --exit-code -- apps/chms/db
 
       - name: Unit + integration tests
         run: vp test run
@@ -77,20 +77,20 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
 
-      - name: Write apps/web/.env
-        run: printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > apps/web/.env
+      - name: Write apps/chms/.env
+        run: printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > apps/chms/.env
 
       - name: Void codegen
-        run: pnpm --dir apps/web exec void prepare
+        run: pnpm --dir apps/chms exec void prepare
 
       - name: Apply migrations
-        run: pnpm --dir apps/web exec void db migrate
+        run: pnpm --dir apps/chms exec void db migrate
 
       - name: Seed throwaway database
         run: SEED_COUNT=20 pnpm run db:seed
 
       - name: Production build
-        run: pnpm --dir apps/web run build
+        run: pnpm --dir apps/chms run build
 
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium

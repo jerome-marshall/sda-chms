@@ -43,9 +43,6 @@ importers:
       '@playwright/test':
         specifier: ^1.61.1
         version: 1.63.0
-      '@sda-chms/config':
-        specifier: workspace:*
-        version: link:packages/config
       '@total-typescript/ts-reset':
         specifier: ^0.6.1
         version: 0.6.1
@@ -65,7 +62,7 @@ importers:
         specifier: 'catalog:'
         version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/ui@5.0.5(vitest@5.0.5))(esbuild@0.28.2)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@2.4.0))(playwright@1.63.0)(tsx@4.23.13)(typescript@6.0.3)(yaml@2.9.1)
 
-  apps/web:
+  apps/chms:
     dependencies:
       '@base-ui/react':
         specifier: ^1.6.0
@@ -167,9 +164,6 @@ importers:
       '@faker-js/faker':
         specifier: 'catalog:'
         version: 10.6.0
-      '@sda-chms/config':
-        specifier: workspace:*
-        version: link:../../packages/config
       '@tanstack/react-query-devtools':
         specifier: ^5.101.1
         version: 5.102.8(@tanstack/react-query@5.102.8(react@19.2.7))(react@19.2.7)
@@ -221,8 +215,6 @@ importers:
       wrangler:
         specifier: 4.151.1
         version: 4.151.1(@cloudflare/workers-types@5.20261016.1)(@types/node@26.4.1)
-
-  packages/config: {}
 
   packages/shared:
     dependencies:

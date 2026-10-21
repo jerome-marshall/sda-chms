@@ -6,7 +6,7 @@ const baseURL = `http://localhost:${PORT}`;
 /**
  * Local throwaway Postgres for E2E. CI sets DATABASE_URL to the service
  * container; locally this default is used. The webServer command writes it
- * into apps/web/.env first (Void reads only that file and rejects
+ * into apps/chms/.env first (Void reads only that file and rejects
  * .env.example), then migrates, seeds, and serves.
  */
 const E2E_DATABASE_URL =
@@ -36,7 +36,7 @@ export default defineConfig({
     command: process.env.CI
       ? 'printf \'DATABASE_URL=%s\\n\' "$DATABASE_URL" > .env && pnpm exec void db migrate && pnpm run db:seed && pnpm run build && pnpm exec wrangler dev --config dist/ssr/wrangler.json --port 3001 --var "DATABASE_URL:$DATABASE_URL"'
       : "printf 'DATABASE_URL=%s\\n' \"$DATABASE_URL\" > .env && pnpm exec void db migrate && pnpm run db:seed && pnpm run dev",
-    cwd: "apps/web",
+    cwd: "apps/chms",
     url: baseURL,
     env: { DATABASE_URL: E2E_DATABASE_URL, SEED_COUNT: "20" },
     reuseExistingServer: !process.env.CI,

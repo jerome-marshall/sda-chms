@@ -1,6 +1,6 @@
 # Environment
 
-The app needs one server variable. Void reads it from `apps/web/.env` —
+The app needs one server variable. Void reads it from `apps/chms/.env` —
 the only dotenv file it accepts (it rejects `.env.example`, so the
 example lives here instead of in a file).
 
@@ -12,11 +12,11 @@ example lives here instead of in a file).
 
 ## Local setup
 
-Create `apps/web/.env` from your shell (never commit it — `.env*` is
+Create `apps/chms/.env` from your shell (never commit it — `.env*` is
 gitignored):
 
 ```bash
-printf 'DATABASE_URL=%s\n' "postgres://postgres:postgres@localhost:5432/sda_chms" > apps/web/.env
+printf 'DATABASE_URL=%s\n' "postgres://postgres:postgres@localhost:5432/sda_chms" > apps/chms/.env
 ```
 
 Use the throwaway container from `docs/LOCAL_DATABASE_SETUP.md`, or point
@@ -27,11 +27,11 @@ only ever point it at a throwaway database — and only ever seed through
 
 ## CI
 
-CI writes `apps/web/.env` from its own `DATABASE_URL` (the Postgres
+CI writes `apps/chms/.env` from its own `DATABASE_URL` (the Postgres
 service container — no secret is involved) before any Void command runs:
 
 ```bash
-printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > apps/web/.env
+printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > apps/chms/.env
 ```
 
 Production reads `DATABASE_URL` from the deploy environment (or Hyperdrive),

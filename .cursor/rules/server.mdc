@@ -1,10 +1,10 @@
 ---
 description: "Server conventions for the Void API — file routes, use cases, data access, error handling"
-globs: "apps/web/routes/**, apps/web/server/**, apps/web/middleware/**"
+globs: "apps/chms/routes/**, apps/chms/server/**, apps/chms/middleware/**"
 alwaysApply: false
 ---
 
-# Server (apps/web routes + server)
+# Server (apps/chms routes + server)
 
 Void file-route API on the same origin as the SPA. Follows a strict three-layer architecture.
 

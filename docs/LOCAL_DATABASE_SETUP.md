@@ -12,7 +12,7 @@ Run, in order:
 
 ```bash
 pnpm db:start      # start the Postgres container
-pnpm db:migrate    # apply migrations (needs apps/web/.env, see below)
+pnpm db:migrate    # apply migrations (needs apps/chms/.env, see below)
 pnpm db:seed       # optional faker data (localhost-only; wipes `public`)
 pnpm dev           # start the app on :3001
 ```
@@ -60,7 +60,7 @@ docker run -d \
 
 ## Environment Configuration
 
-Create `apps/web/.env` (see `apps/web/ENV.md` — Void reads only that file
+Create `apps/chms/.env` (see `apps/chms/ENV.md` — Void reads only that file
 and rejects `.env.example`):
 
 ```env
@@ -102,10 +102,10 @@ docker exec -it sda-chms-db psql -U postgres -d sda_chms
 ## Running Migrations
 
 After starting the database, apply the migration history with Void (run
-from `apps/web`, with `apps/web/.env` in place):
+from `apps/chms`, with `apps/chms/.env` in place):
 
 ```bash
-pnpm --dir apps/web exec void db migrate
+pnpm --dir apps/chms exec void db migrate
 ```
 
 To seed faker data into the throwaway database:

@@ -11,7 +11,7 @@ SDA-CHMS is a church management system built as a Vite+ monorepo. The stack is p
 
 ```
 apps/
-  web/           → the Void app: React 19 + Vite + TanStack Router SPA in src/, API file routes in routes/api/**, Drizzle schema + migrations in db/
+  chms/          → the Void app: React 19 + Vite + TanStack Router SPA in src/, API file routes in routes/api/**, Drizzle schema + migrations in db/
 packages/
   shared/        → Zod schemas, constants, types shared across the app
   config/        → Shared TypeScript config
@@ -24,18 +24,18 @@ Workspace packages are imported as `@sda-chms/shared`, `@sda-chms/config`. The w
 - NEVER commit secrets, API keys, or `.env` files
 - NEVER use the `any` type — use `unknown` with type guards
 - ALL validation MUST use Zod schemas from `@sda-chms/shared`, wired through `defineHandler.withValidator`
-- ALL database access MUST go through the data-access layer in `apps/web/server/data-access/` — never query the DB directly from routes or use cases. Data-access and `server/db.ts` (which names the shared types) are the only importers of `db` from `void/db`
+- ALL database access MUST go through the data-access layer in `apps/chms/server/data-access/` — never query the DB directly from routes or use cases. Data-access and `server/db.ts` (which names the shared types) are the only importers of `db` from `void/db`
 - ALWAYS use pnpm as package manager — never npm or yarn
 - ALWAYS run `pnpm exec vp check` before committing to ensure lint/format compliance
 
 ## Conventions
 
 - **File naming**: kebab-case for all files (e.g., `add-person-form.tsx`, `use-people.ts`)
-- **Path aliases**: `@/` maps to `apps/web/src/`, `@schema` maps to the `apps/web/db/schema.ts` barrel (Void's documented convention: split tables live in `db/schema/` and re-export through the barrel), `void/db` is the database module
+- **Path aliases**: `@/` maps to `apps/chms/src/`, `@schema` maps to the `apps/chms/db/schema.ts` barrel (Void's documented convention: split tables live in `db/schema/` and re-export through the barrel), `void/db` is the database module
 - **Imports**: Use `@/` alias in the web app, relative imports only within the same feature folder
 - **Formatting/linting**: `vp check` (Oxlint + Oxfmt via Ultracite presets, plus type check) — `pnpm check` to auto-fix, `pnpm exec vp check` to verify
-- **Vite+ tasks**: `pnpm dev` (single Void dev server), `pnpm build`, `pnpm test`, `pnpm db:migrate` (applies `apps/web/db/migrations` through `void db`)
-- **Void codegen**: `void prepare` before type-checking so `.void/` types exist (`.void/` is generated, never commit it). Env comes from `apps/web/.env` — see `apps/web/ENV.md`
+- **Vite+ tasks**: `pnpm dev` (single Void dev server), `pnpm build`, `pnpm test`, `pnpm db:migrate` (applies `apps/chms/db/migrations` through `void db`)
+- **Void codegen**: `void prepare` before type-checking so `.void/` types exist (`.void/` is generated, never commit it). Env comes from `apps/chms/.env` — see `apps/chms/ENV.md`
 
 ## Documentation
 
@@ -53,7 +53,7 @@ When writing or editing code, follow these documentation rules:
 - Don't create new utility functions without checking `@/lib/utils` or `@sda-chms/shared/utils` first
 - Don't use npm/yarn package commands — always use `pnpm`
 - Don't apply Next.js patterns — this project uses Vite + Void, not Next.js
-- Don't add barrel files (index files that re-export everything) — import directly from source. The one exception is `apps/web/db/schema.ts`, which re-exports `db/schema/` per Void's documented convention
+- Don't add barrel files (index files that re-export everything) — import directly from source. The one exception is `apps/chms/db/schema.ts`, which re-exports `db/schema/` per Void's documented convention
 
 ## Rule Evolution
 

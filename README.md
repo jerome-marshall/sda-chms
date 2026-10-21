@@ -1,6 +1,6 @@
 # sda-chms
 
-A church management system built as a Vite+ monorepo. One Void app in `apps/web` serves the React SPA and the API (`/api/*`) from a single origin and builds to a Cloudflare-Workers-style worker.
+A church management system built as a Vite+ monorepo. One Void app in `apps/chms` serves the React SPA and the API (`/api/*`) from a single origin and builds to a Cloudflare-Workers-style worker.
 
 ## Features
 
@@ -27,7 +27,7 @@ pnpm install
 This project uses PostgreSQL with Drizzle ORM, managed through Void.
 
 1. Make sure you have a PostgreSQL database set up (see `docs/LOCAL_DATABASE_SETUP.md`).
-2. Create `apps/web/.env` with your connection details (see `apps/web/ENV.md`):
+2. Create `apps/chms/.env` with your connection details (see `apps/chms/ENV.md`):
 
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/sda_chms
@@ -58,16 +58,15 @@ Open [http://localhost:3001](http://localhost:3001) in your browser. The SPA and
 ```
 sda-chms/
 ├── apps/
-│   └── web/         # Void app: React SPA (src/) + API file routes (routes/api/) + Drizzle schema (db/)
+│   └── chms/        # Void app: React SPA (src/) + API file routes (routes/api/) + Drizzle schema (db/)
 ├── packages/
-│   ├── shared/      # Zod schemas, constants, types, utils
-│   └── config/      # Shared TypeScript config
+│   └── shared/      # Zod schemas, constants, types, utils
 ```
 
 ## Available Scripts
 
 - `pnpm dev`: Start the Void dev server (SPA + API on :3001)
-- `pnpm build`: Build the worker (`apps/web/dist/ssr/index.js` + `wrangler.json`)
+- `pnpm build`: Build the worker (`apps/chms/dist/ssr/index.js` + `wrangler.json`)
 - `pnpm check-types`: Check TypeScript types across all packages
 - `pnpm db:migrate`: Apply pending migrations through `void db`
 - `pnpm db:generate`: Regenerate migrations from the schema (same gate CI runs; `vp run db:drift` fails on drift)

@@ -1,10 +1,10 @@
 ---
 description: "Frontend conventions for the React + Vite web app — routing, data fetching, components, styling"
-globs: "apps/web/**"
+globs: "apps/chms/**"
 alwaysApply: false
 ---
 
-# Frontend (apps/web)
+# Frontend (apps/chms)
 
 React 19 app using Vite, TanStack Router (file-based), TanStack Query, shadcn/ui, and Tailwind CSS v4.
 
