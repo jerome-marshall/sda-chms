@@ -5,37 +5,42 @@ alwaysApply: true
 
 # SDA-CHMS Project
 
-SDA-CHMS is a church management system built as a Vite+ monorepo. The stack is pnpm + TypeScript, with one Void app (SPA + API file routes on a single origin) that runs as a Workers-style worker (`nodejs_compat`); Node is only the toolchain host. The web frontend is React 19, the data layer Drizzle ORM over PostgreSQL.
+SDA-CHMS is a church management system built as a Vite+ monorepo. The stack is pnpm + TypeScript, with one Void app that serves rendered pages and API file routes from a single origin on a Workers-style runtime; Node is only the toolchain host. The frontend is React 19, the data layer is Drizzle ORM over Cloudflare D1.
 
 ## Monorepo Structure
 
 ```
 apps/
-  chms/          → the Void app: React 19 + Vite + TanStack Router SPA in src/, API file routes in routes/api/**, Drizzle schema + migrations in db/
+  chms/          → the Void app: React 19 + Void pages in src/pages/,
+                   API file routes in src/routes/api/**, Drizzle schema,
+                   migrations, and seed in src/db/, one server module per
+                   domain in server/
 packages/
-  shared/        → Zod schemas, constants, types shared across the app
-  config/        → Shared TypeScript config
+  shared/        → Zod schemas, constants, types, and pure helpers shared
+                   by web and the planned Expo app
 ```
 
-Workspace packages are imported as `@sda-chms/shared`, `@sda-chms/config`. The web app additionally resolves `void/db` (PGlite stand-in under Vitest), `@schema` (the `db/schema.ts` barrel), and `@/` (src/).
+Workspace packages are imported as `@sda-chms/shared`. The app additionally resolves `void/db` (request-scoped D1 in production, the SQLite stand-in under Vitest), `@schema` (the `src/db/schema.ts` barrel), and `@/` (`src/`). There is no config package; the root `tsconfig.json` is the base every package extends.
 
 ## Constraints
 
 - NEVER commit secrets, API keys, or `.env` files
 - NEVER use the `any` type — use `unknown` with type guards
-- ALL validation MUST use Zod schemas from `@sda-chms/shared`, wired through `defineHandler.withValidator`
-- ALL database access MUST go through the data-access layer in `apps/chms/server/data-access/` — never query the DB directly from routes or use cases. Data-access and `server/db.ts` (which names the shared types) are the only importers of `db` from `void/db`
+- ALL request body validation MUST use the Zod schemas from `@sda-chms/shared`, wired through `defineHandler.withValidator` on routes, loaders, and actions. A params schema can be defined beside the route
+- ALL database access MUST go through the domain modules in `apps/chms/server/` — `server/db.ts` is the only importer of `db` from `void/db`. Query helpers such as `eq` may be imported from `void/db` where a module builds a query
+- NEVER use `db.transaction()` on D1. Multi-write operations read first, compute in memory, then issue one `getDb().batch([...])`
 - ALWAYS use pnpm as package manager — never npm or yarn
 - ALWAYS run `pnpm exec vp check` before committing to ensure lint/format compliance
 
 ## Conventions
 
-- **File naming**: kebab-case for all files (e.g., `add-person-form.tsx`, `use-people.ts`)
-- **Path aliases**: `@/` maps to `apps/chms/src/`, `@schema` maps to the `apps/chms/db/schema.ts` barrel (Void's documented convention: split tables live in `db/schema/` and re-export through the barrel), `void/db` is the database module
-- **Imports**: Use `@/` alias in the web app, relative imports only within the same feature folder
+- **File naming**: kebab-case for all files (e.g., `add-person-form.tsx`, `use-data-grid.ts`). Void's dynamic segments keep their brackets (`src/routes/api/people/[id].ts`, `src/pages/people/[id]/`), and page files keep their routing names (`index.tsx`, `index.server.ts`, `layout.tsx`)
+- **Path aliases**: `@/` maps to `apps/chms/src/`, `@schema` maps to the `apps/chms/src/db/schema.ts` barrel (Void's documented convention: split tables live in `src/db/schema/` and re-export through the barrel)
+- **Imports**: Use the `@/` alias in the app, relative imports only within the same feature folder, and the correct `../../` depth from `src/routes/api/**` to `server/`
 - **Formatting/linting**: `vp check` (Oxlint + Oxfmt via Ultracite presets, plus type check) — `pnpm check` to auto-fix, `pnpm exec vp check` to verify
-- **Vite+ tasks**: `pnpm dev` (single Void dev server), `pnpm build`, `pnpm test`, `pnpm db:migrate` (applies `apps/chms/db/migrations` through `void db`)
-- **Void codegen**: `void prepare` before type-checking so `.void/` types exist (`.void/` is generated, never commit it). Env comes from `apps/chms/.env` — see `apps/chms/ENV.md`
+- **Vite+ tasks**: `pnpm dev` (single Void dev server on :3001), `pnpm build`, `pnpm test`, `pnpm db:migrate` (applies `apps/chms/src/db/migrations` through `void db`), `pnpm db:generate`, `pnpm db:seed`
+- **Void codegen**: `void prepare` before type-checking so `.void/` types exist (`.void/` is generated, never commit it). Environment declarations live in `apps/chms/src/env.ts`; an optional `apps/chms/.env` holds local overrides — see `apps/chms/ENV.md`
+- **The API is the contract**: pages load data and submit forms through `/api/*` using `fetch` from `void/client`, which runs in-process during SSR. The planned Expo app will call the same routes. Pages must not import server modules to read data
 
 ## Documentation
 
@@ -53,7 +58,7 @@ When writing or editing code, follow these documentation rules:
 - Don't create new utility functions without checking `@/lib/utils` or `@sda-chms/shared/utils` first
 - Don't use npm/yarn package commands — always use `pnpm`
 - Don't apply Next.js patterns — this project uses Vite + Void, not Next.js
-- Don't add barrel files (index files that re-export everything) — import directly from source. The one exception is `apps/chms/db/schema.ts`, which re-exports `db/schema/` per Void's documented convention
+- Don't add barrel files (index files that re-export everything) — import directly from source. The one exception is `apps/chms/src/db/schema.ts`, which re-exports `src/db/schema/` per Void's documented convention
 
 ## Rule Evolution
 

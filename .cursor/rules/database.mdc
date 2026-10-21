@@ -1,45 +1,57 @@
 ---
-description: "Database conventions for Drizzle ORM — schema definitions, migrations, naming, Zod integration"
-globs: "apps/chms/db/**"
+description: "Database conventions for Drizzle ORM on D1 — schema definitions, migrations, naming, Zod integration"
+globs: "apps/chms/src/db/**"
 alwaysApply: false
 ---
 
-> **Skill available**: When working on database tasks, use the `drizzle-orm` skill at `.cursor/skills/drizzle-orm/SKILL.md` for detailed patterns on CRUD, relations, filtering, joins, transactions, and migrations.
+> **Skill available**: When working on database tasks, use the `drizzle-orm` skill at `.cursor/skills/drizzle-orm/SKILL.md` for detailed patterns on CRUD, relations, filtering, joins, and migrations.
 
-# Database (apps/chms/db)
+# Database (apps/chms/src/db)
 
-PostgreSQL database managed with Drizzle ORM. Schemas, migrations, and seed data live here.
+Cloudflare D1 (SQLite) managed with Drizzle ORM through Void. Schemas, migrations, and seed data live here.
 
 ## Schema Definitions
 
-- Schema files live in `db/schema/` — one file per domain (e.g., `people.ts`), re-exported through the `db/schema.ts` barrel (Void's documented convention)
-- Import column helpers from `void/schema-pg` (same API as `drizzle-orm/pg-core`) and `relations` from `drizzle-orm`
+- Schema files live in `src/db/schema/` — one file per domain (e.g., `people.ts`), re-exported through the `src/db/schema.ts` barrel (Void's documented convention). Import tables through `@schema`
+- Import column helpers from `void/schema-d1` (`sqliteTable`, `text`, `integer`, `uniqueIndex`) and `relations` from `drizzle-orm`
 - Define relations alongside tables using `relations()` from `drizzle-orm`
+- Reuse the column helpers at the top of `schema/people.ts` instead of repeating a mapping:
+  - `uuidPk` — a TEXT primary key with a client-generated v4 UUID, because D1 has no server-side uuid default
+  - `createdAt` / `updatedAt` — integer milliseconds with client defaults, because D1 has no `now()` default
+  - `isoDate` — TEXT holding a `YYYY-MM-DD` string, the same shape both drivers return
+  - `booleanCol` — integer 0/1 through Drizzle's boolean mode
 
 ## Naming Conventions
 
-- **DB column names**: `snake_case` via Drizzle's string argument (e.g., `varchar("first_name")`)
+- **DB column names**: `snake_case` via Drizzle's string argument (e.g., `text("first_name")`)
 - **TypeScript field names**: `camelCase` (e.g., `firstName`)
 - **Table names**: plural `snake_case` (e.g., `people`, `people_departments`)
-- **Enum names**: `snake_case` (e.g., `membership_status`, `household_role`)
+- **Enum values**: `snake_case` strings held in a `text` column with `{ enum: *_VALUES }`
 
 ## Standard Table Fields
 
 Every table MUST include:
 
-- `id: uuid().primaryKey().defaultRandom()` — UUID primary key
-- `createdAt: timestamp("created_at").notNull().defaultNow()`
-- `updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date())`
+- `id: uuidPk("id")` — TEXT primary key with a client-generated UUID
+- `createdAt: createdAt("created_at")`
+- `updatedAt: updatedAt("updated_at")`
 
 Tables that support soft deletes include:
 
-- `isActive: boolean("is_active").notNull().default(true)`
+- `isActive: booleanCol("is_active")`
 
 ## Enums
 
-- Define with `pgEnum` using shared constant arrays from `@sda-chms/shared/constants`
+- Define enum-like columns with `text("column", { enum: SHARED_VALUES })`
 - Enum value arrays (`*_VALUES`) are the single source of truth in the shared package
-- Example: `export const genderEnum = pgEnum("gender", GENDER_VALUES)`
+- Example: `membershipStatus: text("membership_status", { enum: MEMBERSHIP_STATUS_VALUES }).notNull()`
+- SQLite has no native enum, so the array constrains TypeScript while the column stores the string
+
+## Unique Constraints
+
+- SQLite rejects expressions in a `CREATE TABLE` unique constraint, and it treats NULLs as distinct
+- To keep "name + date of birth" unique when either part is absent, store the coalesced value in a generated column and put a plain `uniqueIndex` over real columns. `schema/people.ts` does this with `identity_last_name`, `identity_date_of_birth`, and `unique_person_identity`
+- The application maps a violation of that index to the duplicate-person message. Do not add a second app-level duplicate check
 
 ## Zod Schemas (DB-level)
 
@@ -48,16 +60,22 @@ Tables that support soft deletes include:
 - Naming: `*SelectSchemaDb`, `*InsertSchemaDb` for schemas; `*SelectDb`, `*InsertDb` for types
 - These are DB-level schemas — form/API validation schemas belong in `@sda-chms/shared/schema`
 
+## Transactions and Batches
+
+- D1 has no interactive transactions. Drizzle's `db.transaction()` issues raw `BEGIN`/`COMMIT`, which remote D1 rejects, so never call it
+- A multi-write operation reads first, computes every write in memory, then runs one `getDb().batch([...])`. A batch is one SQL transaction and rolls back as a unit
+- Build the statements with the lazy `*Stmt` helpers in `server/` so ids generated in the same operation can be referenced without a round trip
+
 ## Migration Commands
 
 - Never hand-write SQL for schema changes; use `void db generate` from `apps/chms`, then apply with `void db migrate`
-- The drift gate is `void db generate` plus `git diff --exit-code` — a schema change with no regenerated migration fails it (`void db status` only reports applied vs pending)
-- Never run raw `void db seed` — it wipes `public` before any guard can run. Always seed through `pnpm db:seed`, which refuses non-local databases first and then delegates to it
-- `pnpm db:seed` wipes `public` and reseeds from `db/seed.ts` — throwaway databases only
+- The drift gate is `void db generate` plus `git diff --exit-code -- apps/chms/src/db` — a schema change with no regenerated migration fails it (`void db status` only reports applied vs pending)
+- Seed only through `pnpm db:seed`. It delegates to `void db seed`, which resets the local D1 file, applies migrations, and runs `src/db/seed.ts`. A direct `void db seed` resets the same file, so treat it as destructive too
+- Local data lives under `apps/chms/.void/` (gitignored). `void db reset` clears it, `void db execute "<sql>"` inspects it, and `void db studio` opens Drizzle Studio
 
 ## Canonical Example
 
-- For the complete schema pattern (tables, enums, relations, Zod schemas, types), see `db/schema/people.ts`
+- For the complete schema pattern (tables, column helpers, unique index, relations, Zod schemas, types), see `src/db/schema/people.ts`
 
 ## Avoid
 
@@ -66,3 +84,4 @@ Tables that support soft deletes include:
 - Don't define enum values inline — import `*_VALUES` from `@sda-chms/shared/constants`
 - Don't put form validation schemas here — those belong in `@sda-chms/shared/schema`
 - Don't write raw SQL — use Drizzle's query builder and relational queries
+- Don't add a UUID or timestamp default on the server — D1 has no such default, so generate it on the client

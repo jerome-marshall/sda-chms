@@ -28,6 +28,9 @@ jobs:
       - name: Void codegen
         run: pnpm --dir apps/chms exec void prepare
 
+      - name: Environment declarations
+        run: pnpm --dir apps/chms exec void env check
+
       - name: Type-check
         run: vp run check-types
 
@@ -37,7 +40,7 @@ jobs:
       - name: Drift gate (schema must match committed migrations)
         run: |
           pnpm --dir apps/chms exec void db generate
-          git diff --exit-code -- apps/chms/db
+          git diff --exit-code -- apps/chms/src/db
 
       - name: Unit + integration tests
         run: vp test run

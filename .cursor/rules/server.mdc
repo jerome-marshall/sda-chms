@@ -1,63 +1,64 @@
 ---
-description: "Server conventions for the Void API — file routes, use cases, data access, error handling"
-globs: "apps/chms/routes/**, apps/chms/server/**, apps/chms/middleware/**"
+description: "Server conventions for the Void API — file routes, domain modules, D1 access, error handling"
+globs: "apps/chms/src/routes/**, apps/chms/server/**, apps/chms/src/middleware/**"
 alwaysApply: false
 ---
 
 # Server (apps/chms routes + server)
 
-Void file-route API on the same origin as the SPA. Follows a strict three-layer architecture.
+Void file-route API on the same origin as the pages. One server module owns each domain.
 
 ## Architecture
 
 ```
-Routes → Use Cases → Data Access → Database
+Routes → Domain module → D1
 ```
 
-- **Routes** (`routes/api/`): Void handlers. Validate input, call use cases, return plain values. NEVER import from `data-access/` directly.
-- **Use Cases** (`server/use-case/`): Business logic. Orchestrate data-access calls, apply transformers, enforce rules. One file per domain.
-- **Data Access** (`server/data-access/`): Database operations. Thin wrappers around Drizzle queries. One file per domain. The only layer that imports `db` from `void/db`.
+- **Routes** (`src/routes/api/`): Void handlers. Validate input, call one domain function, return a plain value. Routes never import `db`.
+- **Domain modules** (`server/<domain>.ts`): the business logic and queries for one domain — `people.ts`, `households.ts`, `relationships.ts`, `groups.ts`, plus `marital-status.ts` for the spouse rules they share. A multi-write operation reads, computes the whole write set in memory, then executes it in one batch.
+- **Database** (`server/db.ts`): names the Drizzle database type and returns it through `getDb()`. It is the only importer of `db` from `void/db`. Query helpers such as `eq` are imported from `void/db` directly where a module builds a query.
+- **Shared helpers** (`server/lib/`): error mapping (`errors.ts`) and the seed guard (`seed-guard.ts`).
+
+One layer sits between a route and the database. Add a function to the domain module that owns the rule. Do not split one domain across load, validate, transform, and save modules.
 
 ## Routes
 
-- One Void route file per URL shape in `routes/api/` (e.g., `people/index.ts` for GET/POST, `people/[id].ts` for GET/PUT)
-- Define handlers with `defineHandler`, validating bodies and params with `defineHandler.withValidator` and the Zod schemas from `@sda-chms/shared/schema/*`
-- Return plain values (they serialize to JSON with status 200). A handler that must return a `Response` (e.g., a non-200 status) is the documented exception — list it in the PR with why. Current exceptions: `routes/api/index.ts` and `routes/api/[...path].ts` return `c.json(..., 404)` for the API 404 contract.
-- For the route pattern, see `routes/api/people/index.ts`
+- One Void route file per URL shape in `src/routes/api/` (e.g., `people/index.ts` for GET/POST, `people/[id].ts` for GET/PUT)
+- Export one named handler per HTTP method (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) built with `defineHandler`
+- Validate request bodies with `defineHandler.withValidator` and the Zod schemas from `@sda-chms/shared/schema/*`. Validate params with a schema defined in the route file
+- Return plain values (they serialize to JSON with status 200). A handler that must return a `Response` (e.g., a non-200 status) is the documented exception — list it in the PR with why. Current exceptions: `src/routes/api/index.ts` and `src/routes/api/[...path].ts` return `c.json(..., 404)` for the API 404 contract.
+- Import domain functions with the depth the file needs (`src/routes/api/people/index.ts` uses `../../../../server/people`)
+- For the route pattern, see `src/routes/api/people/index.ts`
 
-## Use Cases
+## Domain modules
 
-- Exported async functions named with a `UseCase` suffix (e.g., `getAllPeopleUseCase`, `addPersonUseCase`)
-- Call data-access functions, never Drizzle queries directly
-- Apply data transformers to convert DB shapes to API response shapes
-- Throw errors for business rule violations — the error middleware maps them
-- For the use case pattern, see `server/use-case/people.ts`
-
-## Data Access
-
-- Exported async functions with clear names (e.g., `getAllPeople`, `insertPerson`, `getPersonById`)
-- Wrap ALL database operations in `withDbErrorHandling()` from `server/lib/errors.ts`
-- Accept an optional `DbTransaction` parameter (default: `getDb()`) for transactional operations
-- Return plain Drizzle result objects — no transformation here
-- For the data access pattern, see `server/data-access/people.ts`
+- Export plain functions named for the operation (`getAllPeopleWithHousehold`, `addPerson`, `updatePerson`, `getPersonRelationships`)
+- Read with Drizzle's relational queries through `getDb().query.*`, or with a `select` when the shape needs it
+- D1 has no interactive transactions. Do not call `db.transaction()`, because Drizzle issues raw `BEGIN`/`COMMIT` and remote D1 rejects it. Instead, read what the rule needs, compute every write in memory, and run one `getDb().batch([...])`. The batch is one SQL transaction.
+- Build batch statements with the lazy `*Stmt` helpers (`insertPersonStmt`, `updatePersonStmt`) so the caller can read the rows a batch returns. Keep an executing wrapper only where a single-write caller or a test needs it.
+- Generate ids on the client with `crypto.randomUUID()` so an insert can reference an earlier insert's id without a round trip
+- Throw typed errors for business rule violations — `HTTPException` for a contract failure — and let the middleware map them. A duplicate reaches the middleware as the database's unique-constraint failure, not as a pre-check
+- For the domain module pattern, see `server/people.ts` and `server/relationships.ts`
 
 ## Error Handling
 
 - The error contract is `ApiErrorBody` for every error raised by app code under `/api`
-- `middleware/01.api-errors.ts` maps thrown errors (`HTTPException`, `ZodError`, `DbError`, unknown) via `mapErrorToBody` in `server/lib/errors.ts`, and rewrites Void's validator responses into the contract
+- `src/middleware/01.api-errors.ts` maps thrown errors (`HTTPException`, `ZodError`, SQLite/D1 constraint failures, unknown) through `mapErrorToBody` in `server/lib/errors.ts`, and rewrites Void's validator responses into the contract
 - Don't catch errors in route handlers — let them propagate to the middleware
 - Don't construct manual error responses — throw typed errors instead
-- DB errors are wrapped via `withDbErrorHandling` which throws `DbError` with constraint info
+- SQLite and D1 constraint failures map to one place: unique to 409, foreign key to 422, not-null to 400. The duplicate-person message comes from the `unique_person_identity` index, not from an app-level check
 
 ## Type-Safe Client
 
-- The SPA calls the API through `fetch` from `void/client`, unwrapped by `fetchApi` in `src/lib/api.ts` (rethrows as `ApiError`)
-- Route input/output types come from Void's generated `RouteMap` — always pass `retry: 0` so a failing request never runs twice
+- Pages call the API through `fetch` from `void/client`. The call runs in-process during SSR, forwards the request's credentials, and is typed by Void's generated `RouteMap`.
+- `FetchError` carries the contract body in `data` and the HTTP status in `status`. Page actions forward it to the form; client components show its message in a toast.
 
 ## Avoid
 
-- Don't query the database directly in route handlers — always go through use cases and data access
+- Don't add an intermediate layer between a route and its domain module — put the rule in the module that owns it
+- Don't import `db` outside `server/db.ts`
+- Don't use `db.transaction()` or sequential writes that must succeed together; use one batch
+- Don't query the database directly in route handlers
 - Don't catch errors in routes just to rethrow or format them — the error middleware does this
 - Don't return error responses manually with `c.json({ error })` — throw typed errors instead
-- Don't skip `withDbErrorHandling` in data-access functions
-- Don't put business logic in data-access functions — that belongs in use cases
+- Don't put the same domain rule in two modules; move the shared rule into a module both import

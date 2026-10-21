@@ -1,23 +1,23 @@
 # Environment
 
-The app needs no server variables. Local D1 is provisioned by Void itself —
-there is no connection string. If `apps/chms/.env` exists from the Postgres
-era, delete it (a stale `DATABASE_URL` there no longer does anything).
+The app declares no required server variables. D1 needs no connection string: Void provisions the local binding and binds the deployed database itself. Declarations live in `src/env.ts`, which exports `defineEnv({})`; add a variable there before you read it in server code so Void can type it and check it.
 
-## Local setup
+## Local overrides
 
-No database service to start. From the repo root, run in order:
+`apps/chms/.env` is optional and gitignored. Use it for local overrides that `src/env.ts` declares. If the file exists from the Postgres era, delete it. A stale `DATABASE_URL` no longer does anything.
+
+Check the local file against the declarations:
 
 ```bash
-pnpm db:migrate    # apply migrations to local D1 (stored under apps/chms/.void/)
-pnpm db:seed       # optional faker data (local file only; nothing remote to wipe)
-pnpm dev           # start the app on :3001
+pnpm --dir apps/chms exec void env check
 ```
 
-Seeding resets the local database first, so only ever run it where losing
-the local data is fine — and only ever seed through `pnpm db:seed`.
+The command exits 0 when every value in `.env` is valid for the declared schema. CI runs it after `void prepare`.
+
+## Local database
+
+No service to start. See the README's [local database section](../README.md#local-database) for the migrate, seed, reset, and inspect commands.
 
 ## CI
 
-CI needs no database service either: migrations apply to a throwaway local
-D1 before the test run (see `.github/workflows/test.yml`).
+CI needs no database service. Migrations apply to a throwaway local D1 before the test run, and `void env check` verifies the declarations (see `.github/workflows/test.yml`).
