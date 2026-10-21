@@ -1363,10 +1363,10 @@ async function insertAccumulated(
 }
 
 /**
- * Seeds ~100 people across family households. Run it only through the
- * `db:seed` script, which refuses non-local databases before Void connects:
- * `void db seed` wipes every object in `public` before this callback runs,
- * so the guard below is only the second line of defense, never the first.
+ * Seeds ~SEED_COUNT (default 100) Faker people across family households. Run
+ * it through `pnpm db:seed`: Void resets the local D1 database and applies
+ * the migrations before this callback runs, and `void db seed` cannot target
+ * remote D1. The host guard only applies if the app seeds Postgres again.
  */
 export default defineSeed<typeof schema>(async ({ db, dialect }) => {
   if (dialect === "sqlite") {
