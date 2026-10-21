@@ -175,4 +175,39 @@ describe("committed SQL matches the migration snapshots", () => {
       client.close();
     }
   });
+
+  it("the database rejects values outside each enum", () => {
+    if (!isJournal(journal)) {
+      throw new Error("test: migration journal is malformed");
+    }
+
+    const client = new Database(":memory:");
+    try {
+      applyMigrations(client, journal.entries);
+
+      const insertPerson = client.prepare(
+        "insert into people (id, created_at, updated_at, first_name, marital_status, membership_status) values (?, 0, 0, 'Test', ?, ?)"
+      );
+      insertPerson.run("valid", "single", "member");
+      expect(() =>
+        insertPerson.run("bad-marital", "engaged", "member")
+      ).toThrow(/CHECK constraint failed: marital_status_check/u);
+      expect(() =>
+        insertPerson.run("bad-membership", "single", "guest")
+      ).toThrow(/CHECK constraint failed: membership_status_check/u);
+
+      const insertLink = client.prepare(
+        "insert into relationships (id, person_id, related_person_id, type, state, created_at) values (?, 'valid', 'valid', ?, ?, 0)"
+      );
+      insertLink.run("spouse-link", "spouse", "married");
+      expect(() => insertLink.run("bad-type", "cousin", null)).toThrow(
+        /CHECK constraint failed: type_check/u
+      );
+      expect(() => insertLink.run("bad-state", "parent", "engaged")).toThrow(
+        /CHECK constraint failed: state_check/u
+      );
+    } finally {
+      client.close();
+    }
+  });
 });

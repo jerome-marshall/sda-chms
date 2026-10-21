@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "33b5b93d-00c7-40a3-a5f1-0591bf93fac2",
+  "id": "3a8843aa-18d9-48ff-8d7a-49872e08def2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "departments": {
@@ -668,7 +668,28 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "gender_check": {
+          "name": "gender_check",
+          "value": "\"gender\" IN ('male', 'female', 'other')"
+        },
+        "marital_status_check": {
+          "name": "marital_status_check",
+          "value": "\"marital_status\" IN ('single', 'married', 'divorced', 'widowed', 'separated')"
+        },
+        "membership_status_check": {
+          "name": "membership_status_check",
+          "value": "\"membership_status\" IN ('member', 'regular_attendee', 'visitor', 'inactive', 'moved', 'deceased')"
+        },
+        "sabbath_school_class_check": {
+          "name": "sabbath_school_class_check",
+          "value": "\"sabbath_school_class\" IN ('beginner', 'kindergarten', 'primary', 'junior', 'earliteen', 'youth', 'young_adult', 'adult')"
+        },
+        "household_role_check": {
+          "name": "household_role_check",
+          "value": "\"household_role\" IN ('head', 'spouse', 'child', 'other')"
+        }
+      }
     },
     "position_history": {
       "name": "position_history",
@@ -899,7 +920,16 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "type_check": {
+          "name": "type_check",
+          "value": "\"type\" IN ('parent', 'child', 'spouse', 'sibling', 'grandparent', 'grandchild', 'step_parent', 'step_child', 'step_sibling', 'half_sibling', 'other')"
+        },
+        "state_check": {
+          "name": "state_check",
+          "value": "\"state\" IN ('married', 'separated', 'divorced', 'widowed')"
+        }
+      }
     }
   },
   "views": {},
