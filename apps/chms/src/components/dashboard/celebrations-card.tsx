@@ -1,9 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Cake, Heart } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { queryOptions } from "@/lib/query";
+import type { People } from "@/types/api";
 import { isDeceased } from "@/utils/people";
 
 import { Badge } from "../ui/badge";
@@ -21,12 +20,9 @@ const celebrationsIcon = (
 );
 
 /** Scrollable list of birthdays and anniversaries occurring this month. */
-export function CelebrationsCard() {
+export function CelebrationsCard({ people: allPeople }: { people: People }) {
   // Deceased people are excluded from celebrations per domain rules
-  const { data: people } = useSuspenseQuery({
-    ...queryOptions.people(),
-    select: (data) => data.filter((person) => !isDeceased(person)),
-  });
+  const people = allPeople.filter((person) => !isDeceased(person));
 
   const currentMonth = new Date().getMonth();
 

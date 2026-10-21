@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
-import seed from "../../db/seed";
+import seed from "../../src/db/seed";
 
 const runSeed = (host?: unknown) =>
   seed({

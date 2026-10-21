@@ -1,10 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Flower2 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { queryOptions } from "@/lib/query";
-import type { Person } from "@/types/api";
+import type { People, Person } from "@/types/api";
 import { isDeceased } from "@/utils/people";
 
 import { DashboardCard } from "./dashboard-card";
@@ -16,12 +14,9 @@ const memorialIcon = (
 );
 
 /** List of deceased people whose memorial day falls within the current week. */
-export function MemorialWatchCard() {
-  const { data: people } = useSuspenseQuery({
-    ...queryOptions.people(),
-    // Only deceased people can have a meaningful memorial day
-    select: (data) => data.filter((person) => isDeceased(person)),
-  });
+export function MemorialWatchCard({ people: allPeople }: { people: People }) {
+  // Only deceased people can have a meaningful memorial day
+  const people = allPeople.filter((person) => isDeceased(person));
 
   const memorialDaysThisWeek = people.filter(
     (person): person is Person & { memorialDay: string } => {

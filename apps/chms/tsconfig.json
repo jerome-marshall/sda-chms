@@ -15,8 +15,8 @@
       "@/*": ["./src/*"],
       "void/db": ["./.void/db.d.ts"],
       "void/routes": ["./.void/routes.d.ts"],
-      "@schema": ["./db/schema.ts"],
-      "@schema/*": ["./db/schema/*"]
+      "@schema": ["./src/db/schema.ts"],
+      "@schema/*": ["./src/db/schema/*"]
     }
   }
 }

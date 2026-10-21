@@ -15,7 +15,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
-import type { PersonDetail } from "@/types/api";
+import type { People, PersonDetail, Relationships } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 
 import { Separator } from "../../ui/separator";
@@ -25,9 +25,15 @@ import { formatLabel, getAddress } from "./utils";
 
 interface OverviewSectionProps {
   person: PersonDetail;
+  relationships: Relationships;
+  people: People;
 }
 
-export function OverviewSection({ person }: OverviewSectionProps) {
+export function OverviewSection({
+  person,
+  relationships,
+  people,
+}: OverviewSectionProps) {
   // Resolve contact fields with head-of-household fallback so the UI can
   // show the head's info (with a tooltip) when the member has none.
   const { address, isAddressFromHousehold } = getAddress(person);
@@ -154,7 +160,12 @@ export function OverviewSection({ person }: OverviewSectionProps) {
         <p className="text-xs tracking-wide text-muted-foreground uppercase">
           Relationships
         </p>
-        <RelationshipsSection embedded person={person} />
+        <RelationshipsSection
+          embedded
+          person={person}
+          relationships={relationships}
+          people={people}
+        />
       </SectionCard>
 
       <SectionCard

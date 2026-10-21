@@ -10,14 +10,17 @@ import {
   SABBATH_SCHOOL_CLASS_OPTIONS,
 } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
-import { useRouter } from "@tanstack/react-router";
 import { CalendarPlus, Trash2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { useFieldArray } from "react-hook-form";
 import type { UseFormReturn } from "react-hook-form";
 
-import { useHouseholds } from "@/hooks/data/use-households";
-import type { PersonDetail } from "@/types/api";
+import type {
+  Households,
+  People,
+  PersonDetail,
+  Relationships,
+} from "@/types/api";
 
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
@@ -36,6 +39,9 @@ import { RelationshipsSection } from "./person-detail/relationships-section";
 interface PersonFormFieldsProps {
   form: UseFormReturn<PersonInsertForm>;
   formId?: string;
+  households: Households;
+  relationships?: Relationships;
+  people?: People;
   isSubmitting?: boolean;
   /** When a spouse Relationship governs Marital Status, the field is read-only. */
   maritalStatusLocked?: boolean;
@@ -50,14 +56,14 @@ const PersonFormFields = ({
   form,
   onSubmit,
   submitLabel,
+  households,
+  relationships,
+  people,
   isSubmitting,
   maritalStatusLocked = false,
   person,
   formId = "person-form",
 }: PersonFormFieldsProps) => {
-  const router = useRouter();
-
-  const { data: households } = useHouseholds();
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "importantDates",
@@ -248,7 +254,7 @@ const PersonFormFields = ({
               form={form}
               label="Household"
               name="householdId"
-              options={(households || []).map((household) => ({
+              options={households.map((household) => ({
                 value: household.id,
                 label: household.name,
               }))}
@@ -274,7 +280,13 @@ const PersonFormFields = ({
           </FieldGroup>
           {person ? (
             <FieldGroup>
-              <RelationshipsSection editable embedded person={person} />
+              <RelationshipsSection
+                editable
+                embedded
+                person={person}
+                relationships={relationships ?? []}
+                people={people ?? []}
+              />
             </FieldGroup>
           ) : null}
         </FieldSet>
@@ -414,7 +426,7 @@ const PersonFormFields = ({
             disabled={isSubmitting}
             onClick={() => {
               form.reset();
-              router.history.back();
+              window.history.back();
             }}
             type="button"
             variant={"secondary"}

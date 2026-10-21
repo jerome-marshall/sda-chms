@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@void/react";
 import { Briefcase, MapPin, Pencil } from "lucide-react";
 
 import HouseholdTooltip from "@/components/household-tooltip";
@@ -90,8 +90,7 @@ export function ProfileHeader({ person }: ProfileHeaderProps) {
 
       <Link
         className={buttonVariants({ size: "sm", variant: "outline" })}
-        params={{ peopleId: person.id }}
-        to="/people/$peopleId/edit"
+        href={`/people/${person.id}/edit`}
       >
         <Pencil className="size-3.5" data-icon="inline-start" />
         Edit

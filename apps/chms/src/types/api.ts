@@ -21,3 +21,7 @@ export type Relationships = RouteOutput<
   "GET"
 >;
 export type Relationship = Relationships[number];
+
+/** Household options for the household selects on the person forms. */
+export type Households = RouteOutput<"/api/households", "GET">;
+export type Household = Households[number];

@@ -6,8 +6,11 @@ import {
   SPOUSE_STATE_VALUES,
 } from "@sda-chms/shared/constants/people";
 import type { RELATIONSHIP_TYPE_VALUES } from "@sda-chms/shared/constants/people";
+import { useRouter } from "@void/react";
 import { Sparkles, Trash2, Users } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { fetch, FetchError } from "void/client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,14 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePeople } from "@/hooks/data/use-people";
-import {
-  useAddRelationship,
-  useRelationships,
-  useRemoveRelationship,
-  useUpdateRelationshipState,
-} from "@/hooks/data/use-relationships";
-import type { PersonDetail } from "@/types/api";
+import type { People, PersonDetail, Relationships } from "@/types/api";
 
 import { SectionCard } from "./section-card";
 import { formatLabel, getInitials } from "./utils";
@@ -95,30 +91,93 @@ interface RelationshipsSectionProps {
   /** Render the list without its own card, for nesting inside Marital & Family. */
   embedded?: boolean;
   person: PersonDetail;
+  relationships: Relationships;
+  people: People;
 }
+
+/** Reads the contract message out of an API failure for the error toast. */
+const failureMessage = (error: unknown): string => {
+  if (error instanceof FetchError) {
+    const body = error.data as { message?: string } | undefined;
+    return body?.message ?? error.message;
+  }
+  return error instanceof Error ? error.message : "Request failed";
+};
 
 /** Lists a Person's relationships; editing is reserved for edit mode (ADR-0003). */
 export function RelationshipsSection({
   editable = false,
   embedded = false,
   person,
+  relationships,
+  people,
 }: RelationshipsSectionProps) {
-  const { data: relationships } = useRelationships(person.id);
-  const { data: people } = usePeople();
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
 
   const [relatedPersonId, setRelatedPersonId] = useState("");
   const [type, setType] = useState<RelationshipType | "">("");
   const [state, setState] = useState<SpouseState>("married");
 
-  const addRelationship = useAddRelationship({
-    onSuccess: () => {
+  const refresh = () => router.refresh();
+
+  const handleAdd = async () => {
+    if (!(relatedPersonId && type)) {
+      return;
+    }
+    setPending(true);
+    try {
+      await fetch("/api/relationships", {
+        method: "POST",
+        body: {
+          personId: person.id,
+          relatedPersonId,
+          type,
+          // Only spouse links carry a lifecycle state (ADR-0003).
+          ...(type === RELATIONSHIP_TYPE.SPOUSE ? { state } : {}),
+        },
+      });
       setRelatedPersonId("");
       setType("");
       setState("married");
-    },
-  });
-  const removeRelationship = useRemoveRelationship();
-  const updateRelationshipState = useUpdateRelationshipState();
+      await refresh();
+    } catch (error) {
+      toast.error(failureMessage(error));
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    setPending(true);
+    try {
+      await fetch("/api/relationships/:id", {
+        method: "DELETE",
+        params: { id },
+      });
+      await refresh();
+    } catch (error) {
+      toast.error(failureMessage(error));
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const handleStateChange = async (id: string, nextState: SpouseState) => {
+    setPending(true);
+    try {
+      await fetch("/api/relationships/:id", {
+        method: "PATCH",
+        params: { id },
+        body: { state: nextState },
+      });
+      await refresh();
+    } catch (error) {
+      toast.error(failureMessage(error));
+    } finally {
+      setPending(false);
+    }
+  };
 
   // Anyone but this person is a valid link target.
   const candidates = (people ?? []).filter((p) => p.id !== person.id);
@@ -147,20 +206,7 @@ export function RelationshipsSection({
       : undefined;
 
   const isSpouse = type === RELATIONSHIP_TYPE.SPOUSE;
-  const canSubmit = relatedPersonId && type && !addRelationship.isPending;
-
-  const handleAdd = () => {
-    if (!(relatedPersonId && type)) {
-      return;
-    }
-    addRelationship.mutate({
-      personId: person.id,
-      relatedPersonId,
-      type,
-      // Only spouse links carry a lifecycle state (ADR-0003).
-      ...(isSpouse ? { state } : {}),
-    });
-  };
+  const canSubmit = relatedPersonId && type && !pending;
 
   const body = (
     <div className="grid gap-3">
@@ -194,12 +240,9 @@ export function RelationshipsSection({
               relationship.state ? (
                 <SpouseStateControl
                   editable={editable}
-                  onChange={(id, nextState) =>
-                    updateRelationshipState.mutate({
-                      id,
-                      state: nextState,
-                    })
-                  }
+                  onChange={(id, nextState) => {
+                    void handleStateChange(id, nextState);
+                  }}
                   relationshipId={relationship.id}
                   state={relationship.state}
                 />
@@ -207,8 +250,10 @@ export function RelationshipsSection({
               {editable ? (
                 <Button
                   aria-label={`Remove ${relationship.relatedPerson.fullName}`}
-                  disabled={removeRelationship.isPending}
-                  onClick={() => removeRelationship.mutate(relationship.id)}
+                  disabled={pending}
+                  onClick={() => {
+                    void handleRemove(relationship.id);
+                  }}
                   size="icon"
                   type="button"
                   variant="ghost"
@@ -284,7 +329,13 @@ export function RelationshipsSection({
             </SelectContent>
           </Select>
 
-          <Button disabled={!canSubmit} onClick={handleAdd} type="button">
+          <Button
+            disabled={!canSubmit}
+            onClick={() => {
+              void handleAdd();
+            }}
+            type="button"
+          >
             Add
           </Button>
 

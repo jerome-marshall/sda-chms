@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@void/react";
 import { Church, CreditCard, Users2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type * as React from "react";
@@ -13,7 +13,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import type { TRoutes } from "@/types/route";
 
 import { Separator } from "./ui/separator";
 
@@ -22,11 +21,11 @@ interface NavItem {
   icon: LucideIcon;
   items?: {
     title: string;
-    url: TRoutes;
+    url: string;
     isActive?: boolean;
   }[];
   title: string;
-  url: TRoutes;
+  url: string;
 }
 
 const data: { navMain: NavItem[] } = {
@@ -55,7 +54,7 @@ export function AppSidebar({
             <SidebarMenuButton
               render={(props) => (
                 <Link
-                  to="/"
+                  href="/"
                   {...props}
                   className={cn(props.className, "h-10 py-0")}
                 >
@@ -80,7 +79,7 @@ export function AppSidebar({
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   render={(props) => (
-                    <Link to={item.url} {...props}>
+                    <Link href={item.url} {...props}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

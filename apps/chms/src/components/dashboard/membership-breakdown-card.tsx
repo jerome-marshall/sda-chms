@@ -1,7 +1,6 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Activity, Baby, Droplet } from "lucide-react";
 
-import { queryOptions } from "@/lib/query";
+import type { People } from "@/types/api";
 import { getPeopleStats, isDeceased } from "@/utils/people";
 
 import { DashboardCard } from "./dashboard-card";
@@ -37,11 +36,12 @@ const membershipIcon = (
 );
 
 /** Stats grid showing baptized/unbaptized counts and a breakdown by membership status. */
-export function MembershipBreakdownCard() {
-  const { data: people } = useSuspenseQuery({
-    ...queryOptions.people(),
-    select: (data) => data.filter((person) => !isDeceased(person)),
-  });
+export function MembershipBreakdownCard({
+  people: allPeople,
+}: {
+  people: People;
+}) {
+  const people = allPeople.filter((person) => !isDeceased(person));
 
   const membershipStats = getPeopleStats(people);
 
