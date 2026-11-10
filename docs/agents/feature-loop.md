@@ -31,6 +31,10 @@ A full domain slice touches these paths. Departments is the next planned one.
 | Tests               | `apps/chms/test/`                    | API integration using `test/fixtures.ts`                                                |
 | E2E                 | `e2e/`                               | One spec per user flow that a page change can break                                     |
 
+The API domain runs on Effect. A route validates, calls one program from
+`apps/chms/server/effect/<domain>.ts`, and returns `runApi(...)`. Read
+`docs/agents/effect-slice.md` before adding or changing a server rule.
+
 ## Invariants that bite
 
 - A missing record is `HTTPException(404)`. A plain `Error` maps to 500.
@@ -86,6 +90,9 @@ the same chain CI runs; a green local run should mean a green PR.
 
 - API, D1 batch, and not-found: `apps/chms/server/people.ts`,
   `apps/chms/server/relationships.ts`
+- Effect service, typed failure, and the route edge:
+  `apps/chms/server/effect/people.ts`, `apps/chms/server/effect/errors.ts`,
+  `apps/chms/server/effect/runtime.ts`
 - Routes: `apps/chms/src/routes/api/people/`
 - Loader and action: `apps/chms/src/pages/people/add.server.ts`
 - Form and client mutation: `apps/chms/src/components/people/`
