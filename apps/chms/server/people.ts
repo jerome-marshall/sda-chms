@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { eq } from "void/db";
 
 import { getDb } from "./db";
+import type { Database } from "./db";
 import {
   householdWriteFields,
   insertHouseholdStmt,
@@ -31,8 +32,8 @@ const householdContactColumns = {
 } as const;
 
 /** Fetches all people with their Household's shared contact fields for the effective-value rule. */
-const getAllPeopleWithHouseholdRows = () =>
-  getDb().query.peopleTable.findMany({
+export const getAllPeopleWithHouseholdRows = (db: Database) =>
+  db.query.peopleTable.findMany({
     with: {
       household: { columns: householdContactColumns },
     },
@@ -45,8 +46,8 @@ export const getPersonById = (id: string) =>
   });
 
 /** Fetches a single person with their Household's shared contact fields for the effective-value rule. */
-const getPersonWithHouseholdRowById = (id: string) =>
-  getDb().query.peopleTable.findFirst({
+export const getPersonWithHouseholdRowById = (db: Database, id: string) =>
+  db.query.peopleTable.findFirst({
     where: (table) => eq(table.id, id),
     with: {
       household: { columns: householdContactColumns },
@@ -142,7 +143,9 @@ const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => ({
  * person's own so every reader can resolve the effective value — the person's
  * own if set, otherwise the Household's. No head-of-household fallback remains.
  */
-const personWithHouseholdDbToApi = (personData: PersonWithHouseholdRow) => {
+export const personWithHouseholdDbToApi = (
+  personData: PersonWithHouseholdRow
+) => {
   const { household, ...personDataWithoutHousehold } = personData;
   const publicRow = stripIdentityColumns(personDataWithoutHousehold);
   return {
@@ -174,20 +177,10 @@ const NULL_PERSON_CONTACT = {
   preferredVisitingTime: null,
 } as const;
 
-/** Returns all people with their Household's shared contact fields for the people list view. */
-export const getAllPeopleWithHousehold = async () => {
-  const people = await getAllPeopleWithHouseholdRows();
-  return people.map(personWithHouseholdDbToApi);
-};
-
-/** Retrieves a person by ID with their Household's shared contact fields for the effective-value rule. */
-export const getPersonWithHousehold = async (id: string) => {
-  const person = await getPersonWithHouseholdRowById(id);
-  if (!person) {
-    throw new HTTPException(404, { message: "Person not found" });
-  }
-  return personWithHouseholdDbToApi(person);
-};
+/** The Person wire shape returned by every People read (ADR-0007). */
+export type PersonWithHouseholdApi = ReturnType<
+  typeof personWithHouseholdDbToApi
+>;
 
 /**
  * Creates a new person. If the person is a head-of-household, a new household is
@@ -227,7 +220,7 @@ export const addPerson = async (data: PersonInsertForm) => {
     throw new Error("Failed to create person");
   }
 
-  const created = await getPersonWithHouseholdRowById(personFinal.id);
+  const created = await getPersonWithHouseholdRowById(getDb(), personFinal.id);
   if (!created) {
     throw new Error("Failed to read the created person");
   }
@@ -247,7 +240,7 @@ export const addPerson = async (data: PersonInsertForm) => {
 export const updatePerson = async (id: string, data: PersonInsertForm) => {
   const [current, { rows, affected }] = await Promise.all([
     getPersonById(id),
-    readSpouseLinkGraph([id]),
+    readSpouseLinkGraph(getDb(), [id]),
   ]);
   if (!current) {
     throw new HTTPException(404, { message: "Person not found" });
@@ -300,7 +293,7 @@ export const updatePerson = async (id: string, data: PersonInsertForm) => {
     await getDb().batch([updatePersonStmt(id, personData), ...maritalStmts]);
   }
 
-  const updated = await getPersonWithHouseholdRowById(id);
+  const updated = await getPersonWithHouseholdRowById(getDb(), id);
   if (!updated) {
     throw new HTTPException(404, { message: "Person not found" });
   }

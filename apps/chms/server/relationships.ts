@@ -177,7 +177,7 @@ export const addRelationship = async (data: RelationshipCreate) => {
     // unknown ids instead of inventing a new error.
     return await insertLinkOnly(link);
   }
-  const { rows, affected } = await readSpouseLinkGraph([
+  const { rows, affected } = await readSpouseLinkGraph(getDb(), [
     data.personId,
     data.relatedPersonId,
   ]);
@@ -239,7 +239,7 @@ export const updateRelationshipState = async (
     });
   }
 
-  const { rows, affected } = await readSpouseLinkGraph([
+  const { rows, affected } = await readSpouseLinkGraph(getDb(), [
     existing.personId,
     existing.relatedPersonId,
   ]);
@@ -286,7 +286,7 @@ export const removeRelationship = async (id: string) => {
     return { id };
   }
 
-  const { rows, affected } = await readSpouseLinkGraph([
+  const { rows, affected } = await readSpouseLinkGraph(getDb(), [
     existing.personId,
     existing.relatedPersonId,
   ]);
