@@ -1,9 +1,9 @@
 import type { Hono } from "hono";
 
-import type { Household, PersonDetail, Relationship } from "@/types/api";
+import type { Household, Person, Relationship } from "@/types/api";
 
 /** The response shapes the route tests read, from the real API contract. */
-export type PersonResponse = PersonDetail;
+export type PersonResponse = Person;
 export type RelationshipItem = Relationship;
 export type HouseholdResponse = Household;
 

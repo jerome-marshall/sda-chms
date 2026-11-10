@@ -189,15 +189,6 @@ export const getPersonWithHousehold = async (id: string) => {
   return personWithHouseholdDbToApi(person);
 };
 
-/** A non-head must join an existing Household; only a head may define one. */
-const assertCanCreateHousehold = (data: PersonInsertForm) => {
-  if (!data.householdId && data.householdRole !== HOUSEHOLD_ROLE.HEAD) {
-    throw new HTTPException(400, {
-      message: "Only Head of Household can create a household",
-    });
-  }
-};
-
 /**
  * Creates a new person. If the person is a head-of-household, a new household is
  * created and linked automatically.
@@ -208,7 +199,6 @@ const assertCanCreateHousehold = (data: PersonInsertForm) => {
  * is a single insert and needs no batch.
  */
 export const addPerson = async (data: PersonInsertForm) => {
-  assertCanCreateHousehold(data);
   const personData = personApiToDb(data);
 
   let personFinal: Awaited<ReturnType<typeof insertPerson>>;
@@ -273,8 +263,6 @@ export const updatePerson = async (id: string, data: PersonInsertForm) => {
         "Marital Status follows the spouse Relationship and cannot contradict it",
     });
   }
-
-  assertCanCreateHousehold(data);
 
   const personData = personFormToDbFields(data);
   const overrides = new Map([

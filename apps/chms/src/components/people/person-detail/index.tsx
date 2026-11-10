@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import type { People, PersonDetail, Relationships } from "@/types/api";
+import type { People, Person, Relationships } from "@/types/api";
 
 import { ChurchSection } from "./church-section";
 import { NotesSection } from "./notes-section";
@@ -7,7 +7,7 @@ import { OverviewSection } from "./overview-section";
 import { ProfileHeader } from "./profile-header";
 
 interface PersonDetailProps {
-  person: PersonDetail;
+  person: Person;
   relationships: Relationships;
   people: People;
 }

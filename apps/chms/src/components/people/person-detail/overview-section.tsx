@@ -15,7 +15,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
-import type { People, PersonDetail, Relationships } from "@/types/api";
+import type { People, Person, Relationships } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 
 import { Separator } from "../../ui/separator";
@@ -24,7 +24,7 @@ import { DetailRow, SectionCard } from "./section-card";
 import { formatLabel, getAddress } from "./utils";
 
 interface OverviewSectionProps {
-  person: PersonDetail;
+  person: Person;
   relationships: Relationships;
   people: People;
 }

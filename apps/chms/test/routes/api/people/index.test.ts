@@ -63,8 +63,13 @@ describe("POST /api/people (integration, SQLite)", () => {
     const res = await postPerson(body);
 
     expect(res.status).toBe(409);
-    const response = await json<{ code: string; message: string }>(res);
+    const response = await json<{
+      code: string;
+      constraint?: string;
+      message: string;
+    }>(res);
     expect(response.code).toBe("DB_ERROR");
+    expect(response.constraint).toBe("unique_person_identity");
     expect(response.message.toLowerCase()).toContain("already exist");
   });
 

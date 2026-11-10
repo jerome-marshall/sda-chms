@@ -1,15 +1,15 @@
 import { MEMBERSHIP_STATUS } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 
-import type { Person, PersonDetail } from "@/types/api";
+import type { Person } from "@/types/api";
 
 /** Converts nullable DB strings to optional form strings. */
 function toOptional(value: string | null | undefined): string | undefined {
   return value ?? undefined;
 }
 
-/** Maps a PersonDetail API response to the form shape used by Add/Edit person forms. */
-export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
+/** Maps a Person API response to the form shape used by Add/Edit person forms. */
+export const personToForm = (person: Person): PersonInsertForm => ({
   // Personal
   firstName: person.firstName,
   lastName: toOptional(person.lastName),
@@ -100,21 +100,23 @@ export function getInfoOrFromHousehold(person: Person, key: HouseholdInfoKey) {
   return { data: undefined, isfromHousehold: false };
 }
 
-/**
- * The API reports a duplicate as `unique_person_identity - ...`; both person
- * forms show the same short message the directory grid toast has always shown.
- */
 export const personFormErrorMessage = (
   body: unknown,
   fallback: string
 ): string => {
+  if (
+    typeof body === "object" &&
+    body !== null &&
+    "constraint" in body &&
+    body.constraint === "unique_person_identity"
+  ) {
+    return "A person with the same name and date of birth already exists";
+  }
   const message =
     typeof body === "object" && body !== null && "message" in body
       ? String(body.message)
       : "";
-  return message.includes("unique_person_identity")
-    ? "A person with the same name and date of birth already exists"
-    : message || fallback;
+  return message || fallback;
 };
 
 /** A person is deceased when their membership status says so. */

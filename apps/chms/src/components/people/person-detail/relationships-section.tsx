@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { People, PersonDetail, Relationships } from "@/types/api";
+import type { People, Person, Relationships } from "@/types/api";
 
 import { SectionCard } from "./section-card";
 import { formatLabel, getInitials } from "./utils";
@@ -90,7 +90,7 @@ interface RelationshipsSectionProps {
   editable?: boolean;
   /** Render the list without its own card, for nesting inside Marital & Family. */
   embedded?: boolean;
-  person: PersonDetail;
+  person: Person;
   relationships: Relationships;
   people: People;
 }

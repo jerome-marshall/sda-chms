@@ -8,18 +8,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FetchError } from "void/client";
 
-import type {
-  Households,
-  People,
-  PersonDetail,
-  Relationships,
-} from "@/types/api";
-import { personDetailToForm, personFormErrorMessage } from "@/utils/people";
+import type { Households, People, Person, Relationships } from "@/types/api";
+import { personToForm, personFormErrorMessage } from "@/utils/people";
 
 import PersonFormFields from "./person-form-fields";
 
 interface EditPersonFormProps {
-  person: PersonDetail;
+  person: Person;
   relationships: Relationships;
   households: Households;
   people: People;
@@ -43,7 +38,7 @@ const EditPersonForm = ({
 
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
-    defaultValues: personDetailToForm(person),
+    defaultValues: personToForm(person),
   });
 
   // Keep the submitted Marital Status in sync when a spouse link is added or

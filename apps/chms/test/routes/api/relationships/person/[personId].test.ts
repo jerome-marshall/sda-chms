@@ -266,7 +266,6 @@ describe("GET /api/relationships/person/:personId (integration, SQLite)", () => 
       });
       expect(removed.status).toBe(200);
 
-      // No governing link remains, so the stored value is now manual.
       const manual = await putPerson(a.id, a.householdId ?? "", {
         maritalStatus: "divorced",
       });

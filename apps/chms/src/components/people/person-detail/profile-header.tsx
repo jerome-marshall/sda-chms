@@ -4,7 +4,7 @@ import { Briefcase, MapPin, Pencil } from "lucide-react";
 import HouseholdTooltip from "@/components/household-tooltip";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { PersonDetail } from "@/types/api";
+import type { Person } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
@@ -18,7 +18,7 @@ import {
 } from "./utils";
 
 interface ProfileHeaderProps {
-  person: PersonDetail;
+  person: Person;
 }
 
 export function ProfileHeader({ person }: ProfileHeaderProps) {

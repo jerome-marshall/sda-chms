@@ -1,4 +1,4 @@
-import type { PersonDetail } from "@/types/api";
+import type { Person } from "@/types/api";
 import { getInfoOrFromHousehold } from "@/utils/people";
 
 /** Returns 1–2 letter initials for the avatar fallback. */
@@ -58,7 +58,7 @@ export function buildAddress(person: {
  * Resolves the display address from the person's effective values, falling
  * back to the Household's shared contact details (ADR-0001).
  */
-export function getAddress(person: PersonDetail) {
+export function getAddress(person: Person) {
   const line1 = getInfoOrFromHousehold(person, "addressLine1");
   const line2 = getInfoOrFromHousehold(person, "addressLine2");
   const city = getInfoOrFromHousehold(person, "city");

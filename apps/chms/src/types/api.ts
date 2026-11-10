@@ -7,13 +7,9 @@ type RouteOutput<
 > = RouteMap[P][M] extends { output: infer O } ? O : never;
 
 export type People = RouteOutput<"/api/people", "GET">;
-export type Person = People[number];
 
-/**
- * The single person view — every person response includes the Household's
- * shared contact fields for the effective-value rule (ADR-0001).
- */
-export type PersonDetail = RouteOutput<"/api/people/:id", "GET">;
+/** Every Person response uses one shape, with the Household fields for ADR-0001. */
+export type Person = People[number];
 
 /** A person's relationships, resolved from that person's perspective. */
 export type Relationships = RouteOutput<

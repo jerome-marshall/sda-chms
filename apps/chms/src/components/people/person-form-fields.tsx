@@ -15,12 +15,7 @@ import type { ComponentProps } from "react";
 import { useFieldArray } from "react-hook-form";
 import type { UseFormReturn } from "react-hook-form";
 
-import type {
-  Households,
-  People,
-  PersonDetail,
-  Relationships,
-} from "@/types/api";
+import type { Households, People, Person, Relationships } from "@/types/api";
 
 import FormDatePicker from "../form/date-picker";
 import FormInput from "../form/input";
@@ -47,7 +42,7 @@ interface PersonFormFieldsProps {
   maritalStatusLocked?: boolean;
   onSubmit: (data: PersonInsertForm) => void;
   /** Present on edit (not add) so relationships can be managed in edit mode. */
-  person?: PersonDetail;
+  person?: Person;
   submitLabel: string;
 }
 
