@@ -5,15 +5,18 @@ import { z } from "zod";
 import {
   removeRelationship,
   updateRelationshipState,
-} from "../../../../server/relationships";
+} from "../../../../server/effect/relationships";
+import { runApi } from "../../../../server/effect/runtime";
 
 const paramsSchema = z.object({ id: z.string().min(1) });
 
 export const PATCH = defineHandler.withValidator({
   params: paramsSchema,
   body: relationshipUpdateSchema,
-})((_c, { body, params }) => updateRelationshipState(params.id, body.state));
+})((_c, { body, params }) =>
+  runApi(updateRelationshipState(params.id, body.state))
+);
 
 export const DELETE = defineHandler.withValidator({ params: paramsSchema })(
-  (_c, { params }) => removeRelationship(params.id)
+  (_c, { params }) => runApi(removeRelationship(params.id))
 );

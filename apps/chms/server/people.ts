@@ -3,21 +3,10 @@ import type { PeopleInsertDb, PeopleSelectDb } from "@schema";
 import { HOUSEHOLD_ROLE } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
-import { HTTPException } from "hono/http-exception";
 import { eq } from "void/db";
 
 import { getDb } from "./db";
 import type { Database } from "./db";
-import {
-  householdWriteFields,
-  insertHouseholdStmt,
-  updateHouseholdStmt,
-} from "./households";
-import {
-  governingMaritalStatusInGraph,
-  planMaritalStatusUpdates,
-  readSpouseLinkGraph,
-} from "./marital-status";
 
 /** The Household's own columns surfaced alongside each Person for the effective-value rule (ADR-0001). */
 const householdContactColumns = {
@@ -40,8 +29,8 @@ export const getAllPeopleWithHouseholdRows = (db: Database) =>
   });
 
 /** Fetches a single person without household data. */
-export const getPersonById = (id: string) =>
-  getDb().query.peopleTable.findFirst({
+export const getPersonRowById = (db: Database, id: string) =>
+  db.query.peopleTable.findFirst({
     where: (table) => eq(table.id, id),
   });
 
@@ -61,20 +50,22 @@ export const getPersonWithHouseholdRowById = (db: Database, id: string) =>
  */
 
 /** Lazy person insert used inside a batch; the caller reads row [0] of its result. */
-export const insertPersonStmt = (data: PeopleInsertDb) =>
-  getDb().insert(peopleTable).values(data).returning();
+export const insertPersonStmt = (db: Database, data: PeopleInsertDb) =>
+  db.insert(peopleTable).values(data).returning();
 
 /** Lazy person update used inside a batch. */
-export const updatePersonStmt = (id: string, data: Partial<PeopleInsertDb>) =>
-  getDb()
-    .update(peopleTable)
-    .set(data)
-    .where(eq(peopleTable.id, id))
-    .returning();
+export const updatePersonStmt = (
+  db: Database,
+  id: string,
+  data: Partial<PeopleInsertDb>
+) => db.update(peopleTable).set(data).where(eq(peopleTable.id, id)).returning();
 
 /** Inserts a person record (single write; batch paths use `insertPersonStmt`). */
-export const insertPerson = async (data: PeopleInsertDb) => {
-  const person = await getDb().insert(peopleTable).values(data).returning();
+export const insertPerson = async (
+  data: PeopleInsertDb,
+  db: Database = getDb()
+) => {
+  const person = await db.insert(peopleTable).values(data).returning();
   return person[0];
 };
 
@@ -95,7 +86,7 @@ const stripIdentityColumns = <T extends PeopleSelectDb>(
 ): Omit<T, "identityLastName" | "identityDateOfBirth"> => publicRow;
 
 /** Shared field mapping used by both insert and update transformers. */
-const personFormToDbFields = (
+export const personFormToDbFields = (
   data: PersonInsertForm
 ): Omit<PeopleInsertDb, "isActive"> => ({
   firstName: toTitleCase(data.firstName),
@@ -132,7 +123,7 @@ const personFormToDbFields = (
 });
 
 /** Maps the client-submitted form data to the DB insert shape, title-casing names before storage. */
-const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => ({
+export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => ({
   ...personFormToDbFields(data),
   isActive: true,
 });
@@ -167,7 +158,7 @@ export const personWithHouseholdDbToApi = (
 };
 
 /** The person columns that mirror the Household's shared contact fields, cleared so a Head inherits from the Household. */
-const NULL_PERSON_CONTACT = {
+export const NULL_PERSON_CONTACT = {
   addressLine1: null,
   addressLine2: null,
   city: null,
@@ -181,122 +172,3 @@ const NULL_PERSON_CONTACT = {
 export type PersonWithHouseholdApi = ReturnType<
   typeof personWithHouseholdDbToApi
 >;
-
-/**
- * Creates a new person. If the person is a head-of-household, a new household is
- * created and linked automatically.
- *
- * D1 shape: validation first, the household id client-generated (no write
- * depends on another write's result), then one `db.batch` holding the
- * household insert and the person insert together. A member with a household
- * is a single insert and needs no batch.
- */
-export const addPerson = async (data: PersonInsertForm) => {
-  const personData = personApiToDb(data);
-
-  let personFinal: Awaited<ReturnType<typeof insertPerson>>;
-  if (data.householdId) {
-    personFinal = await insertPerson(personData);
-  } else {
-    // The head defines the household: their contact details seed the
-    // Household's shared values and are cleared on the person, who then
-    // inherits them (no duplication — ADR-0001).
-    const householdId = crypto.randomUUID();
-    const [, personRows] = await getDb().batch([
-      insertHouseholdStmt({
-        id: householdId,
-        ...householdWriteFields(data),
-      }),
-      insertPersonStmt({
-        ...personData,
-        ...NULL_PERSON_CONTACT,
-        householdId,
-      }),
-    ]);
-    personFinal = personRows[0];
-  }
-
-  if (!personFinal) {
-    throw new Error("Failed to create person");
-  }
-
-  const created = await getPersonWithHouseholdRowById(getDb(), personFinal.id);
-  if (!created) {
-    throw new Error("Failed to read the created person");
-  }
-  return personWithHouseholdDbToApi(created);
-};
-
-/**
- * Updates an existing person. Applies the same household rules as addPerson:
- * heads without a household get a new one created automatically.
- *
- * D1 shape: reads first (governing-link check, current row, spouse-link
- * graph), the post-write state computed in memory (including a membership
- * override when Membership Status changes — a change to Deceased can flip a
- * partner's derived widowhood), then one `db.batch` with the household /
- * person writes plus every Marital Status rewrite.
- */
-export const updatePerson = async (id: string, data: PersonInsertForm) => {
-  const [current, { rows, affected }] = await Promise.all([
-    getPersonById(id),
-    readSpouseLinkGraph(getDb(), [id]),
-  ]);
-  if (!current) {
-    throw new HTTPException(404, { message: "Person not found" });
-  }
-
-  // A governing spouse link is the source of truth (ADR-0003); a manual value
-  // that disagrees is rejected so the two cannot drift (issue #8). The check
-  // reads the same graph the plans below derive from.
-  const governingMaritalStatus = governingMaritalStatusInGraph(rows, id);
-  if (governingMaritalStatus && data.maritalStatus !== governingMaritalStatus) {
-    throw new HTTPException(400, {
-      message:
-        "Marital Status follows the spouse Relationship and cannot contradict it",
-    });
-  }
-
-  const personData = personFormToDbFields(data);
-  const overrides = new Map([
-    [id, data.membershipStatus ?? current.membershipStatus],
-  ]);
-  const plans = planMaritalStatusUpdates(rows, affected, overrides);
-  const maritalStmts = plans.map((plan) =>
-    updatePersonStmt(plan.personId, { maritalStatus: plan.maritalStatus })
-  );
-
-  if (!data.householdId) {
-    const householdId = crypto.randomUUID();
-    await getDb().batch([
-      insertHouseholdStmt({
-        id: householdId,
-        ...householdWriteFields(data),
-      }),
-      updatePersonStmt(id, {
-        ...personData,
-        ...NULL_PERSON_CONTACT,
-        householdId,
-      }),
-      ...maritalStmts,
-    ]);
-  } else if (data.householdRole === HOUSEHOLD_ROLE.HEAD) {
-    // A head editing their own household updates the shared family name and
-    // contact details on the Household; their own contact columns stay cleared
-    // so they keep inheriting the shared values (ADR-0001).
-    await getDb().batch([
-      updatePersonStmt(id, { ...personData, ...NULL_PERSON_CONTACT }),
-      updateHouseholdStmt(data.householdId, householdWriteFields(data)),
-      ...maritalStmts,
-    ]);
-  } else {
-    await getDb().batch([updatePersonStmt(id, personData), ...maritalStmts]);
-  }
-
-  const updated = await getPersonWithHouseholdRowById(getDb(), id);
-  if (!updated) {
-    throw new HTTPException(404, { message: "Person not found" });
-  }
-
-  return personWithHouseholdDbToApi(updated);
-};

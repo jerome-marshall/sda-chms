@@ -23,11 +23,6 @@ export class SpouseStateOnNonSpouse extends Data.TaggedError(
   "SpouseStateOnNonSpouse"
 ) {}
 
-/** A business rule rejected the request with a message of its own. */
-export class InvalidRequest extends Data.TaggedError("InvalidRequest")<{
-  readonly message: string;
-}> {}
-
 /** A CSV larger than the import limit. */
 export class ImportLimitExceeded extends Data.TaggedError(
   "ImportLimitExceeded"
@@ -41,13 +36,16 @@ export class DatabaseFailure extends Data.TaggedError("DatabaseFailure")<{
   readonly cause: unknown;
 }> {}
 
+/** An internal invariant failed after a write; maps to a 500 like a plain Error. */
+export const internalFailure = (message: string): DatabaseFailure =>
+  new DatabaseFailure({ cause: new Error(message) });
+
 /** Every failure a domain service may put in its error channel. */
 export type DomainError =
   | PersonNotFound
   | RelationshipNotFound
   | MaritalStatusConflict
   | SpouseStateOnNonSpouse
-  | InvalidRequest
   | ImportLimitExceeded;
 
 /** Every failure `runApi` maps at the route edge. */
@@ -78,9 +76,6 @@ const describe = (error: DomainError): StatusAndMessage => {
         status: 400,
         message: "Only a spouse relationship can carry a lifecycle state",
       };
-    }
-    case "InvalidRequest": {
-      return { status: 400, message: error.message };
     }
     case "ImportLimitExceeded": {
       return {

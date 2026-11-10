@@ -1,12 +1,11 @@
 import { personInsertFormSchema } from "@sda-chms/shared/schema/people";
 import { defineHandler } from "void/handler";
 
-import { getAllPeople } from "../../../../server/effect/people";
+import { addPerson, getAllPeople } from "../../../../server/effect/people";
 import { runApi } from "../../../../server/effect/runtime";
-import { addPerson } from "../../../../server/people";
 
 export const GET = defineHandler(() => runApi(getAllPeople));
 
 export const POST = defineHandler.withValidator({
   body: personInsertFormSchema,
-})((_c, { body }) => addPerson(body));
+})((_c, { body }) => runApi(addPerson(body)));

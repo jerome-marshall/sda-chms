@@ -6,13 +6,14 @@ import {
   readSpouseLinkGraph,
 } from "../marital-status";
 import type {
-  MaritalStatus,
+  MaritalStatus as MaritalStatusValue,
   MaritalStatusPlan,
   MembershipOverrides,
   SpouseLinkGraph,
   SpouseLinkRow,
 } from "../marital-status";
 import { Db, fromDb } from "./db";
+import type { DatabaseFailure } from "./errors";
 
 /**
  * The spouse-link rules the People and Relationship writes share (ADR-0003).
@@ -22,11 +23,11 @@ import { Db, fromDb } from "./db";
 export interface MaritalStatusService {
   readonly readGraph: (
     personIds: string[]
-  ) => Effect.Effect<SpouseLinkGraph, unknown>;
+  ) => Effect.Effect<SpouseLinkGraph, DatabaseFailure>;
   readonly governingStatus: (
     rows: SpouseLinkRow[],
     personId: string
-  ) => Effect.Effect<MaritalStatus | null>;
+  ) => Effect.Effect<MaritalStatusValue | null>;
   readonly planUpdates: (
     rows: SpouseLinkRow[],
     affectedPersonIds: string[],
@@ -35,14 +36,14 @@ export interface MaritalStatusService {
 }
 
 /** Spouse-link rules behind Effect, reading the request-scoped database. */
-export class MaritalStatusServiceTag extends Context.Service<
-  MaritalStatusServiceTag,
+export class MaritalStatus extends Context.Service<
+  MaritalStatus,
   MaritalStatusService
 >()("MaritalStatus") {}
 
 /** Builds the Marital Status service from the request-scoped database. */
 export const MaritalStatusLive = Layer.effect(
-  MaritalStatusServiceTag,
+  MaritalStatus,
   Effect.gen(function* MaritalStatusLive() {
     const db = yield* Db;
     return {
@@ -61,14 +62,14 @@ export const MaritalStatusLive = Layer.effect(
 /** Reads the spouse-link graph around the given People. */
 export const readGraph = (personIds: string[]) =>
   Effect.gen(function* readGraphProgram() {
-    const service = yield* MaritalStatusServiceTag;
+    const service = yield* MaritalStatus;
     return yield* service.readGraph(personIds);
   });
 
 /** The Marital Status implied by a Person's governing spouse link, if any. */
 export const governingStatus = (rows: SpouseLinkRow[], personId: string) =>
   Effect.gen(function* governingStatusProgram() {
-    const service = yield* MaritalStatusServiceTag;
+    const service = yield* MaritalStatus;
     return yield* service.governingStatus(rows, personId);
   });
 
@@ -79,6 +80,6 @@ export const planUpdates = (
   overrides?: MembershipOverrides
 ) =>
   Effect.gen(function* planUpdatesProgram() {
-    const service = yield* MaritalStatusServiceTag;
+    const service = yield* MaritalStatus;
     return yield* service.planUpdates(rows, affectedPersonIds, overrides);
   });

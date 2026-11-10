@@ -1,5 +1,6 @@
 import { defineHandler } from "void/handler";
 
-import { getAllGroups } from "../../../../server/groups";
+import { getAllGroups } from "../../../../server/effect/groups";
+import { runApi } from "../../../../server/effect/runtime";
 
-export const GET = defineHandler(() => getAllGroups());
+export const GET = defineHandler(() => runApi(getAllGroups));
