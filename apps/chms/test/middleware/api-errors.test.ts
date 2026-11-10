@@ -89,10 +89,14 @@ describe("mapErrorToBody (unit)", () => {
     );
     const { status, body } = mapErrorToBody(error);
     expect(status).toBe(409);
-    expect(body.code).toBe("DB_ERROR");
-    expect(body.details).toBeUndefined();
-    expect(JSON.stringify(body)).not.toContain("insert into");
-    expect(JSON.stringify(body)).not.toContain("a@b.c");
+    expect(body).toMatchObject({
+      code: "DB_ERROR",
+      constraint: "people.email",
+      details: undefined,
+    });
+    const serialized = JSON.stringify(body);
+    expect(serialized).not.toContain("insert into");
+    expect(serialized).not.toContain("a@b.c");
   });
 
   it("maps unknown errors to 500 HTTP_ERROR", () => {

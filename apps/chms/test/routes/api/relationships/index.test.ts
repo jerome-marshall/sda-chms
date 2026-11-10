@@ -1,38 +1,15 @@
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
+import {
+  createTwoPeople,
+  json,
+  listFor as listForPerson,
+  postRelationship as postRelationshipTo,
+} from "../../../fixtures";
+import type { RelationshipItem } from "../../../fixtures";
 import { createTestApp } from "../../../routes";
 import { resetDb } from "../../../void-db";
-
-/** A valid head-of-household payload; each head gets its own household. */
-const validHead = {
-  firstName: "jo",
-  gender: "male",
-  dateOfBirth: "1990-01-01",
-  addressLine1: "123 Main St",
-  city: "Hosur",
-  state: "Tamil Nadu",
-  country: "India",
-  maritalStatus: "single",
-  membershipStatus: "member",
-  dietaryPreference: "none",
-  householdRole: "head",
-};
-
-interface PersonResponse {
-  householdId: string | null;
-  id: string;
-  maritalStatus: string;
-}
-
-interface RelationshipItem {
-  id: string;
-  relatedPerson: { fullName: string; id: string };
-  state: string | null;
-  type: string;
-}
-
-const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
 describe("POST /api/relationships (integration, SQLite)", () => {
   let app: Hono;
@@ -45,34 +22,11 @@ describe("POST /api/relationships (integration, SQLite)", () => {
     await resetDb();
   });
 
-  const postPerson = (body: unknown) =>
-    app.request("/api/people", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  const postRelationship = (body: unknown) => postRelationshipTo(app, body);
 
-  const postRelationship = (body: unknown) =>
-    app.request("/api/relationships", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  const listFor = (personId: string) => listForPerson(app, personId);
 
-  const listFor = (personId: string) =>
-    app.request(`/api/relationships/person/${personId}`);
-
-  /** Two heads each get their own household, so any link between them is cross-household. */
-  const seedTwoPeople = async () => {
-    const a = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ann" })
-    );
-    const b = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ben" })
-    );
-    expect(a.householdId).not.toBe(b.householdId);
-    return { a, b };
-  };
+  const seedTwoPeople = () => createTwoPeople(app);
 
   it("links two people and lists the link on the subject with the chosen type", async () => {
     const { a, b } = await seedTwoPeople();

@@ -1,6 +1,6 @@
 import { StickyNote } from "lucide-react";
 
-import type { PersonDetail } from "@/types/api";
+import type { Person } from "@/types/api";
 
 import { SectionCard } from "./section-card";
 
@@ -26,7 +26,7 @@ function NoteCard({ title, description, content }: NoteCardProps) {
 }
 
 interface NotesSectionProps {
-  person: PersonDetail;
+  person: Person;
 }
 
 export function NotesSection({ person }: NotesSectionProps) {

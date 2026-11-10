@@ -57,6 +57,7 @@ export const mapErrorToBody = (err: unknown): MappedError => {
         message: violation.constraint
           ? `${violation.constraint} - ${violation.message}`
           : violation.message,
+        constraint: violation.constraint,
         details: safeDetails(err),
       },
     };

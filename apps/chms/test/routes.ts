@@ -105,7 +105,7 @@ const middlewareOrderOf = (filePath: string): number => {
     : Number.parseInt(order, 10);
 };
 
-export const sortMiddlewareFiles = (filePaths: string[]): string[] =>
+const sortMiddlewareFiles = (filePaths: string[]): string[] =>
   filePaths
     .filter((filePath) => !Number.isNaN(middlewareOrderOf(filePath)))
     .toSorted((a, b) => middlewareOrderOf(a) - middlewareOrderOf(b));

@@ -2,14 +2,14 @@ import { Calendar, Church, Droplets, MapPin, User } from "lucide-react";
 
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { PersonDetail } from "@/types/api";
+import type { Person } from "@/types/api";
 
 import { Badge } from "../../ui/badge";
 import { DetailRow, SectionCard } from "./section-card";
 import { formatLabel, getMembershipColor } from "./utils";
 
 interface ChurchSectionProps {
-  person: PersonDetail;
+  person: Person;
 }
 
 export function ChurchSection({ person }: ChurchSectionProps) {

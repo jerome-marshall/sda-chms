@@ -228,7 +228,7 @@ export const updateRelationshipState = async (
 ) => {
   const existing = await getRelationshipById(id);
   if (!existing) {
-    throw new Error("Relationship not found");
+    throw new HTTPException(404, { message: "Relationship not found" });
   }
 
   // Only a spouse link carries a lifecycle state; persisting one on any
@@ -257,7 +257,7 @@ export const updateRelationshipState = async (
   ]);
   const updated = (updatedRows as unknown[])[0];
   if (!updated) {
-    throw new Error("Relationship not found");
+    throw new HTTPException(404, { message: "Relationship not found" });
   }
   return updated;
 };
@@ -278,7 +278,7 @@ export const getPersonRelationships = async (personId: string) => {
 export const removeRelationship = async (id: string) => {
   const existing = await getRelationshipById(id);
   if (!existing) {
-    throw new Error("Relationship not found");
+    throw new HTTPException(404, { message: "Relationship not found" });
   }
 
   if (existing.type !== RELATIONSHIP_TYPE.SPOUSE) {

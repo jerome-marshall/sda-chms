@@ -8,32 +8,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FetchError } from "void/client";
 
-import type {
-  Households,
-  People,
-  PersonDetail,
-  Relationships,
-} from "@/types/api";
-import { personDetailToForm } from "@/utils/people";
+import type { Households, People, Person, Relationships } from "@/types/api";
+import { personToForm, personFormErrorMessage } from "@/utils/people";
 
 import PersonFormFields from "./person-form-fields";
 
-/**
- * The API reports a duplicate as `unique_person_identity - ...`; the form
- * shows the same short message the directory grid toast has always shown.
- */
-const duplicateMessage = (body: unknown): string => {
-  const message =
-    typeof body === "object" && body !== null && "message" in body
-      ? String(body.message)
-      : "";
-  return message.includes("unique_person_identity")
-    ? "A person with the same name and date of birth already exists"
-    : message || "Failed to update person";
-};
-
 interface EditPersonFormProps {
-  person: PersonDetail;
+  person: Person;
   relationships: Relationships;
   households: Households;
   people: People;
@@ -57,7 +38,7 @@ const EditPersonForm = ({
 
   const form = useForm<PersonInsertForm>({
     resolver: zodResolver(personInsertFormSchema),
-    defaultValues: personDetailToForm(person),
+    defaultValues: personToForm(person),
   });
 
   // Keep the submitted Marital Status in sync when a spouse link is added or
@@ -82,13 +63,17 @@ const EditPersonForm = ({
         method: "PUT",
       });
       if (!result.ok) {
-        toast.error(duplicateMessage(result.error.body));
+        toast.error(
+          personFormErrorMessage(result.error.body, "Failed to update person")
+        );
         return;
       }
       toast.success("Person updated successfully");
     } catch (error) {
       if (error instanceof FetchError) {
-        toast.error(duplicateMessage(error.data));
+        toast.error(
+          personFormErrorMessage(error.data, "Failed to update person")
+        );
         return;
       }
       if (error instanceof Error) {

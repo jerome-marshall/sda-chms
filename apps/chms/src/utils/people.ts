@@ -1,15 +1,15 @@
 import { MEMBERSHIP_STATUS } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 
-import type { Person, PersonDetail } from "@/types/api";
+import type { Person } from "@/types/api";
 
 /** Converts nullable DB strings to optional form strings. */
 function toOptional(value: string | null | undefined): string | undefined {
   return value ?? undefined;
 }
 
-/** Maps a PersonDetail API response to the form shape used by Add/Edit person forms. */
-export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
+/** Maps a Person API response to the form shape used by Add/Edit person forms. */
+export const personToForm = (person: Person): PersonInsertForm => ({
   // Personal
   firstName: person.firstName,
   lastName: toOptional(person.lastName),
@@ -19,17 +19,17 @@ export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
   photoUrl: toOptional(person.photoUrl),
   // Contact — prefill with the effective value (own, else the Household's) so
   // editing a Head shows the shared details and saving doesn't wipe them.
-  phone: toOptional(person.phone ?? person.householdPhone),
+  phone: toOptional(getInfoOrFromHousehold(person, "phone").data),
   email: toOptional(person.email),
   preferredVisitingTime: toOptional(
-    person.preferredVisitingTime ?? person.householdPreferredVisitingTime
+    getInfoOrFromHousehold(person, "preferredVisitingTime").data
   ),
   // Address
-  addressLine1: person.addressLine1 ?? person.householdAddressLine1 ?? "",
-  addressLine2: toOptional(person.addressLine2 ?? person.householdAddressLine2),
-  city: person.city ?? person.householdCity ?? "",
-  state: person.state ?? person.householdState ?? "",
-  country: person.country ?? person.householdCountry ?? "",
+  addressLine1: getInfoOrFromHousehold(person, "addressLine1").data ?? "",
+  addressLine2: toOptional(getInfoOrFromHousehold(person, "addressLine2").data),
+  city: getInfoOrFromHousehold(person, "city").data ?? "",
+  state: getInfoOrFromHousehold(person, "state").data ?? "",
+  country: getInfoOrFromHousehold(person, "country").data ?? "",
   // Church membership
   membershipStatus: person.membershipStatus,
   dateJoinedChurch: toOptional(person.dateJoinedChurch),
@@ -99,6 +99,25 @@ export function getInfoOrFromHousehold(person: Person, key: HouseholdInfoKey) {
 
   return { data: undefined, isfromHousehold: false };
 }
+
+export const personFormErrorMessage = (
+  body: unknown,
+  fallback: string
+): string => {
+  if (
+    typeof body === "object" &&
+    body !== null &&
+    "constraint" in body &&
+    body.constraint === "unique_person_identity"
+  ) {
+    return "A person with the same name and date of birth already exists";
+  }
+  const message =
+    typeof body === "object" && body !== null && "message" in body
+      ? String(body.message)
+      : "";
+  return message || fallback;
+};
 
 /** A person is deceased when their membership status says so. */
 export const isDeceased = (person: Person) =>

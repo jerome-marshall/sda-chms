@@ -1,6 +1,7 @@
 import { householdsTable } from "@schema";
 import type { HouseholdsInsertDb } from "@schema";
 import { HOUSEHOLD_ROLE } from "@sda-chms/shared/constants/people";
+import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { eq } from "void/db";
 
 import { getDb } from "./db";
@@ -19,6 +20,24 @@ type HouseholdWritableFields = Partial<
     | "preferredVisitingTime"
   >
 >;
+
+/**
+ * The Household-owned fields a head enters through the Person form. ADR-0001
+ * makes the Household the owner of the family name and shared contacts, so the
+ * mapping lives here rather than in the Person module.
+ */
+export const householdWriteFields = (
+  data: PersonInsertForm
+): HouseholdWritableFields => ({
+  familyName: data.familyName,
+  addressLine1: data.addressLine1 || null,
+  addressLine2: data.addressLine2 || null,
+  city: data.city || null,
+  state: data.state || null,
+  country: data.country || null,
+  phone: data.phone || null,
+  preferredVisitingTime: data.preferredVisitingTime || null,
+});
 
 /**
  * Lazy household insert used inside a batch; the caller supplies the id up

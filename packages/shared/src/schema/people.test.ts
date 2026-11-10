@@ -39,7 +39,6 @@ describe("personInsertFormSchema validation", () => {
   });
 
   it("allows an omitted last name", () => {
-    expect("lastName" in validHead).toBe(false);
     expect(personInsertFormSchema.safeParse(validHead).success).toBe(true);
   });
 

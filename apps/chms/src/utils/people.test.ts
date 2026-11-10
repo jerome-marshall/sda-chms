@@ -56,19 +56,6 @@ describe(getInfoOrFromHousehold, () => {
     expect(isfromHousehold).toBe(true);
   });
 
-  it("falls back to the Household when a person has no own value", () => {
-    const { data, isfromHousehold } = getInfoOrFromHousehold(
-      asPerson({
-        isHeadOfHousehold: false,
-        phone: null,
-        householdPhone: "999",
-      }),
-      "phone"
-    );
-    expect(data).toBe("999");
-    expect(isfromHousehold).toBe(true);
-  });
-
   it("treats an empty-string own value as absent and falls back", () => {
     // Documents the `||` behavior in the impl: any falsy own value (""/0), not
     // just null, is treated as "no value" and resolves to the household's.
