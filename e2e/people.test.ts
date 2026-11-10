@@ -53,6 +53,38 @@ test("a direct load of a person page returns server-rendered HTML with the perso
   ).toBeVisible();
 });
 
+test("editing a person persists the change and renders it", async ({
+  page,
+  request,
+}) => {
+  const lastName = `Editable ${Date.now()}`;
+  const created = await request.post("/api/people", {
+    data: {
+      firstName: "Edit",
+      lastName,
+      gender: "male",
+      dateOfBirth: "1990-01-15",
+      maritalStatus: "single",
+      membershipStatus: "member",
+      dietaryPreference: "none",
+      householdRole: "head",
+    },
+  });
+  expect(created.ok()).toBeTruthy();
+  const { id } = (await created.json()) as { id: string };
+
+  await page.goto(`/people/${id}/edit`);
+  await page.waitForLoadState("networkidle");
+  const newLastName = `${lastName} Updated`;
+  await page.getByRole("textbox", { name: "Last name" }).fill(newLastName);
+  await page.getByRole("button", { name: "Save Changes" }).click();
+
+  await expect(page).toHaveURL(`/people/${id}`);
+  await expect(
+    page.getByRole("heading", { name: `Edit ${newLastName}` }).first()
+  ).toBeVisible();
+});
+
 test("the add form redirects to the new person detail page", async ({
   page,
 }) => {

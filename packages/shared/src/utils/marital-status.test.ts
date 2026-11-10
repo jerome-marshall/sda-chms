@@ -69,23 +69,6 @@ describe(selectGoverningSpouseState, () => {
     ).toBe("separated");
   });
 
-  it("picks the most recently created link when states tie (most recent married)", () => {
-    expect(
-      selectGoverningSpouseState([
-        {
-          storedState: "married",
-          partnerDeceased: false,
-          createdAt: at("2018-01-01"),
-        },
-        {
-          storedState: "married",
-          partnerDeceased: false,
-          createdAt: at("2024-01-01"),
-        },
-      ])
-    ).toBe("married");
-  });
-
   it("derives widowhood before ranking, so a deceased partner outranks a divorced link", () => {
     expect(
       selectGoverningSpouseState([

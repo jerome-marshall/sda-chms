@@ -1,10 +1,9 @@
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
+import { json } from "../../fixtures";
 import { createTestApp } from "../../routes";
 import { resetDb } from "../../void-db";
-
-const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
 interface ImportSummary {
   attempted: number;

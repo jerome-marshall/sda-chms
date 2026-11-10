@@ -150,12 +150,15 @@ export default defineConfig({
       "db:drift": {
         command: [
           "pnpm run db:generate",
-          "git diff --exit-code -- apps/chms/db",
+          "git diff --exit-code -- apps/chms/src/db",
         ],
         cache: false,
       },
-      // Local equivalent of the CI test job, steps in order.
-      verify: [
+      // Local equivalent of the CI test job, steps in order. `void prepare`
+      // must run first so the generated route types exist on a fresh clone.
+      "verify:ci": [
+        "pnpm --dir apps/chms exec void prepare",
+        "pnpm --dir apps/chms exec void env check",
         "vp run -r check-types",
         "vp check",
         "vp run db:drift",

@@ -19,17 +19,17 @@ export const personDetailToForm = (person: PersonDetail): PersonInsertForm => ({
   photoUrl: toOptional(person.photoUrl),
   // Contact — prefill with the effective value (own, else the Household's) so
   // editing a Head shows the shared details and saving doesn't wipe them.
-  phone: toOptional(person.phone ?? person.householdPhone),
+  phone: toOptional(getInfoOrFromHousehold(person, "phone").data),
   email: toOptional(person.email),
   preferredVisitingTime: toOptional(
-    person.preferredVisitingTime ?? person.householdPreferredVisitingTime
+    getInfoOrFromHousehold(person, "preferredVisitingTime").data
   ),
   // Address
-  addressLine1: person.addressLine1 ?? person.householdAddressLine1 ?? "",
-  addressLine2: toOptional(person.addressLine2 ?? person.householdAddressLine2),
-  city: person.city ?? person.householdCity ?? "",
-  state: person.state ?? person.householdState ?? "",
-  country: person.country ?? person.householdCountry ?? "",
+  addressLine1: getInfoOrFromHousehold(person, "addressLine1").data ?? "",
+  addressLine2: toOptional(getInfoOrFromHousehold(person, "addressLine2").data),
+  city: getInfoOrFromHousehold(person, "city").data ?? "",
+  state: getInfoOrFromHousehold(person, "state").data ?? "",
+  country: getInfoOrFromHousehold(person, "country").data ?? "",
   // Church membership
   membershipStatus: person.membershipStatus,
   dateJoinedChurch: toOptional(person.dateJoinedChurch),
@@ -99,6 +99,23 @@ export function getInfoOrFromHousehold(person: Person, key: HouseholdInfoKey) {
 
   return { data: undefined, isfromHousehold: false };
 }
+
+/**
+ * The API reports a duplicate as `unique_person_identity - ...`; both person
+ * forms show the same short message the directory grid toast has always shown.
+ */
+export const personFormErrorMessage = (
+  body: unknown,
+  fallback: string
+): string => {
+  const message =
+    typeof body === "object" && body !== null && "message" in body
+      ? String(body.message)
+      : "";
+  return message.includes("unique_person_identity")
+    ? "A person with the same name and date of birth already exists"
+    : message || fallback;
+};
 
 /** A person is deceased when their membership status says so. */
 export const isDeceased = (person: Person) =>

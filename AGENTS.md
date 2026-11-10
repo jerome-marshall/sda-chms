@@ -1,4 +1,10 @@
-## Agent skills
+## Start here
+
+- Building a feature: `docs/agents/feature-loop.md`.
+- Verify before handing back: `pnpm verify`. For a PR with UI proof:
+  `pnpm verify:pr`.
+- Domain vocabulary: `CONTEXT.md`. Decisions: `docs/adr/`. Area conventions:
+  `.cursor/rules/`.
 
 ### Issue tracker
 

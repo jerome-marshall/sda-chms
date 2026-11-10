@@ -1,38 +1,16 @@
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
+import {
+  createPerson,
+  createTwoPeople,
+  json,
+  listFor as listForPerson,
+  postRelationship as postRelationshipTo,
+  type RelationshipItem,
+} from "../../../fixtures";
 import { createTestApp } from "../../../routes";
 import { resetDb } from "../../../void-db";
-
-/** A valid head-of-household payload; each head gets its own household. */
-const validHead = {
-  firstName: "jo",
-  gender: "male",
-  dateOfBirth: "1990-01-01",
-  addressLine1: "123 Main St",
-  city: "Hosur",
-  state: "Tamil Nadu",
-  country: "India",
-  maritalStatus: "single",
-  membershipStatus: "member",
-  dietaryPreference: "none",
-  householdRole: "head",
-};
-
-interface PersonResponse {
-  householdId: string | null;
-  id: string;
-  maritalStatus: string;
-}
-
-interface RelationshipItem {
-  id: string;
-  relatedPerson: { fullName: string; id: string };
-  state: string | null;
-  type: string;
-}
-
-const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
 describe("PATCH and DELETE /api/relationships/:id (integration, SQLite)", () => {
   let app: Hono;
@@ -45,22 +23,9 @@ describe("PATCH and DELETE /api/relationships/:id (integration, SQLite)", () => 
     await resetDb();
   });
 
-  const postPerson = (body: unknown) =>
-    app.request("/api/people", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  const postRelationship = (body: unknown) => postRelationshipTo(app, body);
 
-  const postRelationship = (body: unknown) =>
-    app.request("/api/relationships", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-  const listFor = (personId: string) =>
-    app.request(`/api/relationships/person/${personId}`);
+  const listFor = (personId: string) => listForPerson(app, personId);
 
   const patchState = (id: string, state: string) =>
     app.request(`/api/relationships/${id}`, {
@@ -69,17 +34,17 @@ describe("PATCH and DELETE /api/relationships/:id (integration, SQLite)", () => 
       body: JSON.stringify({ state }),
     });
 
-  /** Two heads each get their own household, so any link between them is cross-household. */
-  const seedTwoPeople = async () => {
-    const a = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ann" })
-    );
-    const b = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ben" })
-    );
-    expect(a.householdId).not.toBe(b.householdId);
-    return { a, b };
-  };
+  const seedTwoPeople = () => createTwoPeople(app);
+
+  it("PATCH and DELETE return 404 for an unknown id", async () => {
+    const unknown = "00000000-0000-4000-8000-000000000000";
+    const patched = await patchState(unknown, "divorced");
+    expect(patched.status).toBe(404);
+    const deleted = await app.request(`/api/relationships/${unknown}`, {
+      method: "DELETE",
+    });
+    expect(deleted.status).toBe(404);
+  });
 
   it("refuses a lifecycle state on a non-spouse link", async () => {
     const { a, b } = await seedTwoPeople();
@@ -148,9 +113,7 @@ describe("PATCH and DELETE /api/relationships/:id (integration, SQLite)", () => 
 
   it("lets a person hold more than one spouse link in different states", async () => {
     const { a, b } = await seedTwoPeople();
-    const c = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "cara" })
-    );
+    const c = await createPerson(app, { firstName: "cara" });
 
     const first = await json<{ id: string }>(
       await postRelationship({

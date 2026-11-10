@@ -55,35 +55,26 @@ export function buildAddress(person: {
 }
 
 /**
- * Resolves the display address for a person, falling back to the household
- * head's address fields when the person has none of their own.
+ * Resolves the display address from the person's effective values, falling
+ * back to the Household's shared contact details (ADR-0001).
  */
 export function getAddress(person: PersonDetail) {
-  const { data: addressLine1, isfromHousehold: isAddressLine1FromHousehold } =
-    getInfoOrFromHousehold(person, "addressLine1");
-  const { data: addressLine2, isfromHousehold: isAddressLine2FromHousehold } =
-    getInfoOrFromHousehold(person, "addressLine2");
-  const { data: city, isfromHousehold: isCityFromHousehold } =
-    getInfoOrFromHousehold(person, "city");
-  const { data: state, isfromHousehold: isStateFromHousehold } =
-    getInfoOrFromHousehold(person, "state");
-  const { data: country, isfromHousehold: isCountryFromHousehold } =
-    getInfoOrFromHousehold(person, "country");
+  const line1 = getInfoOrFromHousehold(person, "addressLine1");
+  const line2 = getInfoOrFromHousehold(person, "addressLine2");
+  const city = getInfoOrFromHousehold(person, "city");
+  const state = getInfoOrFromHousehold(person, "state");
+  const country = getInfoOrFromHousehold(person, "country");
 
-  // Prefer the person's own fields; use head's only when the person's are absent
-  const address = buildAddress({
-    addressLine1: person.addressLine1 || addressLine1,
-    addressLine2: person.addressLine2 || addressLine2,
-    city: person.city || city,
-    state: person.state || state,
-    country: person.country || country,
-  });
-  const isAddressFromHousehold =
-    isAddressLine1FromHousehold ||
-    isAddressLine2FromHousehold ||
-    isCityFromHousehold ||
-    isStateFromHousehold ||
-    isCountryFromHousehold;
-
-  return { address, isAddressFromHousehold };
+  return {
+    address: buildAddress({
+      addressLine1: line1.data,
+      addressLine2: line2.data,
+      city: city.data,
+      state: state.data,
+      country: country.data,
+    }),
+    isAddressFromHousehold: [line1, line2, city, state, country].some(
+      (field) => field.isfromHousehold
+    ),
+  };
 }

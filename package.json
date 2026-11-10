@@ -10,6 +10,8 @@
     "test": "vp test run",
     "test:watch": "vp test",
     "test:e2e": "playwright test",
+    "verify": "vp run verify:ci",
+    "verify:pr": "pnpm verify && CI=1 pnpm test:e2e",
     "db:seed": "pnpm --dir apps/chms run db:seed",
     "db:migrate": "pnpm --dir apps/chms exec void db migrate",
     "db:generate": "pnpm --dir apps/chms exec void db generate",

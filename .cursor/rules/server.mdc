@@ -37,7 +37,7 @@ One layer sits between a route and the database. Add a function to the domain mo
 - D1 has no interactive transactions. Do not call `db.transaction()`, because Drizzle issues raw `BEGIN`/`COMMIT` and remote D1 rejects it. Instead, read what the rule needs, compute every write in memory, and run one `getDb().batch([...])`. The batch is one SQL transaction.
 - Build batch statements with the lazy `*Stmt` helpers (`insertPersonStmt`, `updatePersonStmt`) so the caller can read the rows a batch returns. Keep an executing wrapper only where a single-write caller or a test needs it.
 - Generate ids on the client with `crypto.randomUUID()` so an insert can reference an earlier insert's id without a round trip
-- Throw typed errors for business rule violations — `HTTPException` for a contract failure — and let the middleware map them. A duplicate reaches the middleware as the database's unique-constraint failure, not as a pre-check
+- Throw typed errors for business rule violations — `HTTPException` for a contract failure — and let the middleware map them. A missing record is `HTTPException(404)`; a plain `Error` maps to 500. A duplicate reaches the middleware as the database's unique-constraint failure, not as a pre-check
 - For the domain module pattern, see `server/people.ts` and `server/relationships.ts`
 
 ## Error Handling

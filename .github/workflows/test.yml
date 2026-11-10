@@ -45,12 +45,12 @@ jobs:
       - name: Unit + integration tests
         run: vp test run
 
-  # End-to-end tests against the built worker on local D1. Heavier (browser),
-  # so run only on pushes to main — not on every PR. PRs get the fast `test` job.
+  # End-to-end tests against the built worker on local D1. This is the proof
+  # that pages render and hydrate, so it runs on PRs as well as main.
   e2e:
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'push'
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 

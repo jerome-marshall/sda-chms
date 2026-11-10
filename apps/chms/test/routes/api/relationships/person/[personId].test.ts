@@ -1,38 +1,19 @@
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
+import {
+  createPerson,
+  createTwoPeople,
+  json,
+  listFor as listForPerson,
+  postRelationship as postRelationshipTo,
+  putPerson as putPersonTo,
+  type PersonResponse,
+  type RelationshipItem,
+  validHead,
+} from "../../../../fixtures";
 import { createTestApp } from "../../../../routes";
 import { resetDb } from "../../../../void-db";
-
-/** A valid head-of-household payload; each head gets its own household. */
-const validHead = {
-  firstName: "jo",
-  gender: "male",
-  dateOfBirth: "1990-01-01",
-  addressLine1: "123 Main St",
-  city: "Hosur",
-  state: "Tamil Nadu",
-  country: "India",
-  maritalStatus: "single",
-  membershipStatus: "member",
-  dietaryPreference: "none",
-  householdRole: "head",
-};
-
-interface PersonResponse {
-  householdId: string | null;
-  id: string;
-  maritalStatus: string;
-}
-
-interface RelationshipItem {
-  id: string;
-  relatedPerson: { fullName: string; id: string };
-  state: string | null;
-  type: string;
-}
-
-const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
 describe("GET /api/relationships/person/:personId (integration, SQLite)", () => {
   let app: Hono;
@@ -45,22 +26,9 @@ describe("GET /api/relationships/person/:personId (integration, SQLite)", () => 
     await resetDb();
   });
 
-  const postPerson = (body: unknown) =>
-    app.request("/api/people", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  const postRelationship = (body: unknown) => postRelationshipTo(app, body);
 
-  const postRelationship = (body: unknown) =>
-    app.request("/api/relationships", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-  const listFor = (personId: string) =>
-    app.request(`/api/relationships/person/${personId}`);
+  const listFor = (personId: string) => listForPerson(app, personId);
 
   const getPerson = (id: string) => app.request(`/api/people/${id}`);
 
@@ -68,28 +36,9 @@ describe("GET /api/relationships/person/:personId (integration, SQLite)", () => 
     id: string,
     householdId: string,
     overrides: Record<string, unknown> = {}
-  ) =>
-    app.request(`/api/people/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...validHead,
-        householdId,
-        ...overrides,
-      }),
-    });
+  ) => putPersonTo(app, id, { ...validHead, householdId, ...overrides });
 
-  /** Two heads each get their own household, so any link between them is cross-household. */
-  const seedTwoPeople = async () => {
-    const a = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ann" })
-    );
-    const b = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ben" })
-    );
-    expect(a.householdId).not.toBe(b.householdId);
-    return { a, b };
-  };
+  const seedTwoPeople = () => createTwoPeople(app);
 
   it("applies the reciprocity rule on the related person's list", async () => {
     const { a, b } = await seedTwoPeople();
@@ -107,16 +56,11 @@ describe("GET /api/relationships/person/:personId (integration, SQLite)", () => 
   });
 
   it("reflects widowhood when the partner is deceased", async () => {
-    const a = await json<PersonResponse>(
-      await postPerson({ ...validHead, firstName: "ann" })
-    );
-    const dead = await json<PersonResponse>(
-      await postPerson({
-        ...validHead,
-        firstName: "sam",
-        membershipStatus: "deceased",
-      })
-    );
+    const a = await createPerson(app, { firstName: "ann" });
+    const dead = await createPerson(app, {
+      firstName: "sam",
+      membershipStatus: "deceased",
+    });
     await postRelationship({
       personId: a.id,
       relatedPersonId: dead.id,
@@ -208,9 +152,7 @@ describe("GET /api/relationships/person/:personId (integration, SQLite)", () => 
 
     it("follows the current marriage when a Person has several spouse links", async () => {
       const { a, b } = await seedTwoPeople();
-      const c = await json<PersonResponse>(
-        await postPerson({ ...validHead, firstName: "cara" })
-      );
+      const c = await createPerson(app, { firstName: "cara" });
 
       const first = await json<{ id: string }>(
         await postRelationship({
@@ -238,16 +180,11 @@ describe("GET /api/relationships/person/:personId (integration, SQLite)", () => 
     });
 
     it("sets Marital Status to widowed when the partner is deceased", async () => {
-      const a = await json<PersonResponse>(
-        await postPerson({ ...validHead, firstName: "ann" })
-      );
-      const dead = await json<PersonResponse>(
-        await postPerson({
-          ...validHead,
-          firstName: "sam",
-          membershipStatus: "deceased",
-        })
-      );
+      const a = await createPerson(app, { firstName: "ann" });
+      const dead = await createPerson(app, {
+        firstName: "sam",
+        membershipStatus: "deceased",
+      });
       await postRelationship({
         personId: a.id,
         relatedPersonId: dead.id,
@@ -279,6 +216,64 @@ describe("GET /api/relationships/person/:personId (integration, SQLite)", () => 
       expect(
         (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
       ).toBe("widowed");
+    });
+
+    it("reverts the survivor from widowed when the partner is no longer deceased", async () => {
+      const { a, b } = await seedTwoPeople();
+      await postRelationship({
+        personId: a.id,
+        relatedPersonId: b.id,
+        type: "spouse",
+        state: "married",
+      });
+
+      const deceased = await putPerson(b.id, b.householdId ?? "", {
+        firstName: "ben",
+        membershipStatus: "deceased",
+        maritalStatus: "married",
+      });
+      expect(deceased.status).toBe(200);
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("widowed");
+
+      const alive = await putPerson(b.id, b.householdId ?? "", {
+        firstName: "ben",
+        membershipStatus: "member",
+        maritalStatus: "married",
+      });
+      expect(alive.status).toBe(200);
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("married");
+    });
+
+    it("leaves Marital Status for manual correction when the last spouse link is removed", async () => {
+      const { a, b } = await seedTwoPeople();
+      const created = await json<{ id: string }>(
+        await postRelationship({
+          personId: a.id,
+          relatedPersonId: b.id,
+          type: "spouse",
+        })
+      );
+      expect(
+        (await json<PersonResponse>(await getPerson(a.id))).maritalStatus
+      ).toBe("married");
+
+      const removed = await app.request(`/api/relationships/${created.id}`, {
+        method: "DELETE",
+      });
+      expect(removed.status).toBe(200);
+
+      // No governing link remains, so the stored value is now manual.
+      const manual = await putPerson(a.id, a.householdId ?? "", {
+        maritalStatus: "divorced",
+      });
+      expect(manual.status).toBe(200);
+      expect((await json<PersonResponse>(manual)).maritalStatus).toBe(
+        "divorced"
+      );
     });
 
     it("does not change Marital Status for a non-spouse relationship", async () => {

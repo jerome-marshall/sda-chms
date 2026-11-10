@@ -7,7 +7,11 @@ import { HTTPException } from "hono/http-exception";
 import { eq } from "void/db";
 
 import { getDb } from "./db";
-import { insertHouseholdStmt, updateHouseholdStmt } from "./households";
+import {
+  householdWriteFields,
+  insertHouseholdStmt,
+  updateHouseholdStmt,
+} from "./households";
 import {
   governingMaritalStatusInGraph,
   planMaritalStatusUpdates,
@@ -132,16 +136,6 @@ const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => ({
   isActive: true,
 });
 
-/** Adds computed fields (fullName, age) to a DB person record for the API response. */
-const personDbToApi = (personData: PeopleSelectDb) => {
-  const publicRow = stripIdentityColumns(personData);
-  return {
-    ...publicRow,
-    fullName: `${publicRow.firstName} ${publicRow.lastName ?? ""}`.trim(),
-    age: calculateAge(publicRow.dateOfBirth),
-  };
-};
-
 /**
  * Transforms a person + their Household DB record into the API shape (ADR-0001).
  * Surfaces the Household's shared contact fields (`household*`) alongside the
@@ -166,20 +160,8 @@ const personWithHouseholdDbToApi = (personData: PersonWithHouseholdRow) => {
     householdCountry: household?.country ?? null,
     householdPhone: household?.phone ?? null,
     householdPreferredVisitingTime: household?.preferredVisitingTime ?? null,
-    household: undefined, // strip the raw join from the API response
   };
 };
-
-/** The shared contact fields the Household owns; pulled off a person form to store on the Household. */
-const householdContactFromForm = (data: PersonInsertForm) => ({
-  addressLine1: data.addressLine1 || null,
-  addressLine2: data.addressLine2 || null,
-  city: data.city || null,
-  state: data.state || null,
-  country: data.country || null,
-  phone: data.phone || null,
-  preferredVisitingTime: data.preferredVisitingTime || null,
-});
 
 /** The person columns that mirror the Household's shared contact fields, cleared so a Head inherits from the Household. */
 const NULL_PERSON_CONTACT = {
@@ -202,9 +184,18 @@ export const getAllPeopleWithHousehold = async () => {
 export const getPersonWithHousehold = async (id: string) => {
   const person = await getPersonWithHouseholdRowById(id);
   if (!person) {
-    throw new Error("Person not found");
+    throw new HTTPException(404, { message: "Person not found" });
   }
   return personWithHouseholdDbToApi(person);
+};
+
+/** A non-head must join an existing Household; only a head may define one. */
+const assertCanCreateHousehold = (data: PersonInsertForm) => {
+  if (!data.householdId && data.householdRole !== HOUSEHOLD_ROLE.HEAD) {
+    throw new HTTPException(400, {
+      message: "Only Head of Household can create a household",
+    });
+  }
 };
 
 /**
@@ -217,11 +208,8 @@ export const getPersonWithHousehold = async (id: string) => {
  * is a single insert and needs no batch.
  */
 export const addPerson = async (data: PersonInsertForm) => {
+  assertCanCreateHousehold(data);
   const personData = personApiToDb(data);
-
-  if (!data.householdId && data.householdRole !== HOUSEHOLD_ROLE.HEAD) {
-    throw new Error("Only Head of Household can create a household");
-  }
 
   let personFinal: Awaited<ReturnType<typeof insertPerson>>;
   if (data.householdId) {
@@ -234,8 +222,7 @@ export const addPerson = async (data: PersonInsertForm) => {
     const [, personRows] = await getDb().batch([
       insertHouseholdStmt({
         id: householdId,
-        familyName: data.familyName,
-        ...householdContactFromForm(data),
+        ...householdWriteFields(data),
       }),
       insertPersonStmt({
         ...personData,
@@ -250,7 +237,11 @@ export const addPerson = async (data: PersonInsertForm) => {
     throw new Error("Failed to create person");
   }
 
-  return personDbToApi(personFinal);
+  const created = await getPersonWithHouseholdRowById(personFinal.id);
+  if (!created) {
+    throw new Error("Failed to read the created person");
+  }
+  return personWithHouseholdDbToApi(created);
 };
 
 /**
@@ -269,7 +260,7 @@ export const updatePerson = async (id: string, data: PersonInsertForm) => {
     readSpouseLinkGraph([id]),
   ]);
   if (!current) {
-    throw new Error("Person not found");
+    throw new HTTPException(404, { message: "Person not found" });
   }
 
   // A governing spouse link is the source of truth (ADR-0003); a manual value
@@ -283,9 +274,7 @@ export const updatePerson = async (id: string, data: PersonInsertForm) => {
     });
   }
 
-  if (!data.householdId && data.householdRole !== HOUSEHOLD_ROLE.HEAD) {
-    throw new Error("Only Head of Household can create a household");
-  }
+  assertCanCreateHousehold(data);
 
   const personData = personFormToDbFields(data);
   const overrides = new Map([
@@ -301,8 +290,7 @@ export const updatePerson = async (id: string, data: PersonInsertForm) => {
     await getDb().batch([
       insertHouseholdStmt({
         id: householdId,
-        familyName: data.familyName,
-        ...householdContactFromForm(data),
+        ...householdWriteFields(data),
       }),
       updatePersonStmt(id, {
         ...personData,
@@ -317,10 +305,7 @@ export const updatePerson = async (id: string, data: PersonInsertForm) => {
     // so they keep inheriting the shared values (ADR-0001).
     await getDb().batch([
       updatePersonStmt(id, { ...personData, ...NULL_PERSON_CONTACT }),
-      updateHouseholdStmt(data.householdId, {
-        familyName: data.familyName,
-        ...householdContactFromForm(data),
-      }),
+      updateHouseholdStmt(data.householdId, householdWriteFields(data)),
       ...maritalStmts,
     ]);
   } else {
@@ -329,7 +314,7 @@ export const updatePerson = async (id: string, data: PersonInsertForm) => {
 
   const updated = await getPersonWithHouseholdRowById(id);
   if (!updated) {
-    throw new Error("Person not found");
+    throw new HTTPException(404, { message: "Person not found" });
   }
 
   return personWithHouseholdDbToApi(updated);

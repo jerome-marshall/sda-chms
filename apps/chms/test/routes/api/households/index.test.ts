@@ -1,10 +1,11 @@
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
+import { json, postPerson as postPersonTo } from "../../../fixtures";
+import type { HouseholdResponse } from "../../../fixtures";
 import { createTestApp } from "../../../routes";
 import { resetDb } from "../../../void-db";
 
-/** A head that defines a new household. */
 const validHead = {
   firstName: "john",
   lastName: "smith",
@@ -20,13 +21,6 @@ const validHead = {
   householdRole: "head",
 };
 
-interface HouseholdResponse {
-  id: string;
-  name: string;
-}
-
-const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
-
 describe("GET /api/households (integration, SQLite)", () => {
   let app: Hono;
 
@@ -38,12 +32,7 @@ describe("GET /api/households (integration, SQLite)", () => {
     await resetDb();
   });
 
-  const postPerson = (body: unknown) =>
-    app.request("/api/people", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  const postPerson = (body: unknown) => postPersonTo(app, body);
 
   it("GET /api/households surfaces the family name the user stored, not one derived from the head", async () => {
     // A blended family: the head's surname is "Smith" but the family goes by "The Robinson-Smiths".

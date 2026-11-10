@@ -2,42 +2,14 @@ import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { insertPerson } from "../../../../server/people";
+import {
+  json,
+  postPerson as postPersonTo,
+  type PersonResponse,
+  validHead,
+} from "../../../fixtures";
 import { createTestApp } from "../../../routes";
 import { resetDb } from "../../../void-db";
-
-/** Short, lowercase first name exercises issue #1 + the title-casing transformer. */
-const validHead = {
-  firstName: "jo",
-  gender: "male",
-  dateOfBirth: "1990-01-01",
-  addressLine1: "123 Main St",
-  city: "Hosur",
-  state: "Tamil Nadu",
-  country: "India",
-  maritalStatus: "single",
-  membershipStatus: "member",
-  dietaryPreference: "none",
-  householdRole: "head",
-};
-
-/** The response fields these tests read. */
-interface PersonResponse {
-  addressLine1: string | null;
-  fathersName: string | null;
-  firstName: string;
-  fullName: string;
-  householdAddressLine1?: string | null;
-  householdCity?: string | null;
-  householdId: string | null;
-  householdPhone?: string | null;
-  householdPreferredVisitingTime?: string | null;
-  id: string;
-  isHeadOfHousehold: boolean;
-  mothersName: string | null;
-  phone: string | null;
-}
-
-const json = async <T>(res: Response): Promise<T> => (await res.json()) as T;
 
 describe("GET /api/people/:id (integration, SQLite)", () => {
   let app: Hono;
@@ -50,12 +22,30 @@ describe("GET /api/people/:id (integration, SQLite)", () => {
     await resetDb();
   });
 
-  const postPerson = (body: unknown) =>
-    app.request("/api/people", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+  const postPerson = (body: unknown) => postPersonTo(app, body);
+
+  it("GET /api/people/:id returns 404 for an unknown id", async () => {
+    const res = await app.request(
+      "/api/people/00000000-0000-4000-8000-000000000000"
+    );
+    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toMatchObject({
+      code: "HTTP_ERROR",
+      message: "Person not found",
     });
+  });
+
+  it("PUT /api/people/:id returns 404 for an unknown id", async () => {
+    const res = await app.request(
+      "/api/people/00000000-0000-4000-8000-000000000000",
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validHead),
+      }
+    );
+    expect(res.status).toBe(404);
+  });
 
   it("GET /api/people/:id returns the person with computed + head fields", async () => {
     const created = await json<PersonResponse>(await postPerson(validHead));

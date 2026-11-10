@@ -44,11 +44,15 @@ describe(toDateString, () => {
 });
 
 describe(calculateAge, () => {
-  it("computes whole years from a date of birth", () => {
-    const dob = new Date();
-    dob.setFullYear(dob.getFullYear() - 30);
-    dob.setDate(dob.getDate() - 1); // ensure the birthday has already passed
-    expect(calculateAge(dob)).toBe(30);
+  const referenceDate = new Date(2026, 5, 15);
+
+  it("counts whole years once the birthday has passed", () => {
+    expect(calculateAge(new Date(1996, 4, 1), referenceDate)).toBe(30);
+    expect(calculateAge(new Date(1996, 5, 15), referenceDate)).toBe(30);
+  });
+
+  it("does not count a birthday that has not arrived yet", () => {
+    expect(calculateAge(new Date(1996, 5, 16), referenceDate)).toBe(29);
   });
 
   it("returns undefined when the date of birth is missing", () => {

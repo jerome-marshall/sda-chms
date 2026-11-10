@@ -8,22 +8,9 @@ import { toast } from "sonner";
 import { FetchError } from "void/client";
 
 import type { Households } from "@/types/api";
+import { personFormErrorMessage } from "@/utils/people";
 
 import PersonFormFields from "./person-form-fields";
-
-/**
- * The API reports a duplicate as `unique_person_identity - ...`; the form
- * shows the same short message the directory grid toast has always shown.
- */
-const duplicateMessage = (body: unknown): string => {
-  const message =
-    typeof body === "object" && body !== null && "message" in body
-      ? String(body.message)
-      : "";
-  return message.includes("unique_person_identity")
-    ? "A person with the same name and date of birth already exists"
-    : message || "Failed to add person";
-};
 
 /**
  * Wrapper that initialises the form for creating a new person. Keeps
@@ -51,13 +38,15 @@ const AddPersonForm = ({ households }: { households: Households }) => {
         method: "POST",
       });
       if (!result.ok) {
-        toast.error(duplicateMessage(result.error.body));
+        toast.error(
+          personFormErrorMessage(result.error.body, "Failed to add person")
+        );
         return;
       }
       toast.success("Person added successfully");
     } catch (error) {
       if (error instanceof FetchError) {
-        toast.error(duplicateMessage(error.data));
+        toast.error(personFormErrorMessage(error.data, "Failed to add person"));
         return;
       }
       if (error instanceof Error) {

@@ -38,7 +38,7 @@ Workspace packages are imported as `@sda-chms/shared`. The app additionally reso
 - **Path aliases**: `@/` maps to `apps/chms/src/`, `@schema` maps to the `apps/chms/src/db/schema.ts` barrel (Void's documented convention: split tables live in `src/db/schema/` and re-export through the barrel)
 - **Imports**: Use the `@/` alias in the app, relative imports only within the same feature folder, and the correct `../../` depth from `src/routes/api/**` to `server/`
 - **Formatting/linting**: `vp check` (Oxlint + Oxfmt via Ultracite presets, plus type check) — `pnpm check` to auto-fix, `pnpm exec vp check` to verify
-- **Vite+ tasks**: `pnpm dev` (single Void dev server on :3001), `pnpm build`, `pnpm test`, `pnpm db:migrate` (applies `apps/chms/src/db/migrations` through `void db`), `pnpm db:generate`, `pnpm db:seed`
+- **Vite+ tasks**: `pnpm dev` (single Void dev server on :3001), `pnpm build`, `pnpm test`, `pnpm verify` (the CI test job), `pnpm verify:pr` (verify + build + e2e), `pnpm db:migrate` (applies `apps/chms/src/db/migrations` through `void db`), `pnpm db:generate`, `pnpm db:seed`
 - **Void codegen**: `void prepare` before type-checking so `.void/` types exist (`.void/` is generated, never commit it). Environment declarations live in `apps/chms/src/env.ts`; an optional `apps/chms/.env` holds local overrides — see `apps/chms/ENV.md`
 - **The API is the contract**: pages load data and submit forms through `/api/*` using `fetch` from `void/client`, which runs in-process during SSR. The planned Expo app will call the same routes. Pages must not import server modules to read data
 
