@@ -1,5 +1,4 @@
 import { Context, Effect, Layer } from "effect";
-import { HTTPException } from "hono/http-exception";
 
 import {
   getAllPeopleWithHouseholdRows,
@@ -8,13 +7,18 @@ import {
 } from "../people";
 import type { PersonWithHouseholdApi } from "../people";
 import { Db, fromDb } from "./db";
+import { PersonNotFound } from "./errors";
+import type { DatabaseFailure } from "./errors";
 
 /** The People read operations the API exposes. */
 export interface PeopleService {
-  readonly getAll: () => Effect.Effect<PersonWithHouseholdApi[], unknown>;
+  readonly getAll: () => Effect.Effect<
+    PersonWithHouseholdApi[],
+    DatabaseFailure
+  >;
   readonly getById: (
     id: string
-  ) => Effect.Effect<PersonWithHouseholdApi, unknown>;
+  ) => Effect.Effect<PersonWithHouseholdApi, PersonNotFound | DatabaseFailure>;
 }
 
 /** People reads behind Effect; each call uses the request's `Db` service. */
@@ -37,9 +41,7 @@ export const PeopleLive = Layer.effect(
           Effect.flatMap((person) =>
             person
               ? Effect.succeed(personWithHouseholdDbToApi(person))
-              : Effect.fail(
-                  new HTTPException(404, { message: "Person not found" })
-                )
+              : Effect.fail(new PersonNotFound({ id }))
           )
         ),
     };
