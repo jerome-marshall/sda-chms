@@ -4,7 +4,6 @@ import { HOUSEHOLD_ROLE } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { eq } from "void/db";
 
-import { getDb } from "./db";
 import type { Database } from "./db";
 
 /** The Household's stored fields set on create/update: the family name plus the shared contact details (ADR-0001). */
@@ -88,7 +87,7 @@ const getAllHouseholdRows = (db: Database) =>
  * yet (legacy rows awaiting backfill) fall back to a head-derived
  * "{head.firstName} {head.lastName} Family" label.
  */
-export const getAllHouseholds = async (db: Database = getDb()) => {
+export const getAllHouseholds = async (db: Database) => {
   const householdsData = await getAllHouseholdRows(db);
   return householdsData.map((household) => {
     const head = household.members.find(
