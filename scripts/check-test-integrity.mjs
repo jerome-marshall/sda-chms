@@ -120,9 +120,9 @@ const main = () => {
   const base = resolveBase();
   if (!base) {
     console.error(
-      "Test integrity skipped: no base ref. Set BASE_REF to the branch to compare against."
+      "Cannot resolve a base ref. Fetch it, or pass BASE_REF with the branch to compare against."
     );
-    return;
+    process.exit(1);
   }
 
   const diff = run([
@@ -133,6 +133,7 @@ const main = () => {
     "apps",
     "packages",
     "e2e",
+    "scripts",
   ]);
   const findings = checkDiff(diff, {
     allowDeletion: process.env.ALLOW_TEST_DELETION === "1",

@@ -17,7 +17,7 @@ The gate now fails on those changes at the point they are introduced. Each rule 
 - `scripts/check-boundaries.mjs` enforces the Effect and layering rules that a lint preset cannot express.
 - `scripts/check-test-integrity.mjs` fails on a skipped or focused test and on test cases removed without the `test-deleted` label.
 - CI calls `pnpm verify` once. The step list lives in `vite.config.ts`, so the local gate and the CI gate cannot drift.
-- Branch protection for `main` requires the `test` and `e2e` checks, applied to administrators. Enable it once these checks exist on `main`; until then the gate is advisory.
+- Branch protection for `main` will require the `test` and `e2e` checks, applied to administrators. Enable it once these checks exist on `main`; until then the gate is advisory.
 - `AGENTS.md` is the entry point for every harness. Area rules live in `docs/conventions/`, written as positive instructions.
 
 ## Consequences

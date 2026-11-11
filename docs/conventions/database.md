@@ -23,7 +23,7 @@ Cloudflare D1 is SQLite. Drizzle is the only query layer. Schemas, migrations, a
 
 ## Standard columns
 
-Every table has `id`, `createdAt`, and `updatedAt`. A table that supports soft delete also has `isActive`.
+Every table has `id`. A table with mutable rows also has `createdAt` and `updatedAt`. A join table or an append-only link has `createdAt` only. A table that supports soft delete also has `isActive`.
 
 ## Enums
 

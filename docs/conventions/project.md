@@ -57,6 +57,10 @@ Run `pnpm install`, then `pnpm db:migrate` and `pnpm db:seed`. The dev server an
 
 Pages read and write through `/api/*` with `fetch` from `void/client`. The call runs in-process during SSR and is typed by Void's generated `RouteMap`. The planned Expo app calls the same routes. A page never imports a server module to read data.
 
+## Secrets
+
+Never commit secrets, API keys, or `.env` files. Local overrides go in `apps/chms/.env`, which is gitignored.
+
 ## Documentation rules
 
 - JSDoc on every exported function, class, type, and constant. One line is enough.

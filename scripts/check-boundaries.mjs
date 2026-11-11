@@ -28,13 +28,40 @@ export const stripBlockComments = (text) =>
 /** The 1-based line of a character index. */
 export const lineOf = (text, index) => text.slice(0, index).split("\n").length;
 
-/** The index of a `void/db` import of the binding, or -1. */
+/** Every module specifier in an import, a re-export, or a dynamic import. */
+export const specifiers = (text) => {
+  const pattern =
+    /(?<keyword>\bfrom|\bimport)\s*\(?\s*["'](?<spec>[^"']+)["']/gu;
+  return [...text.matchAll(pattern)].map((match) => ({
+    index: match.index ?? 0,
+    spec: match.groups?.spec ?? "",
+  }));
+};
+
+const firstIndex = (items, predicate) => {
+  const match = items.find((item) => predicate(item.spec));
+  return match ? match.index : -1;
+};
+
+const isBindingSpecifier = (spec) =>
+  spec === "void/db" ||
+  spec === "@schema" ||
+  spec === "drizzle-orm" ||
+  spec.startsWith("drizzle-orm/") ||
+  /(?:^|\/)server\/(?!effect\/)/u.test(spec);
+
+/** The index of an import of the `db` binding, a re-export, or a dynamic import. */
 export const dbImportIndex = (text) => {
   const pattern =
-    /import\s+(?<clause>\*\s+as\s+\w+|\{[\s\S]*?\})\s*from\s*["']void\/db["']/gu;
+    /(?:import\s+(?<clause>\*\s+as\s+\w+|\{[\s\S]*?\}|db)\s*from|export\s+\{[^}]*\}\s*from|import\s*\(\s*)\s*["']void\/db["']/gu;
   for (const match of text.matchAll(pattern)) {
-    const clause = match.groups?.clause ?? "";
-    if (clause.startsWith("*") || /\bdb\b/u.test(clause)) {
+    const clause = match.groups?.clause;
+    if (
+      clause === undefined ||
+      clause.startsWith("*") ||
+      clause === "db" ||
+      /\bdb\b/u.test(clause)
+    ) {
       return match.index ?? -1;
     }
   }
@@ -87,7 +114,8 @@ export const rules = [
     appliesTo: () => true,
     allow: (file) =>
       file.endsWith(".d.ts") || file.startsWith("apps/chms/test/"),
-    lineTest: /(?::\s*any\b|\bas\s+any\b|<any>)/u,
+    lineTest:
+      /(?::\s*any\b|\bas\s+any\b|<any\s*[,>]|,\s*any\s*[>,]|\[\s*any\s*\])/u,
   },
   {
     id: "error-channel",
@@ -102,8 +130,7 @@ export const rules = [
       "A route calls one Effect program from server/effect and runApi. It never touches the database or a query helper.",
     appliesTo: (file) => file.startsWith("apps/chms/src/routes/"),
     allow: () => false,
-    lineTest:
-      /from\s+["'][^"']*\/server\/(?!effect\/)[^"']*["']|from\s+["'](?:void\/db|drizzle-orm|@schema)["']/u,
+    fileTest: (text) => firstIndex(specifiers(text), isBindingSpecifier),
   },
   {
     id: "env-in-domain",

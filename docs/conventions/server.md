@@ -21,9 +21,10 @@ Route adapter  ->  Effect service  ->  Drizzle helper  ->  D1
 
 - One file per URL shape: `people/index.ts` for GET and POST, `people/[id].ts` for GET and PUT.
 - Export one handler per method with `defineHandler`.
-- Validate bodies and params with Zod from `@sda-chms/shared/schema/*`.
+- Validate every body and param with Zod from `@sda-chms/shared/schema/*` through `defineHandler.withValidator`.
 - Call one exported Effect program and return `runApi(program)`.
 - Never import `db`, a Drizzle table, `@schema`, or a helper under `server/` outside `server/effect/`.
+- Two handlers return a `Response` instead of a value: `routes/api/index.ts` and `routes/api/[...path].ts` return `c.json(..., 404)` for the API 404 contract. List any new exception in the PR.
 
 ```ts
 export const GET = defineHandler.withValidator({ params: paramsSchema })(
