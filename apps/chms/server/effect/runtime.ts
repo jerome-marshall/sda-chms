@@ -1,7 +1,7 @@
 import { Effect, Layer } from "effect";
 
 import { DbLive } from "./db";
-import { toHttpException } from "./errors";
+import { toHttpException, toInvariantHttpException } from "./errors";
 import type { ApiError } from "./errors";
 import { GroupsLive } from "./groups";
 import { HouseholdsLive } from "./households";
@@ -29,17 +29,23 @@ export type AppServices = Layer.Success<typeof AppLive>;
 /** Rethrows a typed failure in the shape the existing error middleware maps. */
 const raise = (failure: ApiError): Effect.Effect<never> =>
   Effect.sync(() => {
-    if (failure._tag === "DatabaseFailure") {
+    if (failure._tag === "InfraError") {
       throw failure.cause;
+    }
+    if (failure._tag === "InvariantError") {
+      console.error("🔴 invariant failed", failure.cause);
+      throw toInvariantHttpException();
     }
     throw toHttpException(failure);
   });
 
 /**
- * The only place a route runs an Effect program. Domain failures become the
- * `HTTPException` the middleware already maps to `ApiErrorBody`; an
- * infrastructure failure is rethrown as its original cause so the existing
- * constraint, Zod, and unknown-error mapping still applies byte for byte.
+ * The only place a route runs an Effect program. Each failure group is mapped
+ * once, here: a domain rule becomes the `HTTPException` the middleware already
+ * maps to `ApiErrorBody`, an infrastructure fault is rethrown as its original
+ * cause so the existing constraint, Zod, and unknown-error mapping still
+ * applies byte for byte, and a broken invariant becomes a generic 500 whose
+ * developer text stays in the log.
  */
 export const runApi = <A>(
   effect: Effect.Effect<A, ApiError, AppServices>

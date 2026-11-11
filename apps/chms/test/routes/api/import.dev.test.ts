@@ -116,6 +116,20 @@ describe("POST /api/import (integration, SQLite)", () => {
     expect(households).toStrictEqual([]);
   });
 
+  it("maps a CSV over the row limit to 400", async () => {
+    // The importer throws the limit as a typed failure; the edge must map it
+    // as a domain rule, not as an infrastructure fault.
+    const rows = Array.from({ length: 50_001 }, () => "Jo");
+    const res = await app.request("/api/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ csv: ["Name", ...rows].join("\n") }),
+    });
+    expect(res.status).toBe(400);
+    const body = await json<{ message: string }>(res);
+    expect(body.message).toBe("CSV has 50001 rows, limit is 50000");
+  });
+
   it("rejects an oversized payload with 400", async () => {
     const res = await app.request("/api/import", {
       method: "POST",

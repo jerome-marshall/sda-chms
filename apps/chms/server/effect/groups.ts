@@ -2,13 +2,13 @@ import { Context, Effect, Layer } from "effect";
 
 import { getAllGroups as readGroups } from "../groups";
 import { Db, fromDb } from "./db";
-import type { DatabaseFailure } from "./errors";
+import type { InfraError } from "./errors";
 
 type Group = Awaited<ReturnType<typeof readGroups>>[number];
 
 /** The Group read operation the API exposes. */
 export interface GroupsService {
-  readonly getAll: () => Effect.Effect<Group[], DatabaseFailure>;
+  readonly getAll: () => Effect.Effect<Group[], InfraError>;
 }
 
 /** Group reads behind Effect. */

@@ -26,27 +26,24 @@ import {
   MaritalStatusConflict,
   PersonNotFound,
 } from "./errors";
-import type { DatabaseFailure } from "./errors";
+import type { InfraError, InvariantError } from "./errors";
 import { MaritalStatus } from "./marital-status";
 
 /** The People operations the API exposes. */
 export interface PeopleService {
-  readonly getAll: () => Effect.Effect<
-    PersonWithHouseholdApi[],
-    DatabaseFailure
-  >;
+  readonly getAll: () => Effect.Effect<PersonWithHouseholdApi[], InfraError>;
   readonly getById: (
     id: string
-  ) => Effect.Effect<PersonWithHouseholdApi, PersonNotFound | DatabaseFailure>;
+  ) => Effect.Effect<PersonWithHouseholdApi, PersonNotFound | InfraError>;
   readonly add: (
     data: PersonInsertForm
-  ) => Effect.Effect<PersonWithHouseholdApi, DatabaseFailure>;
+  ) => Effect.Effect<PersonWithHouseholdApi, InfraError | InvariantError>;
   readonly update: (
     id: string,
     data: PersonInsertForm
   ) => Effect.Effect<
     PersonWithHouseholdApi,
-    PersonNotFound | MaritalStatusConflict | DatabaseFailure
+    PersonNotFound | MaritalStatusConflict | InfraError
   >;
 }
 

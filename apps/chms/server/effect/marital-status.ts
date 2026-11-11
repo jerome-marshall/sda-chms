@@ -13,7 +13,7 @@ import type {
   SpouseLinkRow,
 } from "../marital-status";
 import { Db, fromDb } from "./db";
-import type { DatabaseFailure } from "./errors";
+import type { InfraError } from "./errors";
 
 /**
  * The spouse-link rules the People and Relationship writes share (ADR-0003).
@@ -23,7 +23,7 @@ import type { DatabaseFailure } from "./errors";
 export interface MaritalStatusService {
   readonly readGraph: (
     personIds: string[]
-  ) => Effect.Effect<SpouseLinkGraph, DatabaseFailure>;
+  ) => Effect.Effect<SpouseLinkGraph, InfraError>;
   readonly governingStatus: (
     rows: SpouseLinkRow[],
     personId: string

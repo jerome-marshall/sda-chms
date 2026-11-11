@@ -22,7 +22,7 @@ import {
   RelationshipNotFound,
   SpouseStateOnNonSpouse,
 } from "./errors";
-import type { DatabaseFailure } from "./errors";
+import type { InfraError, InvariantError } from "./errors";
 import { MaritalStatus } from "./marital-status";
 
 type Relationship = RelationshipsSelectDb;
@@ -32,20 +32,20 @@ type SpouseState = (typeof SPOUSE_STATE_VALUES)[number];
 export interface RelationshipsService {
   readonly listForPerson: (
     personId: string
-  ) => Effect.Effect<ReturnType<typeof relationshipDbToApi>[], DatabaseFailure>;
+  ) => Effect.Effect<ReturnType<typeof relationshipDbToApi>[], InfraError>;
   readonly add: (
     data: RelationshipCreate
-  ) => Effect.Effect<Relationship, DatabaseFailure>;
+  ) => Effect.Effect<Relationship, InfraError | InvariantError>;
   readonly updateState: (
     id: string,
     state: SpouseState
   ) => Effect.Effect<
     Relationship,
-    RelationshipNotFound | SpouseStateOnNonSpouse | DatabaseFailure
+    RelationshipNotFound | SpouseStateOnNonSpouse | InfraError
   >;
   readonly remove: (
     id: string
-  ) => Effect.Effect<{ id: string }, RelationshipNotFound | DatabaseFailure>;
+  ) => Effect.Effect<{ id: string }, RelationshipNotFound | InfraError>;
 }
 
 /** Relationship links and their spouse lifecycle behind Effect. */
@@ -56,7 +56,7 @@ export class Relationships extends Context.Service<
 
 const createdRow = (
   rows: Relationship[] | undefined
-): Effect.Effect<Relationship, DatabaseFailure> => {
+): Effect.Effect<Relationship, InvariantError> => {
   const created = rows?.[0];
   return created
     ? Effect.succeed(created)

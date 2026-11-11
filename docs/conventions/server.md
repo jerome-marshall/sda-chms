@@ -40,7 +40,8 @@ export const GET = defineHandler.withValidator({ params: paramsSchema })(
 - Use `Effect.gen` and `yield*`. Use `Effect.catch`, not `Effect.catchAll`.
 - Get the database from `yield* Db`. Never call `getDb()` in a service.
 - Do not use `try/catch`. Use `fromDb` for a promise, `Effect.try` for a throw, or `Effect.fail` for a rule.
-- Add a new failure by adding a class in `server/effect/errors.ts`, adding it to `DomainError`, and adding its status and message to `describe`. Nothing else maps a status.
+- Add a new domain rule failure by adding a class in `server/effect/errors.ts`, adding it to `DomainError`, and adding its status and message to `describe`. Nothing else maps a status.
+- An infrastructure fault is an `InfraError` carrying its cause. A broken internal assumption is `internalFailure`, which returns an `InvariantError`.
 
 ```ts
 export const getPersonById = (id: string) =>
@@ -52,10 +53,15 @@ export const getPersonById = (id: string) =>
 
 ## Errors
 
+`server/effect/errors.ts` names every failure, and `runtime.ts` maps each of the three groups once (ADR-0010).
+
+- `DomainError` is a broken rule: a missing Person or Relationship, a Marital Status conflict, a spouse state on a non-spouse link, an import limit. `describe` gives it its 404 or 400, `toHttpException` builds the body.
+- `InfraError` is a database or transport fault. It carries the original cause, and `runtime.ts` rethrows that cause so the constraint mapping is unchanged.
+- `InvariantError` is a broken internal assumption. It carries the message for the log, and the body is a generic 500 with no developer text.
 - `HTTPException` is the HTTP contract. `server/effect/errors.ts` builds one and `runtime.ts` throws it.
 - `ZodError` and Drizzle constraint failures are mapped in `apps/chms/server/lib/errors.ts` and the API middleware.
 - A missing record is a 404. A rule violation is a 400. An infrastructure failure is a 500 and never puts SQL or bound values in the body.
-- Do not catch an error to rethrow or format it. Let it reach the edge.
+- Do not catch an error to rethrow or format it. Let it reach the edge. A helper that throws keeps its throw; the service recovers it by tag, as the import limit does.
 
 ## D1 writes
 
@@ -73,5 +79,5 @@ A multi-write operation reads first, computes every write in memory, then issues
 
 - A second layer between a route and a service.
 - A service that reaches for the ambient database.
-- A new error tag that maps to no status.
+- A new `DomainError` tag that maps to no status.
 - A generic CRUD or repository module.

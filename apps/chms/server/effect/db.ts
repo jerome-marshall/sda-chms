@@ -2,7 +2,7 @@ import { Context, Effect, Layer } from "effect";
 
 import { getDb } from "../db";
 import type { Database } from "../db";
-import { DatabaseFailure } from "./errors";
+import { InfraError } from "./errors";
 
 /**
  * The request-scoped Drizzle database. Void hands each request its own D1
@@ -19,8 +19,8 @@ export const DbLive: Layer.Layer<Db> = Layer.sync(Db, getDb);
  */
 export const fromDb = <A>(
   run: () => Promise<A>
-): Effect.Effect<A, DatabaseFailure> =>
+): Effect.Effect<A, InfraError> =>
   Effect.tryPromise({
     try: run,
-    catch: (cause) => new DatabaseFailure({ cause }),
+    catch: (cause) => new InfraError({ cause }),
   });

@@ -1,4 +1,4 @@
-/* eslint-disable max-classes-per-file -- one class per domain failure keeps the tagged union explicit */
+/* eslint-disable max-classes-per-file -- one class per failure keeps the tagged union explicit */
 import { Data } from "effect";
 import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
@@ -31,16 +31,40 @@ export class ImportLimitExceeded extends Data.TaggedError(
   readonly limit: number;
 }> {}
 
-/** A Drizzle, D1, or other infrastructure failure, kept for the existing mapper. */
-export class DatabaseFailure extends Data.TaggedError("DatabaseFailure")<{
+/**
+ * A database or transport fault. The original rejection is kept as the cause
+ * so the edge can rethrow it into the existing constraint and unknown-error
+ * mapping instead of inventing a second one.
+ */
+export class InfraError extends Data.TaggedError("InfraError")<{
   readonly cause: unknown;
 }> {}
 
-/** An internal invariant failed after a write; maps to a 500 like a plain Error. */
-export const internalFailure = (message: string): DatabaseFailure =>
-  new DatabaseFailure({ cause: new Error(message) });
+/**
+ * A broken internal assumption. The cause holds the message and the stack for
+ * the log; the wire body must never carry either.
+ */
+export class InvariantError extends Data.TaggedError("InvariantError")<{
+  readonly cause: unknown;
+}> {}
 
-/** Every failure a domain service may put in its error channel. */
+/** An internal invariant failed after a write; maps to a generic 500. */
+export const internalFailure = (message: string): InvariantError =>
+  new InvariantError({ cause: new Error(message) });
+
+/**
+ * Detects the typed import-limit failure on a rejected promise. The tag check
+ * survives a second copy of this module, which `instanceof` alone would miss.
+ */
+export const isImportLimitExceeded = (
+  cause: unknown
+): cause is ImportLimitExceeded =>
+  typeof cause === "object" &&
+  cause !== null &&
+  "_tag" in cause &&
+  cause._tag === "ImportLimitExceeded";
+
+/** A broken domain rule: the only group that carries an HTTP status. */
 export type DomainError =
   | PersonNotFound
   | RelationshipNotFound
@@ -49,7 +73,7 @@ export type DomainError =
   | ImportLimitExceeded;
 
 /** Every failure `runApi` maps at the route edge. */
-export type ApiError = DomainError | DatabaseFailure;
+export type ApiError = DomainError | InfraError | InvariantError;
 
 interface StatusAndMessage {
   readonly status: ContentfulStatusCode;
@@ -98,3 +122,10 @@ export const toHttpException = (error: DomainError): HTTPException => {
   const { status, message } = describe(error);
   return new HTTPException(status, { message });
 };
+
+/**
+ * The body for a broken invariant: a generic 500. The message on the tagged
+ * error stays in the log, so a caller learns nothing about the internals.
+ */
+export const toInvariantHttpException = (): HTTPException =>
+  new HTTPException(500, { message: "Internal Server Error" });

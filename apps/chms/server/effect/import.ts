@@ -4,32 +4,33 @@ import type { ImportSummary } from "../../scripts/import-helpers";
 import type { Database } from "../db";
 import { importPeopleCsv as runImport } from "../import";
 import { Db } from "./db";
-import { DatabaseFailure, ImportLimitExceeded } from "./errors";
+import { InfraError, isImportLimitExceeded } from "./errors";
+import type { ImportLimitExceeded } from "./errors";
 
 export { MAX_CSV_CHARS } from "../import";
 
 /**
  * Lifts the importer into Effect. The importer records per-household
  * failures in its summary; only a limit breach or an unexpected parse/DB
- * failure reaches the error channel.
+ * failure reaches the error channel. The limit keeps its typed tag through
+ * the rejection, so the edge maps it to a 400 rather than an infrastructure
+ * fault.
  */
 const importCsv = (
   db: Database,
   csv: string
-): Effect.Effect<ImportSummary, ImportLimitExceeded | DatabaseFailure> =>
+): Effect.Effect<ImportSummary, ImportLimitExceeded | InfraError> =>
   Effect.tryPromise({
     try: () => runImport(db, csv),
     catch: (cause) =>
-      cause instanceof ImportLimitExceeded
-        ? cause
-        : new DatabaseFailure({ cause }),
+      isImportLimitExceeded(cause) ? cause : new InfraError({ cause }),
   });
 
 /** The CSV import operation the API exposes. */
 export interface ImportService {
   readonly run: (
     csv: string
-  ) => Effect.Effect<ImportSummary, ImportLimitExceeded | DatabaseFailure>;
+  ) => Effect.Effect<ImportSummary, ImportLimitExceeded | InfraError>;
 }
 
 /** The development CSV importer behind Effect. */
