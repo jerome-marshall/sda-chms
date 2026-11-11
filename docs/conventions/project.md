@@ -50,7 +50,7 @@ Run `pnpm install`, then `pnpm db:migrate` and `pnpm db:seed`. The dev server an
 - `@/` maps to `apps/chms/src/`.
 - `@schema` maps to `apps/chms/src/db/schema.ts`.
 - `@sda-chms/shared/<dir>/<file>` for workspace code.
-- Relative imports only within one feature folder.
+- Relative imports within an area. A route file reaches `server/` with the correct `../../..` depth.
 - No barrel files, except `apps/chms/src/db/schema.ts`, which Void expects.
 
 ## The API is the contract

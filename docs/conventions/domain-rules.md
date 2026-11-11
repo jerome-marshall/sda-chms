@@ -7,10 +7,10 @@ These are the rules the system enforces. Write new rules in plain domain languag
 ## People and households
 
 - Every person belongs to a household. A person with no family becomes the head of a new single-member household.
-- Each household has exactly one head.
+- A household is created with one head.
 - Only a head creates a household. Everyone else joins an existing one.
 - Adding a head without choosing a household creates one automatically.
-- The household family name is a label stored on the household. It is not derived from the head's last name.
+- The household family name is a stored label. When it is empty, the household falls back to the head's name plus Family.
 - The household owns the shared address, phone, and preferred visiting time. A person inherits those values unless they set their own.
 - Deleting a household does not delete its members.
 - When a value comes from the household rather than the person, the interface says so.

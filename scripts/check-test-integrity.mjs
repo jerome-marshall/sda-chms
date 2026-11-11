@@ -2,7 +2,7 @@
 import { execFileSync } from "node:child_process";
 
 const focused =
-  /^[+]\s*(?:it|test|describe)(?:\.\w+)*\.(?:skip|only|todo|fixme|skipIf)\s*\(/u;
+  /^[+]\s*(?:it|test|describe)(?:\.\w+(?:\([^)]*\))?)*\.(?:skip|only|todo|fixme|skipIf)\s*\(/u;
 const focusedPrefix = /^[+]\s*x(?:it|test|describe)\s*\(/u;
 const testCase = /^[+-]\s*(?:it|test)(?:\.\w+)*\s*\(/u;
 

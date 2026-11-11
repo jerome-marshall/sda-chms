@@ -20,6 +20,14 @@ test("rejects any as a generic argument and a record value", () => {
     rulesFor("apps/chms/server/x.ts", "type T = Foo<any, string>;"),
     ["any-type"]
   );
+  assert.deepEqual(
+    rulesFor("apps/chms/server/x.ts", "type T = any | string;"),
+    ["any-type"]
+  );
+  assert.deepEqual(
+    rulesFor("apps/chms/server/x.ts", "type T = Map<string, any[]>;"),
+    ["any-type"]
+  );
 });
 
 test("ignores a line comment", () => {
@@ -81,6 +89,14 @@ test("sees multi-line, namespace, re-export, and dynamic binding imports", () =>
     ),
     ["db-import"]
   );
+  assert.deepEqual(
+    rulesFor("apps/chms/server/people.ts", 'export * from "void/db";'),
+    ["db-import"]
+  );
+  assert.deepEqual(
+    rulesFor("apps/chms/server/people.ts", 'export * as vdb from "void/db";'),
+    ["db-import"]
+  );
   assert.equal(dbImportIndex('import { eq } from "void/db";'), -1);
 });
 
@@ -107,6 +123,17 @@ test("sees a multi-line route import and a dynamic one", () => {
   assert.equal(
     specifiers('import { x } from "../../../../server/effect/people";').length,
     1
+  );
+  assert.deepEqual(
+    rulesFor(route, 'import { x } from "../../../../server/effect";'),
+    []
+  );
+  assert.deepEqual(
+    rulesFor(
+      route,
+      '// import { x } from "../../../../server/people";\nconst x = 1;'
+    ),
+    []
   );
 });
 

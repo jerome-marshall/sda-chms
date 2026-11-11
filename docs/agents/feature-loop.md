@@ -18,7 +18,7 @@ A full domain slice touches these paths. Departments is the next planned one.
 | Input contract      | `packages/shared/src/schema/`         | Zod schema plus inferred type. Cross-field rules in `.refine()`       |
 | Table and migration | `apps/chms/src/db/schema/`            | Generate with `pnpm db:generate`. Never hand-write SQL                |
 | Service             | `apps/chms/server/effect/<domain>.ts` | One `Context.Service` that owns the rules and the typed failures      |
-| Query helpers       | `apps/chms/server/<domain>.ts`        | Drizzle reads and batch builders. Takes `db` as the first argument    |
+| Query helpers       | `apps/chms/server/<domain>.ts`        | Drizzle reads and batch builders. Takes `db` as an argument           |
 | API route           | `apps/chms/src/routes/api/<domain>/`  | Validate, call one program, return `runApi(...)`                      |
 | Client type         | `apps/chms/src/types/api.ts`          | `RouteOutput` from the generated `RouteMap`. Run `void prepare` first |
 | Page                | `apps/chms/src/pages/`                | `<name>.tsx` plus `<name>.server.ts` with `loader` and `action`       |

@@ -23,6 +23,17 @@ test("rejects fixme and skipIf", () => {
   assert.equal(checkDiff(added('+it.skipIf(true)("x", () => {});')).length, 1);
 });
 
+test("rejects a modifier after a parameterised call", () => {
+  assert.equal(
+    checkDiff(added('+it.each(cases).skip("x", () => {});')).length,
+    1
+  );
+  assert.equal(
+    checkDiff(added('+describe.each(cases).only("x", () => {});')).length,
+    1
+  );
+});
+
 test("rejects prefix and todo forms", () => {
   assert.equal(checkDiff(added('+xit("x", () => {});')).length, 1);
   assert.equal(checkDiff(added('+xdescribe("x", () => {});')).length, 1);

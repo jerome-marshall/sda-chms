@@ -113,7 +113,7 @@ The API under `/api/*` is the single data contract. Page loaders and actions cal
 - `pnpm check`: run `vp check --fix` (format, lint, type check)
 - `pnpm db:migrate`, `pnpm db:generate`, `pnpm db:seed`: database commands above
 - `pnpm test:e2e`: run Playwright against the built worker on local D1
-- `pnpm verify`: run the CI gate locally (codegen, env, types, lint, boundaries, test integrity, drift, tests, build)
+- `pnpm verify`: run the CI gate locally (codegen, env, types, lint, boundaries, test integrity, gate fixtures, drift, tests, build)
 - `pnpm verify:pr`: run `pnpm verify`, then Playwright against a fresh build; this is the PR proof gate
 
 ## Environment and security

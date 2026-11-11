@@ -60,7 +60,7 @@ A violation of that index reaches the API as a 409 with the constraint name. Do 
 ## Avoid
 
 - snake case for TypeScript fields.
-- a table without `id`, `createdAt`, and `updatedAt`.
+- a table without `id`, or a mutable table without `createdAt` and `updatedAt`.
 - enum values defined inline instead of imported.
 - form validation in the schema folder.
 - raw SQL instead of Drizzle.

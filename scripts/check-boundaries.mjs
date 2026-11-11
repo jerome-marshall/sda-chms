@@ -25,6 +25,12 @@ export const stripBlockComments = (text) =>
     match.replaceAll(/[^\n]/gu, " ")
   );
 
+/** Removes block and line comments, preserving line numbers. */
+export const stripComments = (text) =>
+  stripBlockComments(text).replaceAll(/(?:^|\s)\/\/[^\n]*/gmu, (match) =>
+    match.replaceAll(/[^\n]/gu, " ")
+  );
+
 /** The 1-based line of a character index. */
 export const lineOf = (text, index) => text.slice(0, index).split("\n").length;
 
@@ -48,12 +54,12 @@ const isBindingSpecifier = (spec) =>
   spec === "@schema" ||
   spec === "drizzle-orm" ||
   spec.startsWith("drizzle-orm/") ||
-  /(?:^|\/)server\/(?!effect\/)/u.test(spec);
+  /(?:^|\/)server\/(?!effect(?:\/|$))/u.test(spec);
 
 /** The index of an import of the `db` binding, a re-export, or a dynamic import. */
 export const dbImportIndex = (text) => {
   const pattern =
-    /(?:import\s+(?<clause>\*\s+as\s+\w+|\{[\s\S]*?\}|db)\s*from|export\s+\{[^}]*\}\s*from|import\s*\(\s*)\s*["']void\/db["']/gu;
+    /(?:import\s+(?<clause>\*\s+as\s+\w+|\{[\s\S]*?\}|db)\s*from|export\s+\{[^}]*\}\s*from|export\s+\*\s+(?:as\s+\w+\s+)?from|import\s*\(\s*)\s*["']void\/db["']/gu;
   for (const match of text.matchAll(pattern)) {
     const clause = match.groups?.clause;
     if (
@@ -115,7 +121,7 @@ export const rules = [
     allow: (file) =>
       file.endsWith(".d.ts") || file.startsWith("apps/chms/test/"),
     lineTest:
-      /(?::\s*any\b|\bas\s+any\b|<any\s*[,>]|,\s*any\s*[>,]|\[\s*any\s*\])/u,
+      /(?::\s*any\b|\bas\s+any\b|<any\s*[,>]|,\s*any\s*[>,]|\[\s*any\s*\]|\bany\s*\||\bany\s*\[\s*\])/u,
   },
   {
     id: "error-channel",
@@ -184,7 +190,7 @@ const ruleViolations = (file, clean, rule) => {
 
 /** Returns every violation in one file. Pure, so the rules can be tested. */
 export const scanText = (file, text) =>
-  rules.flatMap((rule) => ruleViolations(file, stripBlockComments(text), rule));
+  rules.flatMap((rule) => ruleViolations(file, stripComments(text), rule));
 
 const walk = (dir, found = []) => {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
