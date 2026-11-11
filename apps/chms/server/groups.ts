@@ -1,4 +1,4 @@
-import { getDb } from "./db";
+import type { Database } from "./db";
 
 /** Fetches all groups (church small groups, committees, etc.). */
-export const getAllGroups = () => getDb().query.groupsTable.findMany();
+export const getAllGroups = (db: Database) => db.query.groupsTable.findMany();

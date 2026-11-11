@@ -10,10 +10,10 @@ import {
 } from "@sda-chms/shared/utils/marital-status";
 import type { SpouseLinkForMaritalStatus } from "@sda-chms/shared/utils/marital-status";
 
-import { getDb } from "./db";
+import type { Database } from "./db";
 
-type MembershipStatus = (typeof MEMBERSHIP_STATUS_VALUES)[number];
-type MaritalStatus = (typeof MARITAL_STATUS_VALUES)[number];
+export type MembershipStatus = (typeof MEMBERSHIP_STATUS_VALUES)[number];
+export type MaritalStatus = (typeof MARITAL_STATUS_VALUES)[number];
 
 /** A membership value the pending writes change, applied in memory before the batch. */
 export type MembershipOverrides = Map<string, MembershipStatus>;
@@ -28,11 +28,11 @@ export interface MaritalStatusPlan {
  * Fetches every spouse link that touches any of the given people, with both
  * sides' membership status so widowhood (and Marital Status) can be resolved.
  */
-const getSpouseLinksForPeople = async (personIds: string[]) => {
+const getSpouseLinksForPeople = async (db: Database, personIds: string[]) => {
   if (personIds.length === 0) {
     return [];
   }
-  return await getDb().query.relationshipsTable.findMany({
+  return await db.query.relationshipsTable.findMany({
     where: (table, { and, eq: eqOp, or, inArray }) =>
       and(
         eqOp(table.type, RELATIONSHIP_TYPE.SPOUSE),
@@ -48,9 +48,15 @@ const getSpouseLinksForPeople = async (personIds: string[]) => {
   });
 };
 
-type SpouseLinkRow = Awaited<
+export type SpouseLinkRow = Awaited<
   ReturnType<typeof getSpouseLinksForPeople>
 >[number];
+
+/** The spouse-link graph a write operation plans its Marital Status updates from. */
+export interface SpouseLinkGraph {
+  rows: SpouseLinkRow[];
+  affected: string[];
+}
 
 /** Maps stored spouse rows into the per-person shape the governing-link rule uses. */
 const toSpouseLinksForPerson = (
@@ -97,12 +103,15 @@ export const governingMaritalStatusInGraph = (
  * touching the expanded set. Pure reads — every write the caller plans from
  * this graph goes into the caller's single batch.
  */
-export const readSpouseLinkGraph = async (personIds: string[]) => {
+export const readSpouseLinkGraph = async (
+  db: Database,
+  personIds: string[]
+): Promise<SpouseLinkGraph> => {
   const uniqueIds = [...new Set(personIds)];
   if (uniqueIds.length === 0) {
     return { rows: [] as SpouseLinkRow[], affected: [] as string[] };
   }
-  const firstPass = await getSpouseLinksForPeople(uniqueIds);
+  const firstPass = await getSpouseLinksForPeople(db, uniqueIds);
   const affected = new Set(uniqueIds);
   for (const row of firstPass) {
     affected.add(row.personId);
@@ -111,7 +120,7 @@ export const readSpouseLinkGraph = async (personIds: string[]) => {
   const rows =
     affected.size === uniqueIds.length
       ? firstPass
-      : await getSpouseLinksForPeople([...affected]);
+      : await getSpouseLinksForPeople(db, [...affected]);
   return { rows, affected: [...affected] };
 };
 

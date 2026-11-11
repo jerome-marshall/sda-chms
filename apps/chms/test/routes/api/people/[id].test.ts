@@ -29,9 +29,11 @@ describe("GET /api/people/:id (integration, SQLite)", () => {
       "/api/people/00000000-0000-4000-8000-000000000000"
     );
     expect(res.status).toBe(404);
-    await expect(res.json()).resolves.toMatchObject({
+    // Byte-for-byte the body the middleware produced before the Effect edge.
+    await expect(res.json()).resolves.toStrictEqual({
       code: "HTTP_ERROR",
       message: "Person not found",
+      details: { status: 404 },
     });
   });
 

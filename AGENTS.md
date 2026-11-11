@@ -5,6 +5,7 @@
   `pnpm verify:pr`.
 - Domain vocabulary: `CONTEXT.md`. Decisions: `docs/adr/`. Area conventions:
   `.cursor/rules/`.
+- Server rule changes: `docs/agents/effect-slice.md`.
 
 ### Issue tracker
 

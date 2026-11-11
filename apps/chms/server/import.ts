@@ -1,11 +1,11 @@
 import type { PeopleInsertDb } from "@schema";
-import { HTTPException } from "hono/http-exception";
 import { inferSchema, initParser } from "udsv";
 
 import { groupByHousehold } from "../scripts/household-resolver";
 import { isValidRow, transformRow } from "../scripts/import-helpers";
 import type { CsvRow, ImportSummary } from "../scripts/import-helpers";
-import { getDb } from "./db";
+import type { Database } from "./db";
+import { ImportLimitExceeded } from "./effect/errors";
 import { insertHouseholdStmt } from "./households";
 import { insertPersonStmt } from "./people";
 
@@ -19,13 +19,14 @@ const MAX_ROWS = 50_000;
  * Imports the operator's member CSV into local D1. Each Household group runs
  * as one batch, so a failing row cannot leave a half-imported family.
  */
-export const importPeopleCsv = async (csv: string): Promise<ImportSummary> => {
+export const importPeopleCsv = async (
+  db: Database,
+  csv: string
+): Promise<ImportSummary> => {
   const parser = initParser(inferSchema(csv));
   const allRows = parser.typedObjs(csv) as unknown as CsvRow[];
   if (allRows.length > MAX_ROWS) {
-    throw new HTTPException(400, {
-      message: `CSV has ${allRows.length} rows, limit is ${MAX_ROWS}`,
-    });
+    throw new ImportLimitExceeded({ rows: allRows.length, limit: MAX_ROWS });
   }
 
   const validEntries = allRows
@@ -70,12 +71,12 @@ export const importPeopleCsv = async (csv: string): Promise<ImportSummary> => {
     }
 
     try {
-      await getDb().batch([
-        insertHouseholdStmt({
+      await db.batch([
+        insertHouseholdStmt(db, {
           id: householdId,
           familyName: group.familyName,
         }),
-        ...peopleData.map(({ data }) => insertPersonStmt(data)),
+        ...peopleData.map(({ data }) => insertPersonStmt(db, data)),
       ]);
       summary.succeeded += group.members.length;
     } catch (error) {
