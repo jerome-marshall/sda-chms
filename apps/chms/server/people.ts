@@ -5,7 +5,6 @@ import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
 import { eq } from "void/db";
 
-import { getDb } from "./db";
 import type { Database } from "./db";
 
 /** The Household's own columns surfaced alongside each Person for the effective-value rule (ADR-0001). */
@@ -61,10 +60,7 @@ export const updatePersonStmt = (
 ) => db.update(peopleTable).set(data).where(eq(peopleTable.id, id)).returning();
 
 /** Inserts a person record (single write; batch paths use `insertPersonStmt`). */
-export const insertPerson = async (
-  data: PeopleInsertDb,
-  db: Database = getDb()
-) => {
+export const insertPerson = async (data: PeopleInsertDb, db: Database) => {
   const person = await db.insert(peopleTable).values(data).returning();
   return person[0];
 };

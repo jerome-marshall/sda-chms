@@ -6,6 +6,8 @@ import { importPeopleCsv as runImport } from "../import";
 import { Db } from "./db";
 import { DatabaseFailure, ImportLimitExceeded } from "./errors";
 
+export { MAX_CSV_CHARS } from "../import";
+
 /**
  * Lifts the importer into Effect. The importer records per-household
  * failures in its summary; only a limit breach or an unexpected parse/DB

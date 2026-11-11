@@ -14,7 +14,7 @@ import {
   updatePerson,
 } from "../../server/effect/people";
 import { insertPerson } from "../../server/people";
-import { resetDb } from "../void-db";
+import { db, resetDb } from "../void-db";
 
 const TestLive = PeopleLive.pipe(
   Layer.provide(MaritalStatusLive),
@@ -37,13 +37,16 @@ const headForm = {
 
 const seedPerson = (overrides: Record<string, unknown> = {}) =>
   Effect.promise(() =>
-    insertPerson({
-      firstName: "Jo",
-      maritalStatus: "single",
-      membershipStatus: "member",
-      isActive: true,
-      ...overrides,
-    })
+    insertPerson(
+      {
+        firstName: "Jo",
+        maritalStatus: "single",
+        membershipStatus: "member",
+        isActive: true,
+        ...overrides,
+      },
+      db
+    )
   );
 
 describe("People service", () => {

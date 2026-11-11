@@ -9,7 +9,7 @@ import {
   validHead,
 } from "../../../fixtures";
 import { createTestApp } from "../../../routes";
-import { resetDb } from "../../../void-db";
+import { db, resetDb } from "../../../void-db";
 
 describe("GET /api/people/:id (integration, SQLite)", () => {
   let app: Hono;
@@ -159,14 +159,17 @@ describe("GET /api/people/:id (integration, SQLite)", () => {
     );
 
     // A member with none of their own contact details.
-    const member = await insertPerson({
-      firstName: "Li",
-      maritalStatus: "single",
-      membershipStatus: "member",
-      isActive: true,
-      householdId: head.householdId,
-      householdRole: "child",
-    });
+    const member = await insertPerson(
+      {
+        firstName: "Li",
+        maritalStatus: "single",
+        membershipStatus: "member",
+        isActive: true,
+        householdId: head.householdId,
+        householdRole: "child",
+      },
+      db
+    );
 
     const detail = await json<PersonResponse>(
       await app.request(`/api/people/${member?.id}`)
@@ -181,15 +184,18 @@ describe("GET /api/people/:id (integration, SQLite)", () => {
       await postPerson({ ...validHead, phone: "9000000000" })
     );
 
-    const member = await insertPerson({
-      firstName: "Li",
-      maritalStatus: "single",
-      membershipStatus: "member",
-      isActive: true,
-      phone: "9111111111",
-      householdId: head.householdId,
-      householdRole: "child",
-    });
+    const member = await insertPerson(
+      {
+        firstName: "Li",
+        maritalStatus: "single",
+        membershipStatus: "member",
+        isActive: true,
+        phone: "9111111111",
+        householdId: head.householdId,
+        householdRole: "child",
+      },
+      db
+    );
 
     const detail = await json<PersonResponse>(
       await app.request(`/api/people/${member?.id}`)
@@ -203,14 +209,17 @@ describe("GET /api/people/:id (integration, SQLite)", () => {
     const head = await json<PersonResponse>(
       await postPerson({ ...validHead, phone: "9000000000" })
     );
-    const member = await insertPerson({
-      firstName: "Li",
-      maritalStatus: "single",
-      membershipStatus: "member",
-      isActive: true,
-      householdId: head.householdId,
-      householdRole: "child",
-    });
+    const member = await insertPerson(
+      {
+        firstName: "Li",
+        maritalStatus: "single",
+        membershipStatus: "member",
+        isActive: true,
+        householdId: head.householdId,
+        householdRole: "child",
+      },
+      db
+    );
 
     // The head edits the shared address/phone.
     await app.request(`/api/people/${head.id}`, {
@@ -245,14 +254,17 @@ describe("GET /api/people/:id (integration, SQLite)", () => {
       })
     );
 
-    const member = await insertPerson({
-      firstName: "Li",
-      maritalStatus: "single",
-      membershipStatus: "member",
-      isActive: true,
-      householdId: head1.householdId,
-      householdRole: "child",
-    });
+    const member = await insertPerson(
+      {
+        firstName: "Li",
+        maritalStatus: "single",
+        membershipStatus: "member",
+        isActive: true,
+        householdId: head1.householdId,
+        householdRole: "child",
+      },
+      db
+    );
 
     const before = await json<PersonResponse>(
       await app.request(`/api/people/${member?.id}`)
