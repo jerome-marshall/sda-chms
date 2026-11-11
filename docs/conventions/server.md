@@ -23,7 +23,7 @@ Route adapter  ->  Effect service  ->  Drizzle helper  ->  D1
 - Export one handler per method with `defineHandler`.
 - Validate bodies and params with Zod from `@sda-chms/shared/schema/*`.
 - Call one exported Effect program and return `runApi(program)`.
-- Never import `db`, a Drizzle table, or a helper that runs queries.
+- Never import `db`, a Drizzle table, `@schema`, or a helper under `server/` outside `server/effect/`.
 
 ```ts
 export const GET = defineHandler.withValidator({ params: paramsSchema })(
@@ -51,7 +51,7 @@ export const getPersonById = (id: string) =>
 
 ## Errors
 
-- `HTTPException` is the HTTP contract. Only `runtime.ts` builds one.
+- `HTTPException` is the HTTP contract. `server/effect/errors.ts` builds one and `runtime.ts` throws it.
 - `ZodError` and Drizzle constraint failures are mapped in `apps/chms/server/lib/errors.ts` and the API middleware.
 - A missing record is a 404. A rule violation is a 400. An infrastructure failure is a 500 and never puts SQL or bound values in the body.
 - Do not catch an error to rethrow or format it. Let it reach the edge.

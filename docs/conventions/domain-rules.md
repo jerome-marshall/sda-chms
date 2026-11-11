@@ -13,8 +13,10 @@ These are the rules the system enforces. Write new rules in plain domain languag
 - The household family name is a label stored on the household. It is not derived from the head's last name.
 - The household owns the shared address, phone, and preferred visiting time. A person inherits those values unless they set their own.
 - Deleting a household does not delete its members.
+- When a value comes from the household rather than the person, the interface says so.
 - A person is identified by first name, last name, and date of birth. Email is unique across all people.
 - Names are title-cased before they are stored.
+- Full name and age are derived from stored fields. Nobody enters them.
 
 ## Marital status and relationships
 

@@ -1,9 +1,8 @@
 import { defineHandler } from "void/handler";
 import { z } from "zod";
 
-import { importPeopleCsv } from "../../../server/effect/import";
+import { importPeopleCsv, MAX_CSV_CHARS } from "../../../server/effect/import";
 import { runApi } from "../../../server/effect/runtime";
-import { MAX_CSV_CHARS } from "../../../server/import";
 
 /**
  * Development-only CSV import (the `.dev` suffix keeps it out of builds and

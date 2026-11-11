@@ -30,7 +30,7 @@ A route validates, calls one program from `apps/chms/server/effect/<domain>.ts`,
 
 ## Invariants that bite
 
-- A missing record is a typed `NotFound` failure that maps to 404. A plain `Error` maps to 500.
+- A missing record fails with `PersonNotFound` or `RelationshipNotFound`, which map to 404. A plain `Error` maps to 500.
 - D1 has no transactions. Never call `db.transaction()`. Read, compute every write in memory, then run one `db.batch([...])`.
 - A Household owns the shared contact details and family name, per ADR-0001. A person's effective value is their own, otherwise the Household's. Do not special case the head.
 - A spouse Relationship is the source of truth for Marital Status, per ADR-0003. Read `server/marital-status.ts` before touching either.

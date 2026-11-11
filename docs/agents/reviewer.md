@@ -13,7 +13,7 @@ Read the diff, not the PR summary. Search for each pattern below and ask for its
 ## Effect boundary
 
 - `Effect.runPromise` or `Effect.runSync` outside `apps/chms/server/effect/runtime.ts`.
-- `try/catch` or a bare `throw` inside `apps/chms/server/effect/`.
+- `try/catch` or a bare `throw` inside `apps/chms/server/effect/`, except `runtime.ts`, which throws at the edge.
 - `getDb()` inside a service, or a `db: Database = getDb()` default parameter.
 - An error channel widened to `Error`, `unknown`, or `ApiError` where a named tag belongs.
 - A route that imports `void/db`, Drizzle, or a server module.

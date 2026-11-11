@@ -65,6 +65,12 @@ describe("void/db stand-in surface parity", () => {
   it("createDb throws instead of returning a client", () => {
     expect(() => createDb()).toThrow(/unavailable in tests/u);
   });
+
+  it("exposes the database methods the server uses", () => {
+    for (const method of ["query", "insert", "update", "delete", "batch"]) {
+      expect(method in db).toBe(true);
+    }
+  });
 });
 
 /**

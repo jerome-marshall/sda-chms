@@ -19,7 +19,29 @@ const skipDirs = new Set([
 ]);
 const extensions = [".ts", ".tsx"];
 
-const rules = [
+/** Replaces block comments with spaces so line numbers survive. */
+export const stripBlockComments = (text) =>
+  text.replaceAll(/\/\*[\s\S]*?\*\//gu, (match) =>
+    match.replaceAll(/[^\n]/gu, " ")
+  );
+
+/** The 1-based line of a character index. */
+export const lineOf = (text, index) => text.slice(0, index).split("\n").length;
+
+/** The index of a `void/db` import of the binding, or -1. */
+export const dbImportIndex = (text) => {
+  const pattern =
+    /import\s+(?<clause>\*\s+as\s+\w+|\{[\s\S]*?\})\s*from\s*["']void\/db["']/gu;
+  for (const match of text.matchAll(pattern)) {
+    const clause = match.groups?.clause ?? "";
+    if (clause.startsWith("*") || /\bdb\b/u.test(clause)) {
+      return match.index ?? -1;
+    }
+  }
+  return -1;
+};
+
+export const rules = [
   {
     id: "run-promise-edge",
     message:
@@ -28,9 +50,8 @@ const rules = [
     allow: (file) =>
       file === "apps/chms/server/effect/runtime.ts" ||
       file.startsWith("apps/chms/test/") ||
-      file.startsWith("apps/chms/scripts/") ||
-      file.startsWith("packages/"),
-    test: /\bEffect\.(?:runPromise|runSync)\s*\(/u,
+      file.startsWith("apps/chms/scripts/"),
+    lineTest: /\bEffect\.(?:runPromise|runSync)\s*\(/u,
   },
   {
     id: "ambient-db",
@@ -40,10 +61,9 @@ const rules = [
     allow: (file) =>
       file === "apps/chms/server/db.ts" ||
       file === "apps/chms/server/effect/db.ts" ||
-      file === "apps/chms/server/lib/seed-guard.ts" ||
       file.startsWith("apps/chms/test/") ||
       file.startsWith("apps/chms/scripts/"),
-    test: /\bgetDb\s*\(/u,
+    lineTest: /\bgetDb\s*\(/u,
   },
   {
     id: "db-import",
@@ -52,14 +72,14 @@ const rules = [
     appliesTo: () => true,
     allow: (file) =>
       file === "apps/chms/server/db.ts" || file === "apps/chms/test/void-db.ts",
-    test: /import\s*\{[^}]*\bdb\b[^}]*\}\s*from\s*["']void\/db["']|import\s+db\s+from\s*["']void\/db["']/u,
+    fileTest: dbImportIndex,
   },
   {
     id: "try-catch-in-service",
     message: "Use fromDb, Effect.try, or Effect.fail in a service.",
     appliesTo: (file) => file.startsWith("apps/chms/server/effect/"),
     allow: () => false,
-    test: /(?<![.\w])catch\s*\(|\btry\s*\{/u,
+    lineTest: /(?<![.\w])catch\s*\(|\btry\s*\{/u,
   },
   {
     id: "any-type",
@@ -67,22 +87,23 @@ const rules = [
     appliesTo: () => true,
     allow: (file) =>
       file.endsWith(".d.ts") || file.startsWith("apps/chms/test/"),
-    test: /(?::\s*any\b|\bas\s+any\b|<any>)/u,
+    lineTest: /(?::\s*any\b|\bas\s+any\b|<any>)/u,
   },
   {
     id: "error-channel",
     message: "Name the failure type in the error channel.",
     appliesTo: (file) => file.startsWith("apps/chms/server/effect/"),
     allow: (file) => file === "apps/chms/server/effect/runtime.ts",
-    test: /Effect<[^>]*,\s*(?:Error|unknown)\s*[,>]/u,
+    lineTest: /Effect<[^>]*,\s*(?:Error|unknown)\s*[,>]/u,
   },
   {
     id: "route-reaches-db",
     message:
-      "A route calls one Effect program and runApi. It never touches the database.",
+      "A route calls one Effect program from server/effect and runApi. It never touches the database or a query helper.",
     appliesTo: (file) => file.startsWith("apps/chms/src/routes/"),
     allow: () => false,
-    test: /from\s+["'][^"']*(?:void\/db|drizzle-orm|server\/db)["']/u,
+    lineTest:
+      /from\s+["'][^"']*\/server\/(?!effect\/)[^"']*["']|from\s+["'](?:void\/db|drizzle-orm|@schema)["']/u,
   },
   {
     id: "env-in-domain",
@@ -93,9 +114,50 @@ const rules = [
     allow: (file) =>
       file === "apps/chms/server/lib/seed-guard.ts" ||
       file === "apps/chms/src/db/seed.ts",
-    test: /\bprocess\.env\b/u,
+    lineTest: /\bprocess\.env\b/u,
   },
 ];
+
+/** Returns every violation for one rule in one file. */
+const ruleViolations = (file, clean, rule) => {
+  if (!rule.appliesTo(file) || rule.allow(file)) {
+    return [];
+  }
+
+  if (rule.fileTest) {
+    const index = rule.fileTest(clean);
+    return index < 0
+      ? []
+      : [
+          {
+            file,
+            line: lineOf(clean, index),
+            rule: rule.id,
+            message: rule.message,
+          },
+        ];
+  }
+
+  const found = [];
+  for (const [index, line] of clean.split("\n").entries()) {
+    if (line.trimStart().startsWith("//")) {
+      continue;
+    }
+    if (rule.lineTest.test(line)) {
+      found.push({
+        file,
+        line: index + 1,
+        rule: rule.id,
+        message: rule.message,
+      });
+    }
+  }
+  return found;
+};
+
+/** Returns every violation in one file. Pure, so the rules can be tested. */
+export const scanText = (file, text) =>
+  rules.flatMap((rule) => ruleViolations(file, stripBlockComments(text), rule));
 
 const walk = (dir, found = []) => {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -112,50 +174,32 @@ const walk = (dir, found = []) => {
   return found;
 };
 
-const violations = [];
-
-for (const base of roots) {
-  for (const full of walk(path.join(root, base))) {
-    const file = path.relative(root, full);
-    if (file.endsWith(".d.ts")) {
-      continue;
-    }
-    const lines = readFileSync(full, "utf-8").split("\n");
-    for (const rule of rules) {
-      if (!rule.appliesTo(file) || rule.allow(file)) {
+const main = () => {
+  const violations = [];
+  for (const base of roots) {
+    for (const full of walk(path.join(root, base))) {
+      const file = path.relative(root, full);
+      if (file.endsWith(".d.ts")) {
         continue;
       }
-      for (const [index, line] of lines.entries()) {
-        const trimmed = line.trimStart();
-        if (
-          trimmed.startsWith("*") ||
-          trimmed.startsWith("//") ||
-          trimmed.startsWith("/*")
-        ) {
-          continue;
-        }
-        if (rule.test.test(line)) {
-          violations.push({
-            file,
-            line: index + 1,
-            rule: rule.id,
-            message: rule.message,
-          });
-        }
-      }
+      violations.push(...scanText(file, readFileSync(full, "utf-8")));
     }
   }
-}
 
-for (const violation of violations) {
-  console.log(
-    `${violation.file}:${violation.line}  ${violation.rule}  ${violation.message}`
-  );
-}
+  for (const violation of violations) {
+    console.log(
+      `${violation.file}:${violation.line}  ${violation.rule}  ${violation.message}`
+    );
+  }
 
-if (violations.length > 0) {
-  console.error(`\n${violations.length} boundary violation(s).`);
-  process.exit(1);
-}
+  if (violations.length > 0) {
+    console.error(`\n${violations.length} boundary violation(s).`);
+    process.exit(1);
+  }
 
-console.log("Boundaries clean.");
+  console.log("Boundaries clean.");
+};
+
+if (process.argv[1] === import.meta.filename) {
+  main();
+}

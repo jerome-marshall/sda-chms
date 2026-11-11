@@ -31,10 +31,10 @@ A green local run should mean a green PR. If a command fails, fix the cause in t
 
 `pnpm verify` fails when:
 
-- `Effect.runPromise` or `Effect.runSync` appears outside `apps/chms/server/effect/runtime.ts`.
+- `Effect.runPromise` or `Effect.runSync` appears outside `apps/chms/server/effect/runtime.ts`, the tests, and the scripts.
 - a module imports the `db` binding from `void/db` outside `apps/chms/server/db.ts`.
 - a service under `apps/chms/server/effect/` calls `getDb()` or wraps work in `try/catch`.
-- a route imports `void/db`, Drizzle, or a server module instead of an Effect program.
+- a route imports `void/db`, Drizzle, `@schema`, or anything under `server/` outside `server/effect/`.
 - `as any` or `: any` appears in application code.
 - an Effect error channel is `Error` or `unknown` instead of a named failure.
 - `process.env` appears in domain code.
