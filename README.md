@@ -98,7 +98,8 @@ sda-chms/
 │   └── shared/                 # Zod schemas, constants, types, pure helpers
 └── docs/
     ├── adr/                    # architecture decisions
-    └── agents/                 # how agents work in this repo
+    ├── agents/                 # how agents work in this repo
+    └── conventions/            # the rules for each area
 ```
 
 The API under `/api/*` is the single data contract. Page loaders and actions call it with `fetch` from `void/client`, which runs in-process during SSR. The planned Expo app will call the same routes, so no page imports a server module to read data.
@@ -112,7 +113,7 @@ The API under `/api/*` is the single data contract. Page loaders and actions cal
 - `pnpm check`: run `vp check --fix` (format, lint, type check)
 - `pnpm db:migrate`, `pnpm db:generate`, `pnpm db:seed`: database commands above
 - `pnpm test:e2e`: run Playwright against the built worker on local D1
-- `pnpm verify`: run the CI test job locally (codegen, env, types, lint, drift, tests)
+- `pnpm verify`: run the CI gate locally (codegen, env, types, lint, boundaries, test integrity, drift, tests, build)
 - `pnpm verify:pr`: run `pnpm verify` plus the production build and Playwright; this is the PR proof gate
 
 ## Environment and security
@@ -129,5 +130,5 @@ Security headers (`x-content-type-options`, `x-frame-options`, `referrer-policy`
 
 - `CONTEXT.md` defines the domain vocabulary
 - `docs/adr/` records the architecture decisions
-- `.cursor/rules/` holds the conventions agents and contributors follow
+- `docs/conventions/` holds the conventions agents and contributors follow
 - `apps/chms/ENV.md` covers environment declarations

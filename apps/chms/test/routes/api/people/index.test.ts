@@ -6,7 +6,7 @@ import { insertPerson } from "../../../../server/people";
 import { json, postPerson as postPersonTo, validHead } from "../../../fixtures";
 import type { PersonResponse } from "../../../fixtures";
 import { createTestApp } from "../../../routes";
-import { resetDb } from "../../../void-db";
+import { db, resetDb } from "../../../void-db";
 
 describe("POST /api/people (integration, SQLite)", () => {
   let app: Hono;
@@ -82,8 +82,8 @@ describe("POST /api/people (integration, SQLite)", () => {
       membershipStatus: "member",
       isActive: true,
     } satisfies PeopleInsertDb;
-    await insertPerson(row);
-    await expect(insertPerson(row)).rejects.toThrow(
+    await insertPerson(row, db);
+    await expect(insertPerson(row, db)).rejects.toThrow(
       /UNIQUE constraint failed/u
     );
   });

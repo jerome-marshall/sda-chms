@@ -142,7 +142,11 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
   },
   staged: {
-    "*": ["vp check --fix", () => "vp run check-types"],
+    "*": [
+      "vp check --fix",
+      () => "vp run check-types",
+      () => "pnpm run check:boundaries",
+    ],
   },
   run: {
     tasks: {
@@ -161,8 +165,11 @@ export default defineConfig({
         "pnpm --dir apps/chms exec void env check",
         "vp run -r check-types",
         "vp check",
+        "pnpm run check:boundaries",
+        "pnpm run check:tests",
         "vp run db:drift",
         "vp test run",
+        "pnpm run build",
       ],
     },
   },

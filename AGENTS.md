@@ -1,20 +1,48 @@
+# AGENTS.md
+
+sda-chms is a church management system for a Seventh-day Adventist congregation. One Void app in `apps/chms` serves the rendered pages and the JSON API from a single origin. Data lives in Cloudflare D1 through Drizzle. `packages/shared` holds the Zod schemas, constants, and pure rules.
+
 ## Start here
 
-- Building a feature: `docs/agents/feature-loop.md`.
-- Verify before handing back: `pnpm verify`. For a PR with UI proof:
-  `pnpm verify:pr`.
-- Domain vocabulary: `CONTEXT.md`. Decisions: `docs/adr/`. Area conventions:
-  `.cursor/rules/`.
-- Server rule changes: `docs/agents/effect-slice.md`.
+Read `CONTEXT.md` for domain vocabulary and `docs/adr/` for decisions before you change behavior.
 
-### Issue tracker
+Before you edit an area, read its convention file.
 
-Issues are tracked in this repo's GitHub Issues via the `gh` CLI. External PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
+| Area                                         | File                               |
+| -------------------------------------------- | ---------------------------------- |
+| Repo layout, commands, naming, docs          | `docs/conventions/project.md`      |
+| API, server modules, Effect services, errors | `docs/conventions/server.md`       |
+| Schema, migrations, Drizzle, D1              | `docs/conventions/database.md`     |
+| Pages, loaders, components, styling          | `docs/conventions/frontend.md`     |
+| Shared schemas, constants, utils             | `docs/conventions/shared.md`       |
+| Church domain rules                          | `docs/conventions/domain-rules.md` |
 
-### Triage labels
+Building a feature: `docs/agents/feature-loop.md`.
+Reviewing a diff: `docs/agents/reviewer.md`.
+Issue tracking and triage: `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`.
 
-Default canonical label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+## Verify before you hand back
 
-### Domain docs
+`pnpm verify` runs the CI gate. `pnpm verify:pr` adds Playwright against the built worker on local D1, so use it for any page or runtime change.
 
-Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+A green local run should mean a green PR. If a command fails, fix the cause in the same change.
+
+## What the gate enforces
+
+`pnpm verify` fails when:
+
+- `Effect.runPromise` or `Effect.runSync` appears outside `apps/chms/server/effect/runtime.ts`.
+- a module imports the `db` binding from `void/db` outside `apps/chms/server/db.ts`.
+- a service under `apps/chms/server/effect/` calls `getDb()` or wraps work in `try/catch`.
+- a route imports `void/db`, Drizzle, or a server module instead of an Effect program.
+- `as any` or `: any` appears in application code.
+- an Effect error channel is `Error` or `unknown` instead of a named failure.
+- `process.env` appears in domain code.
+- a test is skipped or focused, or test cases are removed without the `test-deleted` label.
+- the schema and the committed migrations disagree.
+
+Each rule names the file and line, so fix the cause rather than the report.
+
+## Reviewing a change
+
+Every PR gets a second read against `docs/agents/reviewer.md`. The reviewer searches the diff for the listed patterns and asks for their removal. Review the diff, not the PR summary.

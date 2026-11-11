@@ -12,6 +12,7 @@
 - [ ] `pnpm verify:pr` passes for a UI or runtime change
 - [ ] A test fails if the new behavior breaks (name it)
 - [ ] UI changes include a screenshot, recording, or Playwright trace
+- [ ] The diff was read against `docs/agents/reviewer.md` (paste `REVIEW: clean` below)
 
 ```
 # paste the relevant command output here
@@ -25,5 +26,6 @@
 
 - [ ] The domain shape was named before the code
 - [ ] New rules are at the boundary, not duplicated in the UI and the server
-- [ ] No new layer (repository, DI, query cache, generic CRUD framework)
+- [ ] No new layer (repository, DI, query cache, generic CRUD module)
 - [ ] Docs updated only where behavior or commands changed
+- [ ] Any migration, deploy, or remote seed is flagged for a human
