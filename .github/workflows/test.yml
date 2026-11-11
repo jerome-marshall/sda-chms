@@ -50,7 +50,17 @@ jobs:
           cache: true
 
       - name: Install Playwright browser
-        run: pnpm exec playwright install --with-deps chromium
+        # The browser install adds apt packages. A runner that loses DNS for
+        # the Ubuntu archive fails the whole job, so retry the install.
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm exec playwright install --with-deps chromium; then
+              exit 0
+            fi
+            echo "Playwright install failed on attempt ${attempt}; retrying"
+            sleep 15
+          done
+          exit 1
 
       - name: Run E2E tests
         run: vp run test:e2e
