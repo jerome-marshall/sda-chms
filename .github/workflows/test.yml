@@ -37,10 +37,16 @@ jobs:
 
   # End-to-end tests against the built worker on local D1. This is the proof
   # that pages render and hydrate, so it runs on PRs as well as main.
+  #
+  # The Playwright image already carries the browser and its system libraries,
+  # so the job never runs apt against the Ubuntu archive. A runner that loses
+  # DNS then cannot fail the job before a test starts.
   e2e:
     runs-on: ubuntu-latest
     needs: test
     timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
     steps:
       - uses: actions/checkout@v4
 
@@ -48,19 +54,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
-
-      - name: Install Playwright browser
-        # The browser install adds apt packages. A runner that loses DNS for
-        # the Ubuntu archive fails the whole job, so retry the install.
-        run: |
-          for attempt in 1 2 3; do
-            if pnpm exec playwright install --with-deps chromium; then
-              exit 0
-            fi
-            echo "Playwright install failed on attempt ${attempt}; retrying"
-            sleep 15
-          done
-          exit 1
 
       - name: Run E2E tests
         run: vp run test:e2e
