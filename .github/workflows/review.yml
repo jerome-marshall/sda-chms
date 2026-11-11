@@ -1,0 +1,66 @@
+name: review
+
+on:
+  pull_request:
+
+concurrency:
+  group: review-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Check for the review key
+        id: key
+        env:
+          REVIEW_API_KEY: ${{ secrets.REVIEW_API_KEY }}
+        run: |
+          if [ -n "$REVIEW_API_KEY" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip without the key
+        if: steps.key.outputs.present == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR" --body "Automated review skipped: the REVIEW_API_KEY secret is not set. A human review still needs to run the list in docs/agents/reviewer.md."
+
+      - name: Review the diff
+        if: steps.key.outputs.present == 'true'
+        env:
+          REVIEW_API_KEY: ${{ secrets.REVIEW_API_KEY }}
+          REVIEW_BASE_URL: ${{ vars.REVIEW_BASE_URL || secrets.REVIEW_BASE_URL }}
+          REVIEW_MODEL: ${{ vars.REVIEW_MODEL || secrets.REVIEW_MODEL }}
+          BASE_REF: origin/${{ github.base_ref || 'main' }}
+        run: |
+          set +e
+          node scripts/review-diff.mjs > review-comment.md 2>&1
+          status=$?
+          set -e
+          cat review-comment.md
+          exit $status
+
+      - name: Post the review
+        if: always() && steps.key.outputs.present == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR" --body-file review-comment.md
