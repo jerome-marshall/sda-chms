@@ -77,9 +77,28 @@ export function groupByHousehold(validRows: ValidEntry[]): {
   const groups: HouseholdGroup[] = [];
 
   for (const [familyName, members] of familyMap) {
+    const kept: ValidEntry[] = [];
+    let seenHead = false;
+
+    for (const member of members) {
+      const isHead = (getRelation(member.row) || "head") === "head";
+      if (isHead && seenHead) {
+        rejected.push({
+          row: member.row,
+          csvRowNum: member.csvRowNum,
+          reason: "second head in Family - skipping",
+        });
+        continue;
+      }
+      if (isHead) {
+        seenHead = true;
+      }
+      kept.push(member);
+    }
+
     groups.push({
       familyName,
-      members,
+      members: kept,
       role: (row) => getRelation(row) || "head",
     });
   }
