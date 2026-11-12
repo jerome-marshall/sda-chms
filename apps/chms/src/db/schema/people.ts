@@ -161,6 +161,11 @@ export const peopleTable = sqliteTable(
       table.identityLastName,
       table.identityDateOfBirth
     ),
+    // A Household has exactly one Head. The service returns a 409 before the
+    // write; this partial index closes the race between two writes.
+    uniqueIndex("unique_household_head")
+      .on(table.householdId)
+      .where(sql`${table.householdRole} = 'head'`),
     enumCheck("gender", GENDER_VALUES),
     enumCheck("marital_status", MARITAL_STATUS_VALUES),
     enumCheck("membership_status", MEMBERSHIP_STATUS_VALUES),

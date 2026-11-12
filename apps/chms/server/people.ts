@@ -5,7 +5,7 @@ import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { calculateAge, toTitleCase } from "@sda-chms/shared/utils/helpers";
 import { eq } from "void/db";
 
-import type { Database } from "./db";
+import type { QueryDatabase, WriteDatabase } from "./db";
 
 /** The Household's own columns surfaced alongside each Person for the effective-value rule (ADR-0001). */
 const householdContactColumns = {
@@ -20,7 +20,7 @@ const householdContactColumns = {
 } as const;
 
 /** Fetches all people with their Household's shared contact fields for the effective-value rule. */
-export const getAllPeopleWithHouseholdRows = (db: Database) =>
+export const getAllPeopleWithHouseholdRows = (db: QueryDatabase) =>
   db.query.peopleTable.findMany({
     with: {
       household: { columns: householdContactColumns },
@@ -28,13 +28,13 @@ export const getAllPeopleWithHouseholdRows = (db: Database) =>
   });
 
 /** Fetches a single person without household data. */
-export const getPersonRowById = (db: Database, id: string) =>
+export const getPersonRowById = (db: QueryDatabase, id: string) =>
   db.query.peopleTable.findFirst({
     where: (table) => eq(table.id, id),
   });
 
 /** Fetches a single person with their Household's shared contact fields for the effective-value rule. */
-export const getPersonWithHouseholdRowById = (db: Database, id: string) =>
+export const getPersonWithHouseholdRowById = (db: QueryDatabase, id: string) =>
   db.query.peopleTable.findFirst({
     where: (table) => eq(table.id, id),
     with: {
@@ -49,18 +49,18 @@ export const getPersonWithHouseholdRowById = (db: Database, id: string) =>
  */
 
 /** Lazy person insert used inside a batch; the caller reads row [0] of its result. */
-export const insertPersonStmt = (db: Database, data: PeopleInsertDb) =>
+export const insertPersonStmt = (db: WriteDatabase, data: PeopleInsertDb) =>
   db.insert(peopleTable).values(data).returning();
 
 /** Lazy person update used inside a batch. */
 export const updatePersonStmt = (
-  db: Database,
+  db: WriteDatabase,
   id: string,
   data: Partial<PeopleInsertDb>
 ) => db.update(peopleTable).set(data).where(eq(peopleTable.id, id)).returning();
 
 /** Inserts a person record (single write; batch paths use `insertPersonStmt`). */
-export const insertPerson = async (data: PeopleInsertDb, db: Database) => {
+export const insertPerson = async (data: PeopleInsertDb, db: WriteDatabase) => {
   const person = await db.insert(peopleTable).values(data).returning();
   return person[0];
 };

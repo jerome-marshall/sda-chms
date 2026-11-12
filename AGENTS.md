@@ -45,4 +45,4 @@ Each rule names the file and line, so fix the cause rather than the report.
 
 ## Reviewing a change
 
-Every PR gets a second read against `docs/agents/reviewer.md`. The reviewer searches the diff for the listed patterns and asks for their removal. Review the diff, not the PR summary.
+Every PR gets a second read against `docs/agents/reviewer.md`. The reviewer searches the diff for the listed patterns and asks for their removal. Review the diff, not the PR summary. CI runs the same list through `scripts/review-diff.mjs` on every PR, and a finding fails the job.

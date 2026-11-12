@@ -41,3 +41,11 @@ List findings as `path:line  [severity]  what to remove`. Severity is blocker, h
 ## One-way doors
 
 Flag these for a human even when the diff is small: a migration, a deploy or preview promotion, a secret or environment change, an auth change, a remote seed or bulk import, and any notification that leaves the system.
+
+## In CI
+
+`.github/workflows/review.yml` runs `scripts/review-diff.mjs` on every pull request. The script sends the diff and this file to an OpenAI-compatible `POST {REVIEW_BASE_URL}/chat/completions`. The job fails unless the reply ends with `REVIEW: clean`, and it posts the reply as a PR comment.
+
+The workflow reads `REVIEW_API_KEY` from repository secrets, and `REVIEW_BASE_URL` and `REVIEW_MODEL` from repository variables. A secret with the same name also works for the last two. Without `REVIEW_API_KEY` the job posts a notice and passes.
+
+This check is not required in branch protection.

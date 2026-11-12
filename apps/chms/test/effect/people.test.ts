@@ -4,7 +4,11 @@ import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { Effect, Layer } from "effect";
 
 import { DbLive } from "../../server/effect/db";
-import { PersonNotFound } from "../../server/effect/errors";
+import {
+  HouseholdAlreadyHasHead,
+  HouseholdNeedsHead,
+  PersonNotFound,
+} from "../../server/effect/errors";
 import { MaritalStatusLive } from "../../server/effect/marital-status";
 import {
   addPerson,
@@ -109,6 +113,103 @@ describe("People service", () => {
       ).pipe(Effect.flip);
 
       expect(failure).toBeInstanceOf(PersonNotFound);
+    }).pipe(Effect.provide(TestLive))
+  );
+
+  it.effect("fails when a Head joins an existing Household", () =>
+    Effect.gen(function* headJoinsHouseholdProgram() {
+      const head = yield* addPerson(headForm);
+
+      const failure = yield* addPerson({
+        ...headForm,
+        firstName: "ann",
+        dateOfBirth: "1985-05-05",
+        householdId: head.householdId ?? undefined,
+      }).pipe(Effect.flip);
+
+      expect(failure).toBeInstanceOf(HouseholdAlreadyHasHead);
+      expect(failure._tag).toBe("HouseholdAlreadyHasHead");
+    }).pipe(Effect.provide(TestLive))
+  );
+
+  it.effect("fails when a Household would gain a second Head", () =>
+    Effect.gen(function* secondHeadProgram() {
+      const head = yield* addPerson(headForm);
+      const member = yield* seedPerson({
+        firstName: "Li",
+        householdId: head.householdId,
+        householdRole: "child",
+      });
+
+      const failure = yield* updatePerson(member.id, {
+        ...headForm,
+        firstName: "li",
+        dateOfBirth: "2012-01-01",
+        householdId: head.householdId ?? undefined,
+        householdRole: "head",
+      }).pipe(Effect.flip);
+
+      expect(failure).toBeInstanceOf(HouseholdAlreadyHasHead);
+    }).pipe(Effect.provide(TestLive))
+  );
+
+  it.effect("lets an existing Head update themselves", () =>
+    Effect.gen(function* updateHeadProgram() {
+      const head = yield* addPerson(headForm);
+
+      const updated = yield* updatePerson(head.id, {
+        ...headForm,
+        lastName: "smith",
+        familyName: "The Smiths",
+        householdId: head.householdId ?? undefined,
+      });
+
+      expect(updated.id).toBe(head.id);
+      expect(updated.fullName).toBe("Jo Smith");
+      expect(updated.householdId).toBe(head.householdId);
+      expect(updated.householdFamilyName).toBe("The Smiths");
+    }).pipe(Effect.provide(TestLive))
+  );
+
+  it.effect("fails when the only Head is demoted", () =>
+    Effect.gen(function* demoteHeadProgram() {
+      const head = yield* addPerson(headForm);
+
+      const failure = yield* updatePerson(head.id, {
+        ...headForm,
+        householdId: head.householdId ?? undefined,
+        householdRole: "child",
+      }).pipe(Effect.flip);
+
+      expect(failure).toBeInstanceOf(HouseholdNeedsHead);
+    }).pipe(Effect.provide(TestLive))
+  );
+
+  it.effect("fails when a Head moves to another Household", () =>
+    Effect.gen(function* moveHeadProgram() {
+      const first = yield* addPerson(headForm);
+      const second = yield* addPerson({
+        ...headForm,
+        firstName: "ann",
+        dateOfBirth: "1985-05-05",
+      });
+
+      const failure = yield* updatePerson(first.id, {
+        ...headForm,
+        householdId: second.householdId ?? undefined,
+      }).pipe(Effect.flip);
+
+      expect(failure).toBeInstanceOf(HouseholdAlreadyHasHead);
+    }).pipe(Effect.provide(TestLive))
+  );
+
+  it.effect("fails when a Head leaves their Household for a new one", () =>
+    Effect.gen(function* leaveHeadProgram() {
+      const head = yield* addPerson(headForm);
+
+      const failure = yield* updatePerson(head.id, headForm).pipe(Effect.flip);
+
+      expect(failure).toBeInstanceOf(HouseholdAlreadyHasHead);
     }).pipe(Effect.provide(TestLive))
   );
 });

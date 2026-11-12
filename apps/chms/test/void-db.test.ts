@@ -5,6 +5,12 @@ import path from "node:path";
 import { householdsTable, peopleTable } from "@schema";
 import { describe, expect, it } from "vite-plus/test";
 
+import type {
+  BatchDatabase,
+  DatabaseSurface,
+  QueryDatabase,
+  WriteDatabase,
+} from "../server/db";
 import { createDb, db, resetDb } from "./void-db";
 // oxlint-disable-next-line import/no-namespace -- Object.keys over the module namespace is the parity assertion
 import * as standIn from "./void-db";
@@ -66,10 +72,16 @@ describe("void/db stand-in surface parity", () => {
     expect(() => createDb()).toThrow(/unavailable in tests/u);
   });
 
-  it("exposes the database methods the server uses", () => {
-    for (const method of ["query", "insert", "update", "delete", "batch"]) {
-      expect(method in db).toBe(true);
-    }
+  it("implements every database surface the server helpers accept", () => {
+    // These annotations are the check: `tsc` rejects the assignment when a
+    // helper's surface grows past what the stand-in implements.
+    const surfaces: [
+      QueryDatabase,
+      WriteDatabase,
+      BatchDatabase,
+      DatabaseSurface,
+    ] = [db, db, db, db];
+    expect(surfaces).toHaveLength(4);
   });
 });
 
@@ -101,6 +113,33 @@ describe("real baseline migration in SQLite", () => {
     await resetDb();
     await expect(db.select().from(peopleTable)).resolves.toStrictEqual([]);
     await expect(db.select().from(householdsTable)).resolves.toStrictEqual([]);
+  });
+
+  it("rejects a second Head in one Household", async () => {
+    await resetDb();
+
+    const [household] = await db
+      .insert(householdsTable)
+      .values({ familyName: "One Head Only" })
+      .returning();
+
+    await db.insert(peopleTable).values({
+      firstName: "First",
+      householdId: household?.id,
+      householdRole: "head",
+      maritalStatus: "single",
+      membershipStatus: "member",
+    });
+
+    await expect(
+      db.insert(peopleTable).values({
+        firstName: "Second",
+        householdId: household?.id,
+        householdRole: "head",
+        maritalStatus: "single",
+        membershipStatus: "member",
+      })
+    ).rejects.toThrow(/UNIQUE constraint failed: people.household_id/u);
   });
 
   it("a failing statement in batch rolls back the earlier statements", async () => {
