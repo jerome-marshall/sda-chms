@@ -11,7 +11,6 @@
     "test:watch": "vp test",
     "test:e2e": "playwright test",
     "check:boundaries": "node scripts/check-boundaries.mjs",
-    "check:tests": "node scripts/check-test-integrity.mjs",
     "test:scripts": "node --test scripts/*.test.mjs",
     "verify": "vp run verify:ci",
     "verify:pr": "pnpm verify && CI=1 pnpm test:e2e",

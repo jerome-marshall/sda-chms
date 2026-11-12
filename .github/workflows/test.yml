@@ -18,6 +18,10 @@ jobs:
   # once so the local command and CI cannot drift.
   test:
     runs-on: ubuntu-latest
+    env:
+      # Job level, because the task runner may not inherit step-level env.
+      BASE_REF: origin/${{ github.base_ref || 'main' }}
+      ALLOW_TEST_DELETION: ${{ contains(github.event.pull_request.labels.*.name, 'test-deleted') && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,9 +35,6 @@ jobs:
 
       - name: Verify
         run: pnpm verify
-        env:
-          BASE_REF: origin/${{ github.base_ref || 'main' }}
-          ALLOW_TEST_DELETION: ${{ contains(github.event.pull_request.labels.*.name, 'test-deleted') && '1' || '0' }}
 
   # End-to-end tests against the built worker on local D1. This is the proof
   # that pages render and hydrate, so it runs on PRs as well as main.
