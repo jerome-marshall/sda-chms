@@ -4,7 +4,7 @@ import { inferSchema, initParser } from "udsv";
 import { groupByHousehold } from "../scripts/household-resolver";
 import { isValidRow, transformRow } from "../scripts/import-helpers";
 import type { CsvRow, ImportSummary } from "../scripts/import-helpers";
-import type { Database } from "./db";
+import type { BatchWriteDatabase } from "./db";
 import { ImportLimitExceeded } from "./effect/errors";
 import { insertHouseholdStmt } from "./households";
 import { insertPersonStmt } from "./people";
@@ -20,7 +20,7 @@ const MAX_ROWS = 50_000;
  * as one batch, so a failing row cannot leave a half-imported family.
  */
 export const importPeopleCsv = async (
-  db: Database,
+  db: BatchWriteDatabase,
   csv: string
 ): Promise<ImportSummary> => {
   const parser = initParser(inferSchema(csv));

@@ -10,7 +10,7 @@ import {
 } from "@sda-chms/shared/utils/marital-status";
 import type { SpouseLinkForMaritalStatus } from "@sda-chms/shared/utils/marital-status";
 
-import type { Database } from "./db";
+import type { QueryDatabase } from "./db";
 
 export type MembershipStatus = (typeof MEMBERSHIP_STATUS_VALUES)[number];
 export type MaritalStatus = (typeof MARITAL_STATUS_VALUES)[number];
@@ -28,7 +28,10 @@ export interface MaritalStatusPlan {
  * Fetches every spouse link that touches any of the given people, with both
  * sides' membership status so widowhood (and Marital Status) can be resolved.
  */
-const getSpouseLinksForPeople = async (db: Database, personIds: string[]) => {
+const getSpouseLinksForPeople = async (
+  db: QueryDatabase,
+  personIds: string[]
+) => {
   if (personIds.length === 0) {
     return [];
   }
@@ -104,7 +107,7 @@ export const governingMaritalStatusInGraph = (
  * this graph goes into the caller's single batch.
  */
 export const readSpouseLinkGraph = async (
-  db: Database,
+  db: QueryDatabase,
   personIds: string[]
 ): Promise<SpouseLinkGraph> => {
   const uniqueIds = [...new Set(personIds)];

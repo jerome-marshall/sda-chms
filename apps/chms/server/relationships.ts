@@ -11,7 +11,7 @@ import {
 } from "@sda-chms/shared/utils/marital-status";
 import { eq } from "void/db";
 
-import type { Database } from "./db";
+import type { QueryDatabase, WriteDatabase } from "./db";
 
 /**
  * The person columns surfaced for each side of a relationship. `membershipStatus`
@@ -26,7 +26,7 @@ const relatedPersonColumns = {
 } as const;
 
 /** Fetches a single relationship row by id (read-first step for batch rewrites). */
-export const getRelationshipRowById = (db: Database, id: string) =>
+export const getRelationshipRowById = (db: QueryDatabase, id: string) =>
   db.query.relationshipsTable.findFirst({
     where: (table, { eq: eqOp }) => eqOp(table.id, id),
   });
@@ -37,7 +37,10 @@ export const getRelationshipRowById = (db: Database, id: string) =>
  * each with the joined person on both sides so the link can be resolved from
  * this person's perspective.
  */
-export const getRelationshipsForPersonRows = (db: Database, personId: string) =>
+export const getRelationshipsForPersonRows = (
+  db: QueryDatabase,
+  personId: string
+) =>
   db.query.relationshipsTable.findMany({
     where: (table, { or, eq: eqOp }) =>
       or(eqOp(table.personId, personId), eqOp(table.relatedPersonId, personId)),
@@ -49,13 +52,13 @@ export const getRelationshipsForPersonRows = (db: Database, personId: string) =>
 
 /** Lazy insert used inside a batch; the caller reads row [0] of its result. */
 export const insertRelationshipStmt = (
-  db: Database,
+  db: WriteDatabase,
   data: RelationshipsInsertDb
 ) => db.insert(relationshipsTable).values(data).returning();
 
 /** Lazy spouse-state update used inside a batch. */
 export const updateRelationshipStateStmt = (
-  db: Database,
+  db: WriteDatabase,
   id: string,
   state: (typeof SPOUSE_STATE_VALUES)[number]
 ) =>
@@ -66,7 +69,7 @@ export const updateRelationshipStateStmt = (
     .returning();
 
 /** Lazy delete used inside a batch. */
-export const deleteRelationshipStmt = (db: Database, id: string) =>
+export const deleteRelationshipStmt = (db: WriteDatabase, id: string) =>
   db
     .delete(relationshipsTable)
     .where(eq(relationshipsTable.id, id))

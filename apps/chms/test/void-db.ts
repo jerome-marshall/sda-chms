@@ -5,7 +5,7 @@ import { getTableName, is } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { SQLiteTable } from "drizzle-orm/sqlite-core";
 
-import type { Database as AppDatabase } from "../server/db";
+import type { DatabaseSurface } from "../server/db";
 import migrationJournal from "../src/db/migrations/meta/_journal.json";
 
 export {
@@ -65,7 +65,9 @@ const base = drizzle(client, { schema });
  * unexecuted builders and read row [0] of each result, exactly as with
  * D1's `db.batch`.
  */
-const batch = (queries: PromiseLike<unknown>[]): Promise<unknown[]> => {
+const batch = (
+  queries: readonly PromiseLike<unknown>[]
+): Promise<unknown[]> => {
   try {
     return Promise.resolve(
       client.transaction(() =>
@@ -82,7 +84,7 @@ const batch = (queries: PromiseLike<unknown>[]): Promise<unknown[]> => {
 };
 
 /** The shared test database: Drizzle over in-memory SQLite with D1's batch shape. */
-export const db = Object.assign(base, { batch }) as unknown as AppDatabase;
+export const db = Object.assign(base, { batch }) satisfies DatabaseSurface;
 
 /**
  * Applies the committed migration history, statement by statement in journal
