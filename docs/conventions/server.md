@@ -55,12 +55,12 @@ export const getPersonById = (id: string) =>
 
 `server/effect/errors.ts` names every failure, and `runtime.ts` maps each of the three groups once (ADR-0010).
 
-- `DomainError` is a broken rule: a missing Person or Relationship, a Marital Status conflict, a spouse state on a non-spouse link, an import limit. `describe` gives it its 404 or 400, `toHttpException` builds the body.
+- `DomainError` is a broken rule: a missing Person or Relationship, a Marital Status conflict, a spouse state on a non-spouse link, a second Head in a Household, an import limit. `describe` gives it its 404, 400, or 409, `toHttpException` builds the body.
 - `InfraError` is a database or transport fault. It carries the original cause, and `runtime.ts` rethrows that cause so the constraint mapping is unchanged.
 - `InvariantError` is a broken internal assumption. It carries the message for the log, and the body is a generic 500 with no developer text.
 - `HTTPException` is the HTTP contract. `server/effect/errors.ts` builds one and `runtime.ts` throws it.
 - `ZodError` and Drizzle constraint failures are mapped in `apps/chms/server/lib/errors.ts` and the API middleware.
-- A missing record is a 404. A rule violation is a 400. An infrastructure failure is a 500 and never puts SQL or bound values in the body.
+- A missing record is a 404. A rule violation is a 400, except a Household that would gain a second Head, which is a 409. An infrastructure failure is a 500 and never puts SQL or bound values in the body.
 - Do not catch an error to rethrow or format it. Let it reach the edge. A helper that throws keeps its throw; the service recovers it by tag, as the import limit does.
 
 ## D1 writes

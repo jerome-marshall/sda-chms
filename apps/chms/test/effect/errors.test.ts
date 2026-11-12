@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 import {
+  HouseholdAlreadyHasHead,
   ImportLimitExceeded,
   InfraError,
   MaritalStatusConflict,
@@ -41,6 +42,7 @@ describe("the route edge maps each failure group once", () => {
     const cases = [
       [new RelationshipNotFound({ id: "unknown" }), 404],
       [new MaritalStatusConflict(), 400],
+      [new HouseholdAlreadyHasHead(), 409],
       [new SpouseStateOnNonSpouse(), 400],
       [new ImportLimitExceeded({ rows: 3, limit: 2 }), 400],
     ] as const;

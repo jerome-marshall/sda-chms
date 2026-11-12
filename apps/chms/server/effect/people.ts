@@ -3,6 +3,7 @@ import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { Context, Effect, Layer } from "effect";
 
 import {
+  getHouseholdHeadRow,
   householdWriteFields,
   insertHouseholdStmt,
   updateHouseholdStmt,
@@ -22,6 +23,7 @@ import {
 import type { PersonWithHouseholdApi } from "../people";
 import { Db, fromDb } from "./db";
 import {
+  HouseholdAlreadyHasHead,
   internalFailure,
   MaritalStatusConflict,
   PersonNotFound,
@@ -37,13 +39,19 @@ export interface PeopleService {
   ) => Effect.Effect<PersonWithHouseholdApi, PersonNotFound | InfraError>;
   readonly add: (
     data: PersonInsertForm
-  ) => Effect.Effect<PersonWithHouseholdApi, InfraError | InvariantError>;
+  ) => Effect.Effect<
+    PersonWithHouseholdApi,
+    HouseholdAlreadyHasHead | InfraError | InvariantError
+  >;
   readonly update: (
     id: string,
     data: PersonInsertForm
   ) => Effect.Effect<
     PersonWithHouseholdApi,
-    PersonNotFound | MaritalStatusConflict | InfraError
+    | PersonNotFound
+    | MaritalStatusConflict
+    | HouseholdAlreadyHasHead
+    | InfraError
   >;
 }
 
@@ -76,6 +84,12 @@ export const PeopleLive = Layer.effect(
         }),
       add: (data) =>
         Effect.gen(function* addPersonProgram() {
+          // A Head defines their Household, so a Head who already points at one
+          // would give that Household a second Head.
+          if (data.householdRole === HOUSEHOLD_ROLE.HEAD && data.householdId) {
+            return yield* Effect.fail(new HouseholdAlreadyHasHead());
+          }
+
           const personData = personApiToDb(data);
           let personId: string;
 
@@ -127,10 +141,29 @@ export const PeopleLive = Layer.effect(
       update: (id, data) =>
         Effect.gen(function* updatePersonProgram() {
           const current = yield* fromDb(() => getPersonRowById(db, id));
-          const { rows, affected } = yield* maritalStatus.readGraph([id]);
           if (!current) {
             return yield* Effect.fail(new PersonNotFound({ id }));
           }
+
+          // A Head defines their Household: they cannot move to another one,
+          // and a Household cannot gain a second Head.
+          if (
+            current.householdRole === HOUSEHOLD_ROLE.HEAD &&
+            data.householdId !== current.householdId
+          ) {
+            return yield* Effect.fail(new HouseholdAlreadyHasHead());
+          }
+          const targetHouseholdId = data.householdId;
+          if (targetHouseholdId && data.householdRole === HOUSEHOLD_ROLE.HEAD) {
+            const targetHead = yield* fromDb(() =>
+              getHouseholdHeadRow(db, targetHouseholdId)
+            );
+            if (targetHead && targetHead.id !== id) {
+              return yield* Effect.fail(new HouseholdAlreadyHasHead());
+            }
+          }
+
+          const { rows, affected } = yield* maritalStatus.readGraph([id]);
 
           // A governing spouse link is the source of truth (ADR-0003); a
           // manual value that disagrees is rejected so the two cannot drift.

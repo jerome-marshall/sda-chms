@@ -134,4 +134,23 @@ describe("POST /api/people (integration, SQLite)", () => {
     });
     expect(res.status).toBe(200);
   });
+
+  it("POST /api/people rejects a second Head in one Household with 409", async () => {
+    const head = await json<PersonResponse>(await postPerson(validHead));
+
+    const res = await postPerson({
+      ...validHead,
+      firstName: "ann",
+      lastName: "lee",
+      dateOfBirth: "1985-05-05",
+      householdId: head.householdId,
+    });
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toStrictEqual({
+      code: "HTTP_ERROR",
+      message: "Household already has a head",
+      details: { status: 409 },
+    });
+  });
 });

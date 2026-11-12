@@ -18,6 +18,11 @@ export class MaritalStatusConflict extends Data.TaggedError(
   "MaritalStatusConflict"
 ) {}
 
+/** A Household can have only one Head, and a Head only one Household. */
+export class HouseholdAlreadyHasHead extends Data.TaggedError(
+  "HouseholdAlreadyHasHead"
+) {}
+
 /** A lifecycle state was supplied for a Relationship type that cannot carry one. */
 export class SpouseStateOnNonSpouse extends Data.TaggedError(
   "SpouseStateOnNonSpouse"
@@ -69,6 +74,7 @@ export type DomainError =
   | PersonNotFound
   | RelationshipNotFound
   | MaritalStatusConflict
+  | HouseholdAlreadyHasHead
   | SpouseStateOnNonSpouse
   | ImportLimitExceeded;
 
@@ -94,6 +100,9 @@ const describe = (error: DomainError): StatusAndMessage => {
         message:
           "Marital Status follows the spouse Relationship and cannot contradict it",
       };
+    }
+    case "HouseholdAlreadyHasHead": {
+      return { status: 409, message: "Household already has a head" };
     }
     case "SpouseStateOnNonSpouse": {
       return {

@@ -61,6 +61,20 @@ export const updateHouseholdStmt = (
     .where(eq(householdsTable.id, id))
     .returning();
 
+/**
+ * The Household's stored Head: the member whose `householdRole` is Head, or
+ * undefined when none is. The role is stored, so read it rather than treating
+ * the first member of a list as the Head.
+ */
+export const getHouseholdHeadRow = (db: QueryDatabase, householdId: string) =>
+  db.query.peopleTable.findFirst({
+    where: (table, { and, eq: eqOp }) =>
+      and(
+        eqOp(table.householdId, householdId),
+        eqOp(table.householdRole, HOUSEHOLD_ROLE.HEAD)
+      ),
+  });
+
 /** Fetches all households with their member list (used to build the household selector on the add-person form). */
 const getAllHouseholdRows = (db: QueryDatabase) =>
   db.query.householdsTable.findMany({
