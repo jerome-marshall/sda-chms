@@ -29,9 +29,28 @@ const readConfig = (env) => {
 };
 
 /**
- * True when the reply ends with the reviewer's clean marker.
+ * The last verdict line decides, but an earlier findings line cannot be
+ * erased by appending a clean marker.
  */
-export const isClean = (reply) => reply.trimEnd().endsWith("REVIEW: clean");
+export const verdictOf = (reply) => {
+  const lines = reply
+    .trimEnd()
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line !== "");
+  const last = lines.at(-1) ?? "";
+  const verdicts = lines.filter((line) => line.startsWith("REVIEW:"));
+  if (verdicts.length === 0 || !last.startsWith("REVIEW:")) {
+    return "invalid";
+  }
+  const earlierFindings = verdicts
+    .slice(0, -1)
+    .some((line) => /^REVIEW: \d+ findings?$/u.test(line));
+  return last === "REVIEW: clean" && !earlierFindings ? "clean" : "findings";
+};
+
+/** True when the reply is a clean verdict. */
+export const isClean = (reply) => verdictOf(reply) === "clean";
 
 /**
  * Sends the search list and the diff to an OpenAI-compatible chat endpoint.
@@ -95,11 +114,12 @@ const main = async () => {
     return;
   }
 
+  const guidePath = process.env.REVIEW_GUIDE || guideUrl;
   let guide;
   try {
-    guide = readFileSync(guideUrl, "utf-8");
+    guide = readFileSync(guidePath, "utf-8");
   } catch {
-    console.error(`Cannot read ${guideUrl.pathname}. Run from the repository.`);
+    console.error(`Cannot read ${String(guidePath)}. Run from the repository.`);
     process.exitCode = 2;
     return;
   }
@@ -107,7 +127,7 @@ const main = async () => {
   try {
     const reply = await requestReview({ config, diff, guide });
     console.log(reply);
-    process.exitCode = isClean(reply) ? 0 : 1;
+    process.exitCode = verdictOf(reply) === "clean" ? 0 : 1;
   } catch (error) {
     console.error(`Review failed: ${error.message}`);
     process.exitCode = 2;

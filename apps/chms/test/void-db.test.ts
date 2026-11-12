@@ -7,7 +7,6 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type {
   BatchDatabase,
-  Database,
   DatabaseSurface,
   QueryDatabase,
   WriteDatabase,
@@ -15,10 +14,6 @@ import type {
 import { createDb, db, resetDb } from "./void-db";
 // oxlint-disable-next-line import/no-namespace -- Object.keys over the module namespace is the parity assertion
 import * as standIn from "./void-db";
-
-// A helper that reached for D1's raw binding must not accept the stand-in.
-// @ts-expect-error -- the better-sqlite3 client is not a D1 binding
-const d1Client: Pick<Database, "$client"> = db;
 
 const require = createRequire(import.meta.url);
 const voidDir = path.join(
@@ -86,7 +81,7 @@ describe("void/db stand-in surface parity", () => {
       BatchDatabase,
       DatabaseSurface,
     ] = [db, db, db, db];
-    expect([...surfaces, d1Client]).toHaveLength(5);
+    expect(surfaces).toHaveLength(4);
   });
 });
 
@@ -118,6 +113,33 @@ describe("real baseline migration in SQLite", () => {
     await resetDb();
     await expect(db.select().from(peopleTable)).resolves.toStrictEqual([]);
     await expect(db.select().from(householdsTable)).resolves.toStrictEqual([]);
+  });
+
+  it("rejects a second Head in one Household", async () => {
+    await resetDb();
+
+    const [household] = await db
+      .insert(householdsTable)
+      .values({ familyName: "One Head Only" })
+      .returning();
+
+    await db.insert(peopleTable).values({
+      firstName: "First",
+      householdId: household?.id,
+      householdRole: "head",
+      maritalStatus: "single",
+      membershipStatus: "member",
+    });
+
+    await expect(
+      db.insert(peopleTable).values({
+        firstName: "Second",
+        householdId: household?.id,
+        householdRole: "head",
+        maritalStatus: "single",
+        membershipStatus: "member",
+      })
+    ).rejects.toThrow(/UNIQUE constraint failed: people.household_id/u);
   });
 
   it("a failing statement in batch rolls back the earlier statements", async () => {

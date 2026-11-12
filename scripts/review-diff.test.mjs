@@ -7,7 +7,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
-import { isClean } from "./review-diff.mjs";
+import { isClean, verdictOf } from "./review-diff.mjs";
 
 const execFileAsync = promisify(execFile);
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -115,8 +115,11 @@ test("names every missing setting and does not call the API", async () => {
   }
 });
 
-test("only a reply that ends with the clean marker passes", () => {
+test("only a final exact clean marker passes", () => {
   assert.equal(isClean("No findings.\nREVIEW: clean"), true);
   assert.equal(isClean("REVIEW: clean\nThe cast is still there."), false);
+  assert.equal(isClean("REVIEW: clean."), false);
   assert.equal(isClean("REVIEW: 1 findings"), false);
+  assert.equal(verdictOf("REVIEW: 2 findings\nREVIEW: clean"), "findings");
+  assert.equal(verdictOf("nothing here"), "invalid");
 });

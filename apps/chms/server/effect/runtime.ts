@@ -1,3 +1,4 @@
+import { getDbConstraintViolation } from "@schema";
 import { Effect, Layer } from "effect";
 
 import { DbLive } from "./db";
@@ -30,7 +31,13 @@ export type AppServices = Layer.Success<typeof AppLive>;
 const raise = (failure: ApiError): Effect.Effect<never> =>
   Effect.sync(() => {
     if (failure._tag === "InfraError") {
-      throw failure.cause;
+      // A recognized constraint keeps its mapping. Anything else is an
+      // infrastructure fault whose message may carry SQL or D1 detail.
+      if (getDbConstraintViolation(failure.cause)) {
+        throw failure.cause;
+      }
+      console.error("🔴 infrastructure failed", failure.cause);
+      throw toInvariantHttpException();
     }
     if (failure._tag === "InvariantError") {
       console.error("🔴 invariant failed", failure.cause);

@@ -24,6 +24,7 @@ import type { PersonWithHouseholdApi } from "../people";
 import { Db, fromDb } from "./db";
 import {
   HouseholdAlreadyHasHead,
+  HouseholdNeedsHead,
   internalFailure,
   MaritalStatusConflict,
   PersonNotFound,
@@ -51,7 +52,9 @@ export interface PeopleService {
     | PersonNotFound
     | MaritalStatusConflict
     | HouseholdAlreadyHasHead
+    | HouseholdNeedsHead
     | InfraError
+    | InvariantError
   >;
 }
 
@@ -153,6 +156,12 @@ export const PeopleLive = Layer.effect(
           ) {
             return yield* Effect.fail(new HouseholdAlreadyHasHead());
           }
+          if (
+            current.householdRole === HOUSEHOLD_ROLE.HEAD &&
+            data.householdRole !== HOUSEHOLD_ROLE.HEAD
+          ) {
+            return yield* Effect.fail(new HouseholdNeedsHead());
+          }
           const targetHouseholdId = data.householdId;
           if (targetHouseholdId && data.householdRole === HOUSEHOLD_ROLE.HEAD) {
             const targetHead = yield* fromDb(() =>
@@ -239,7 +248,9 @@ export const PeopleLive = Layer.effect(
             getPersonWithHouseholdRowById(db, id)
           );
           if (!updated) {
-            return yield* Effect.fail(new PersonNotFound({ id }));
+            return yield* Effect.fail(
+              internalFailure("Failed to read the updated person")
+            );
           }
           return personWithHouseholdDbToApi(updated);
         }),

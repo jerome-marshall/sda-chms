@@ -52,7 +52,7 @@ test("a member shows the Head's shared phone and follows an edit", async ({
   await expect(phoneChip.locator("svg.lucide-house")).toHaveCount(1);
 
   await page.goto(`/people/${head.id}/edit`);
-  await page.waitForLoadState("networkidle");
+  await expect(page.getByRole("textbox", { name: "Phone" })).toBeEnabled();
   await page.getByRole("textbox", { name: "Phone" }).fill("9111111111");
   await page.getByRole("button", { name: "Save Changes" }).click();
   await expect(page).toHaveURL(`/people/${head.id}`);

@@ -32,6 +32,28 @@ describe("Import service", () => {
     await resetDb();
   });
 
+  it.effect("keeps one Head when a Family lists two", () =>
+    Effect.gen(function* duplicateHeadProgram() {
+      const summary = yield* importPeopleCsv(
+        [
+          "Name,Gender,DOB,Family,Relation",
+          "First Head,male,01/02/1990,Dupes,head",
+          "Second Head,male,02/03/1991,Dupes,head",
+        ].join("\n")
+      );
+
+      expect(summary.failed).toBe(1);
+      expect(summary.succeeded).toBe(1);
+
+      const people = yield* Effect.promise(() =>
+        getAllPeopleWithHouseholdRows(db)
+      );
+      const heads = people.filter((person) => person.householdRole === "head");
+      expect(heads).toHaveLength(1);
+      expect(heads[0]?.firstName).toBe("First");
+    }).pipe(Effect.provide(TestLive))
+  );
+
   it.effect("creates People and a Household from a small CSV", () =>
     Effect.gen(function* smallCsvProgram() {
       const summary = yield* importPeopleCsv(csv);

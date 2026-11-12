@@ -36,7 +36,8 @@ jobs:
           fi
 
       - name: Skip without the key
-        if: steps.key.outputs.present == 'false'
+        if: steps.key.outputs.present == 'false' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
@@ -51,8 +52,19 @@ jobs:
           REVIEW_MODEL: ${{ vars.REVIEW_MODEL || secrets.REVIEW_MODEL }}
           BASE_REF: origin/${{ github.base_ref || 'main' }}
         run: |
+          # Run the script from the base ref so a PR cannot rewrite the
+          # reviewer that holds the key. The first PR that adds this workflow
+          # has no base copy yet and falls back to the checkout.
+          BASE_SCRIPT=/tmp/review-diff.mjs
+          GUIDE=/tmp/reviewer-list.md
+          if git show "$BASE_REF:scripts/review-diff.mjs" > "$BASE_SCRIPT" 2>/dev/null; then
+            SCRIPT="$BASE_SCRIPT"
+          else
+            SCRIPT="scripts/review-diff.mjs"
+          fi
+          git show "$BASE_REF:docs/agents/reviewer.md" > "$GUIDE" 2>/dev/null || GUIDE="docs/agents/reviewer.md"
           set +e
-          node scripts/review-diff.mjs > review-comment.md 2>&1
+          REVIEW_GUIDE="$GUIDE" node "$SCRIPT" > review-comment.md 2>&1
           status=$?
           set -e
           cat review-comment.md
@@ -60,6 +72,7 @@ jobs:
 
       - name: Post the review
         if: always() && steps.key.outputs.present == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}

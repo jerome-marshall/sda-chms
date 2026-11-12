@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `unique_household_head` ON `people` (`household_id`) WHERE "people"."household_role" = 'head';

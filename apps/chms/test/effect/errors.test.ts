@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vite-plus/test";
 
 import {
   HouseholdAlreadyHasHead,
+  HouseholdNeedsHead,
   ImportLimitExceeded,
   InfraError,
   MaritalStatusConflict,
@@ -43,6 +44,7 @@ describe("the route edge maps each failure group once", () => {
       [new RelationshipNotFound({ id: "unknown" }), 404],
       [new MaritalStatusConflict(), 400],
       [new HouseholdAlreadyHasHead(), 409],
+      [new HouseholdNeedsHead(), 409],
       [new SpouseStateOnNonSpouse(), 400],
       [new ImportLimitExceeded({ rows: 3, limit: 2 }), 400],
     ] as const;
@@ -66,14 +68,21 @@ describe("the route edge maps each failure group once", () => {
     expect(body.code).toBe("DB_ERROR");
   });
 
-  it("turns an InfraError with no constraint into a 500 carrying the cause", async () => {
-    const cause = new Error("D1 unavailable");
+  it("hides the message of an infra cause that is not a constraint", async () => {
+    const log = vi.spyOn(console, "error");
+    const cause = new Error("D1 unavailable: host db.internal");
     const thrown = await thrownFor(new InfraError({ cause }));
-    expect(thrown).toBe(cause);
 
+    expect(thrown).toBeInstanceOf(HTTPException);
     const { status, body } = mapErrorToBody(thrown);
     expect(status).toBe(500);
-    expect(body.message).toBe("D1 unavailable");
+    expect(body.message).toBe("Internal Server Error");
+    expect(JSON.stringify(body)).not.toContain("db.internal");
+    expect(log).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ message: cause.message })
+    );
+    log.mockRestore();
   });
 
   it("maps a broken invariant to a generic 500 with no developer text", async () => {
@@ -87,7 +96,10 @@ describe("the route edge maps each failure group once", () => {
     expect(status).toBe(500);
     expect(body.message).toBe("Internal Server Error");
     expect(JSON.stringify(body)).not.toContain(developerText);
-    expect(log).toHaveBeenCalledWith("🔴 invariant failed", expect.any(Error));
+    expect(log).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ message: developerText })
+    );
     log.mockRestore();
   });
 });

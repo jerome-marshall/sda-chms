@@ -44,7 +44,9 @@ test("a spouse link added in the UI updates Marital Status on both People", asyn
   });
 
   await page.goto(`/people/${ann.id}/edit`);
-  await page.waitForLoadState("networkidle");
+  await expect(
+    page.getByRole("combobox", { name: "Related person" })
+  ).toBeVisible();
 
   await page.getByRole("combobox", { name: "Related person" }).click();
   await page.getByRole("option", { name: ben.fullName, exact: true }).click();
@@ -74,9 +76,19 @@ test("a spouse link added in the UI updates Marital Status on both People", asyn
   ).toBeVisible();
 
   await page.goto(`/people/${ann.id}/edit`);
-  await page.waitForLoadState("networkidle");
+  await expect(
+    page.getByRole("combobox", { name: "Spouse lifecycle state" })
+  ).toBeVisible();
+
+  const stateChange = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/relationships/") &&
+      response.request().method() === "PATCH" &&
+      response.ok()
+  );
   await page.getByRole("combobox", { name: "Spouse lifecycle state" }).click();
   await page.getByRole("option", { name: "Divorced", exact: true }).click();
+  await stateChange;
   await expect(
     page.getByRole("combobox", { name: "Spouse lifecycle state" })
   ).toContainText(/divorced/iu);

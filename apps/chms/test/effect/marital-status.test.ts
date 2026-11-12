@@ -45,11 +45,16 @@ describe("Marital Status service", () => {
       const { rows, affected } = yield* readGraph([a.id]);
 
       expect(yield* governingStatus(rows, a.id)).toBe("married");
-      expect(yield* planUpdates(rows, affected)).toStrictEqual([
-        { personId: a.id, maritalStatus: "married" },
-        { personId: c.id, maritalStatus: "married" },
-        { personId: b.id, maritalStatus: "separated" },
-      ]);
+      const plans = yield* planUpdates(rows, affected);
+      expect(
+        Object.fromEntries(
+          plans.map((plan) => [plan.personId, plan.maritalStatus])
+        )
+      ).toStrictEqual({
+        [a.id]: "married",
+        [b.id]: "separated",
+        [c.id]: "married",
+      });
     }).pipe(Effect.provide(TestLive))
   );
 

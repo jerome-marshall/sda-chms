@@ -6,6 +6,7 @@ import { Effect, Layer } from "effect";
 import { DbLive } from "../../server/effect/db";
 import {
   HouseholdAlreadyHasHead,
+  HouseholdNeedsHead,
   PersonNotFound,
 } from "../../server/effect/errors";
 import { MaritalStatusLive } from "../../server/effect/marital-status";
@@ -167,6 +168,20 @@ describe("People service", () => {
       expect(updated.fullName).toBe("Jo Smith");
       expect(updated.householdId).toBe(head.householdId);
       expect(updated.householdFamilyName).toBe("The Smiths");
+    }).pipe(Effect.provide(TestLive))
+  );
+
+  it.effect("fails when the only Head is demoted", () =>
+    Effect.gen(function* demoteHeadProgram() {
+      const head = yield* addPerson(headForm);
+
+      const failure = yield* updatePerson(head.id, {
+        ...headForm,
+        householdId: head.householdId ?? undefined,
+        householdRole: "child",
+      }).pipe(Effect.flip);
+
+      expect(failure).toBeInstanceOf(HouseholdNeedsHead);
     }).pipe(Effect.provide(TestLive))
   );
 

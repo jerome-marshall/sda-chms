@@ -23,6 +23,11 @@ export class HouseholdAlreadyHasHead extends Data.TaggedError(
   "HouseholdAlreadyHasHead"
 ) {}
 
+/** A write would leave a Household with no Head. */
+export class HouseholdNeedsHead extends Data.TaggedError(
+  "HouseholdNeedsHead"
+) {}
+
 /** A lifecycle state was supplied for a Relationship type that cannot carry one. */
 export class SpouseStateOnNonSpouse extends Data.TaggedError(
   "SpouseStateOnNonSpouse"
@@ -75,6 +80,7 @@ export type DomainError =
   | RelationshipNotFound
   | MaritalStatusConflict
   | HouseholdAlreadyHasHead
+  | HouseholdNeedsHead
   | SpouseStateOnNonSpouse
   | ImportLimitExceeded;
 
@@ -103,6 +109,9 @@ const describe = (error: DomainError): StatusAndMessage => {
     }
     case "HouseholdAlreadyHasHead": {
       return { status: 409, message: "Household already has a head" };
+    }
+    case "HouseholdNeedsHead": {
+      return { status: 409, message: "A household needs a head" };
     }
     case "SpouseStateOnNonSpouse": {
       return {
