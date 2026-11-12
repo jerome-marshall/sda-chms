@@ -34,6 +34,8 @@ jobs:
         env:
           BASE_REF: origin/${{ github.base_ref || 'main' }}
           ALLOW_TEST_DELETION: ${{ contains(github.event.pull_request.labels.*.name, 'test-deleted') && '1' || '0' }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BODY: ${{ github.event.pull_request.body }}
 
   # End-to-end tests against the built worker on local D1. This is the proof
   # that pages render and hydrate, so it runs on PRs as well as main.

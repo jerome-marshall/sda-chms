@@ -66,7 +66,7 @@ When a command fails, fix the cause in the same change. `pnpm verify` is the sam
 - `pnpm verify:pr` is green.
 - Every new rule has a test that fails when the rule breaks.
 - The PR body carries the command output, and a screenshot, recording, or trace for any UI change.
-- The reviewer search list in `docs/agents/reviewer.md` comes back clean.
+- `docs/agents/self-review.md` is answered: the checked half passes, and the decided half is written in the pull request body.
 - No new layer. No repository, DI container, client query cache, or generic CRUD module.
 
 ## Copy from

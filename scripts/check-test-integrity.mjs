@@ -5,6 +5,7 @@ const focused =
   /^[+]\s*(?:it|test|describe)(?:\.\w+(?:\([^)]*\))?)*\.(?:skip|only|todo|fixme|skipIf)\s*\(/u;
 const focusedPrefix = /^[+]\s*x(?:it|test|describe)\s*\(/u;
 const testCase = /^[+-]\s*(?:it|test)(?:\.\w+)*\s*\(/u;
+const testFile = /(?:\.test|\.spec)\.[cm]?[jt]sx?$/u;
 
 const parseHunk = (line) => {
   const match = /^@@ -(?<old>\d+)(?:,\d+)? \+(?<new>\d+)(?:,\d+)? @@/u.exec(
@@ -17,6 +18,12 @@ const parseHunk = (line) => {
 
 const isFocused = (line) => focused.test(line) || focusedPrefix.test(line);
 
+const stem = (name) =>
+  (name.split("/").pop() ?? "").replace(
+    /(?:\.test|\.spec)?\.[cm]?[jt]sx?$/u,
+    ""
+  );
+
 /**
  * Turns a unified diff into findings. Pure, so the gate itself can be tested.
  */
@@ -24,8 +31,10 @@ export const checkDiff = (diff, { allowDeletion = false } = {}) => {
   const findings = [];
   const perFile = new Map();
   let file = "";
+  let pendingDelete = "";
   let oldLine = 0;
   let newLine = 0;
+  const deleted = new Set();
 
   const counts = (name) => {
     const current = perFile.get(name) ?? {
@@ -38,11 +47,21 @@ export const checkDiff = (diff, { allowDeletion = false } = {}) => {
   };
 
   for (const line of diff.split("\n")) {
+    if (line.startsWith("--- a/")) {
+      pendingDelete = line.slice(6);
+      continue;
+    }
     if (line.startsWith("+++ b/")) {
+      pendingDelete = "";
       file = line.slice(6);
       continue;
     }
-    if (line.startsWith("---")) {
+    if (line.startsWith("+++ /dev/null")) {
+      if (pendingDelete) {
+        deleted.add(pendingDelete);
+        file = pendingDelete;
+      }
+      pendingDelete = "";
       continue;
     }
 
@@ -76,13 +95,23 @@ export const checkDiff = (diff, { allowDeletion = false } = {}) => {
     }
   }
 
+  const deletedSources = new Set(
+    [...deleted].filter((name) => !testFile.test(name)).map(stem)
+  );
+
   if (!allowDeletion) {
     for (const [name, countsForFile] of perFile) {
-      if (countsForFile.removed > countsForFile.added) {
-        findings.push(
-          `${name}:${countsForFile.firstRemoved}  ${countsForFile.removed - countsForFile.added} test case(s) removed. Apply the test-deleted label, or restore the coverage.`
-        );
+      if (countsForFile.removed <= countsForFile.added) {
+        continue;
       }
+      // Deleting a feature means deleting its test. Deleting only the test
+      // still needs a person to apply the label.
+      if (testFile.test(name) && deletedSources.has(stem(name))) {
+        continue;
+      }
+      findings.push(
+        `${name}:${countsForFile.firstRemoved}  ${countsForFile.removed - countsForFile.added} test case(s) removed. Apply the test-deleted label, or restore the coverage.`
+      );
     }
   }
 

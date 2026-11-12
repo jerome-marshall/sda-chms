@@ -26,4 +26,4 @@ The gate now fails on those changes at the point they are introduced. Each rule 
 - A weakened test is visible in the diff and fails the gate.
 - The rules no longer depend on a specific editor or a `CLAUDE.md` shim.
 - The scripts are regex checks, not an AST. A false positive gets a narrow allowance in the script, not a disabled rule.
-- Deploy, migrations, and remote seeding stay human actions. See `docs/agents/reviewer.md`.
+- Deploy, migrations, and remote seeding stay human actions. See `docs/agents/self-review.md`.

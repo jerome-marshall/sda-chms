@@ -167,6 +167,8 @@ export default defineConfig({
         "vp check",
         "pnpm run check:boundaries",
         "pnpm run check:tests",
+        "pnpm run check:diff",
+        "pnpm run check:proof",
         "pnpm run test:scripts",
         "vp run db:drift",
         "vp test run",
