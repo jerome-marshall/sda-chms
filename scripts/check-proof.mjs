@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 
 const testFile = /(?:\.test|\.spec)\.[cm]?[jt]sx?$/u;
 
@@ -144,23 +145,46 @@ const resolveBase = () => {
   return null;
 };
 
-/** The PR body from the event on CI, or from gh on a workstation. */
-const pullRequest = () => {
+const inActions = process.env.GITHUB_ACTIONS === "true";
+
+/**
+ * The PR number comes from the ref, which the runner sets for every step.
+ * A step-level custom env var is not reliably inherited by the task runner,
+ * so do not depend on one.
+ */
+const pullRequestNumber = () => {
   if (process.env.PR_NUMBER) {
-    return { present: true, body: process.env.PR_BODY ?? "" };
+    return process.env.PR_NUMBER;
   }
-  if (process.env.GITHUB_ACTIONS === "true") {
-    return { present: false, body: "" };
+  const match = /^refs\/pull\/(?<number>\d+)\//u.exec(
+    process.env.GITHUB_REF ?? ""
+  );
+  return match?.groups?.number ?? "";
+};
+
+/** The PR body from the event file, a gh call, or the PR_BODY override. */
+const bodyOf = (number) => {
+  if (process.env.PR_BODY !== undefined) {
+    return process.env.PR_BODY;
   }
-  try {
-    const raw = execFileSync("gh", ["pr", "view", "--json", "body"], {
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    return { present: true, body: JSON.parse(raw).body ?? "" };
-  } catch {
-    return { present: false, body: "" };
+
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  if (eventPath) {
+    try {
+      const event = JSON.parse(readFileSync(eventPath, "utf-8"));
+      if (event.pull_request) {
+        return event.pull_request.body ?? "";
+      }
+    } catch {
+      // Fall through to gh.
+    }
   }
+
+  const raw = execFileSync("gh", ["pr", "view", number, "--json", "body"], {
+    encoding: "utf-8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  return JSON.parse(raw).body ?? "";
 };
 
 const main = () => {
@@ -172,12 +196,35 @@ const main = () => {
     process.exit(1);
   }
 
-  const { present, body } = pullRequest();
-  if (!present) {
+  const number = pullRequestNumber();
+  let body;
+  if (number) {
+    try {
+      body = bodyOf(number);
+    } catch (error) {
+      console.error(
+        `Could not read the body of pull request ${number}: ${error.message}`
+      );
+      process.exit(1);
+    }
+  } else if (inActions) {
     console.log(
-      "No pull request yet. The proof check runs on the pull request."
+      `No pull request on this ref (GITHUB_REF=${process.env.GITHUB_REF ?? "unset"}). The proof check grades a pull request.`
     );
     return;
+  } else {
+    try {
+      const raw = execFileSync("gh", ["pr", "view", "--json", "body"], {
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      body = JSON.parse(raw).body ?? "";
+    } catch {
+      console.log(
+        "No pull request yet. The proof check runs on the pull request."
+      );
+      return;
+    }
   }
 
   const files = run(["diff", "--name-only", `${base}...HEAD`])

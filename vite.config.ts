@@ -158,6 +158,20 @@ export default defineConfig({
         ],
         cache: false,
       },
+      // These read the git diff and the pull request, not the working tree.
+      // A cached replay would grade an older commit, so they never cache.
+      "check:tests": {
+        command: "node scripts/check-test-integrity.mjs",
+        cache: false,
+      },
+      "check:diff": {
+        command: "node scripts/check-diff-shape.mjs",
+        cache: false,
+      },
+      "check:proof": {
+        command: "node scripts/check-proof.mjs",
+        cache: false,
+      },
       // Local equivalent of the CI test job, steps in order. `void prepare`
       // must run first so the generated route types exist on a fresh clone.
       "verify:ci": [
@@ -166,9 +180,9 @@ export default defineConfig({
         "vp run -r check-types",
         "vp check",
         "pnpm run check:boundaries",
-        "pnpm run check:tests",
-        "pnpm run check:diff",
-        "pnpm run check:proof",
+        "vp run check:tests",
+        "vp run check:diff",
+        "vp run check:proof",
         "pnpm run test:scripts",
         "vp run db:drift",
         "vp test run",
