@@ -5,9 +5,20 @@ import path from "node:path";
 import { householdsTable, peopleTable } from "@schema";
 import { describe, expect, it } from "vite-plus/test";
 
+import type {
+  BatchDatabase,
+  Database,
+  DatabaseSurface,
+  QueryDatabase,
+  WriteDatabase,
+} from "../server/db";
 import { createDb, db, resetDb } from "./void-db";
 // oxlint-disable-next-line import/no-namespace -- Object.keys over the module namespace is the parity assertion
 import * as standIn from "./void-db";
+
+// A helper that reached for D1's raw binding must not accept the stand-in.
+// @ts-expect-error -- the better-sqlite3 client is not a D1 binding
+const d1Client: Pick<Database, "$client"> = db;
 
 const require = createRequire(import.meta.url);
 const voidDir = path.join(
@@ -66,10 +77,16 @@ describe("void/db stand-in surface parity", () => {
     expect(() => createDb()).toThrow(/unavailable in tests/u);
   });
 
-  it("exposes the database methods the server uses", () => {
-    for (const method of ["query", "insert", "update", "delete", "batch"]) {
-      expect(method in db).toBe(true);
-    }
+  it("implements every database surface the server helpers accept", () => {
+    // These annotations are the check: `tsc` rejects the assignment when a
+    // helper's surface grows past what the stand-in implements.
+    const surfaces: [
+      QueryDatabase,
+      WriteDatabase,
+      BatchDatabase,
+      DatabaseSurface,
+    ] = [db, db, db, db];
+    expect([...surfaces, d1Client]).toHaveLength(5);
   });
 });
 

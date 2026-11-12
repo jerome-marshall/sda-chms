@@ -4,7 +4,7 @@ import { HOUSEHOLD_ROLE } from "@sda-chms/shared/constants/people";
 import type { PersonInsertForm } from "@sda-chms/shared/schema/people";
 import { eq } from "void/db";
 
-import type { Database } from "./db";
+import type { QueryDatabase, WriteDatabase } from "./db";
 
 /** The Household's stored fields set on create/update: the family name plus the shared contact details (ADR-0001). */
 type HouseholdWritableFields = Partial<
@@ -44,12 +44,14 @@ export const householdWriteFields = (
  * front (client-generated) so no write depends on another write's result.
  * The caller reads row [0] of its result.
  */
-export const insertHouseholdStmt = (db: Database, data: HouseholdsInsertDb) =>
-  db.insert(householdsTable).values(data).returning();
+export const insertHouseholdStmt = (
+  db: WriteDatabase,
+  data: HouseholdsInsertDb
+) => db.insert(householdsTable).values(data).returning();
 
 /** Lazy household update used inside a batch. */
 export const updateHouseholdStmt = (
-  db: Database,
+  db: WriteDatabase,
   id: string,
   data: HouseholdWritableFields
 ) =>
@@ -60,7 +62,7 @@ export const updateHouseholdStmt = (
     .returning();
 
 /** Fetches all households with their member list (used to build the household selector on the add-person form). */
-const getAllHouseholdRows = (db: Database) =>
+const getAllHouseholdRows = (db: QueryDatabase) =>
   db.query.householdsTable.findMany({
     with: {
       members: {
@@ -87,7 +89,7 @@ const getAllHouseholdRows = (db: Database) =>
  * yet (legacy rows awaiting backfill) fall back to a head-derived
  * "{head.firstName} {head.lastName} Family" label.
  */
-export const getAllHouseholds = async (db: Database) => {
+export const getAllHouseholds = async (db: QueryDatabase) => {
   const householdsData = await getAllHouseholdRows(db);
   return householdsData.map((household) => {
     const head = household.members.find(

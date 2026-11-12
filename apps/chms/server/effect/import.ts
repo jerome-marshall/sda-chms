@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 
 import type { ImportSummary } from "../../scripts/import-helpers";
-import type { Database } from "../db";
+import type { BatchWriteDatabase } from "../db";
 import { importPeopleCsv as runImport } from "../import";
 import { Db } from "./db";
 import { DatabaseFailure, ImportLimitExceeded } from "./errors";
@@ -14,7 +14,7 @@ export { MAX_CSV_CHARS } from "../import";
  * failure reaches the error channel.
  */
 const importCsv = (
-  db: Database,
+  db: BatchWriteDatabase,
   csv: string
 ): Effect.Effect<ImportSummary, ImportLimitExceeded | DatabaseFailure> =>
   Effect.tryPromise({
