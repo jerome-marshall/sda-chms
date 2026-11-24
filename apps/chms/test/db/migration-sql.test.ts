@@ -1,7 +1,45 @@
 import Database from "better-sqlite3";
+import { getTableConfig, SQLiteTable } from "drizzle-orm/sqlite-core";
 import { describe, expect, it } from "vite-plus/test";
 
 import journal from "../../src/db/migrations/meta/_journal.json";
+
+const schemaModules: Record<string, Record<string, unknown>> = import.meta.glob(
+  "../../src/db/schema/*.ts",
+  { eager: true }
+);
+
+const tables = Object.values(schemaModules)
+  .flatMap((module) => Object.values(module))
+  .filter((value): value is SQLiteTable => value instanceof SQLiteTable)
+  .map((table) => getTableConfig(table));
+
+/** Every `text({ enum })` column in the schema, as [table, column]. */
+const enumColumns = tables.flatMap((table) =>
+  table.columns
+    .filter((column) => column.enumValues !== undefined)
+    .map((column) => [table.name, column.name] as const)
+);
+
+/** Inserts one row that fills each required column with a legal value. */
+const insertMinimalRow = (client: Database.Database, tableName: string) => {
+  const table = tables.find((candidate) => candidate.name === tableName);
+  if (!table) {
+    throw new Error(`test: no table ${tableName}`);
+  }
+  const required = table.columns.filter(
+    (column) =>
+      column.notNull && column.default === undefined && !column.generated
+  );
+  const values = required.map((column) =>
+    column.getSQLType() === "text" ? (column.enumValues?.[0] ?? "x") : 0
+  );
+  client
+    .prepare(
+      `insert into "${tableName}" (${required.map((column) => `"${column.name}"`).join(", ")}) values (${required.map(() => "?").join(", ")})`
+    )
+    .run(...values);
+};
 
 const migrationSql = import.meta.glob("../../src/db/migrations/*.sql", {
   query: "?raw",
@@ -80,38 +118,25 @@ describe("committed SQL behaviour", () => {
     }
   });
 
-  it("the database rejects values outside each enum", () => {
-    if (!isJournal(journal)) {
-      throw new Error("test: migration journal is malformed");
+  it.each(enumColumns)(
+    "the database rejects a value outside the enum of %s.%s",
+    (tableName, columnName) => {
+      if (!isJournal(journal)) {
+        throw new Error("test: migration journal is malformed");
+      }
+      const client = new Database(":memory:");
+      try {
+        applyMigrations(client, journal.entries);
+        client.pragma("foreign_keys = OFF");
+        insertMinimalRow(client, tableName);
+        expect(() =>
+          client
+            .prepare(`update "${tableName}" set "${columnName}" = ?`)
+            .run("not-a-listed-value")
+        ).toThrow(/CHECK constraint failed/u);
+      } finally {
+        client.close();
+      }
     }
-
-    const client = new Database(":memory:");
-    try {
-      applyMigrations(client, journal.entries);
-
-      const insertPerson = client.prepare(
-        "insert into people (id, created_at, updated_at, first_name, marital_status, membership_status) values (?, 0, 0, 'Test', ?, ?)"
-      );
-      insertPerson.run("valid", "single", "member");
-      expect(() =>
-        insertPerson.run("bad-marital", "engaged", "member")
-      ).toThrow(/CHECK constraint failed: marital_status_check/u);
-      expect(() =>
-        insertPerson.run("bad-membership", "single", "guest")
-      ).toThrow(/CHECK constraint failed: membership_status_check/u);
-
-      const insertLink = client.prepare(
-        "insert into relationships (id, person_id, related_person_id, type, state, created_at) values (?, 'valid', 'valid', ?, ?, 0)"
-      );
-      insertLink.run("spouse-link", "spouse", "married");
-      expect(() => insertLink.run("bad-type", "cousin", null)).toThrow(
-        /CHECK constraint failed: type_check/u
-      );
-      expect(() => insertLink.run("bad-state", "parent", "engaged")).toThrow(
-        /CHECK constraint failed: state_check/u
-      );
-    } finally {
-      client.close();
-    }
-  });
+  );
 });
