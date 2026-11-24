@@ -17,7 +17,7 @@ The gate now fails on those changes at the point they are introduced. Each rule 
 - `scripts/check-boundaries.mjs` enforces the Effect and layering rules that a lint preset cannot express.
 - `scripts/check-test-integrity.mjs` fails on a skipped or focused test and on test cases removed without the `test-deleted` label. Deleting a test file is allowed when the source it covered is deleted in the same diff.
 - `scripts/check-diff-shape.mjs` fails on a suppression, a weaker matcher replacing an exact one, and a new server or shared export with no test.
-- `scripts/check-proof.mjs` fails on a pull request that left the proof blank: an unticked box, the template placeholder, no named test, a UI change with no picture, or an undeclared one-way door.
+- `scripts/check-proof.mjs` was removed on 2026-11-24. It checked that the pull request body was filled in, not that it was true, and the agent that writes the code also writes the body.
 - There is no review service and no model in the gate. A finding a script cannot decide is a written answer in the pull request body, and a person reads it.
 - CI calls `pnpm verify` once. The step list lives in `vite.config.ts`, so the local gate and the CI gate cannot drift.
 - Branch protection for `main` will require the `test` and `e2e` checks, applied to administrators. Enable it once these checks exist on `main`; until then the gate is advisory.

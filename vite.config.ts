@@ -141,12 +141,10 @@ export default defineConfig({
     ignorePatterns: ["**/routeTree.gen.ts", "apps/chms/public/**", "**/*\\[*"],
     options: { typeAware: true, typeCheck: true },
   },
+  // Commit time only formats and lints the staged files. Types and the
+  // boundary rules run once, in the pre-push hook and in CI (`pnpm verify`).
   staged: {
-    "*": [
-      "vp check --fix",
-      () => "vp run check-types",
-      () => "pnpm run check:boundaries",
-    ],
+    "*": "vp check --fix",
   },
   run: {
     tasks: {
@@ -158,7 +156,7 @@ export default defineConfig({
         ],
         cache: false,
       },
-      // These read the git diff and the pull request, not the working tree.
+      // These read the git diff, not the working tree.
       // A cached replay would grade an older commit, so they never cache.
       "check:tests": {
         command: "node scripts/check-test-integrity.mjs",
@@ -166,10 +164,6 @@ export default defineConfig({
       },
       "check:diff": {
         command: "node scripts/check-diff-shape.mjs",
-        cache: false,
-      },
-      "check:proof": {
-        command: "node scripts/check-proof.mjs",
         cache: false,
       },
       // Local equivalent of the CI test job, steps in order. `void prepare`
@@ -182,7 +176,6 @@ export default defineConfig({
         "pnpm run check:boundaries",
         "vp run check:tests",
         "vp run check:diff",
-        "vp run check:proof",
         "pnpm run test:scripts",
         "vp run db:drift",
         "vp test run",
