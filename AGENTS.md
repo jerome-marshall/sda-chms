@@ -41,12 +41,11 @@ A green local run should mean a green PR. If a command fails, fix the cause in t
 - a test is skipped or focused, or test cases are removed without the `test-deleted` label.
 - the schema and the committed migrations disagree.
 - a TypeScript suppression was added, a weaker test matcher replaced an exact one, or a new server export has no test in the diff.
-- a pull request has an unticked box, the placeholder proof, an unnamed test, a UI change with no picture, or an undeclared one-way door.
 
 Each rule names the file and line, so fix the cause rather than the report.
 
 ## Reviewing a change
 
-`docs/agents/self-review.md` is the checklist, and it has two halves. The checked half is `pnpm verify`: a script fails the build, so you fix the cause instead of arguing with it. The decided half cannot be scripted, so you answer it in the pull request body, and `check:proof` refuses an empty or unanswered body.
+`docs/agents/self-review.md` is the checklist, and it has two halves. The checked half is `pnpm verify`: a script fails the build, so you fix the cause instead of arguing with it. The decided half cannot be scripted, so you answer it in the pull request body.
 
 There is no review service and no model in the gate. A second read is a fresh agent you start yourself, from the diff and the checklist, when the change is big enough to earn one. It does not block a merge, and it cannot approve one.

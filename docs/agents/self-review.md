@@ -5,7 +5,7 @@ Run this before you open a pull request. There is no review service, no API key,
 The list has two halves. Do not mix them:
 
 - **Checked** — `pnpm verify` fails when you get it wrong, in CI and in the pre-push hook. You do not need to reason about these. Run the command.
-- **Decided** — a script cannot decide it. You write the answer in the pull request body, and `check:proof` refuses a body that left it blank or kept the template text. A person reads it before the change lands.
+- **Decided** — a script cannot decide it. You write the answer in the pull request body. No script grades it.
 
 A script proves the change is shaped correctly. It cannot prove the change is right. That last part is a person's job, not a model's.
 
@@ -17,7 +17,6 @@ A script proves the change is shaped correctly. It cannot prove the change is ri
 | An Effect boundary violation, `any`, a widened error channel, `process.env` in domain code                      | `check:boundaries` |
 | A TypeScript suppression, a weaker assertion replacing an exact one, a new server or shared export with no test | `check:diff`       |
 | A schema change without a regenerated migration                                                                 | `db:drift`         |
-| An unticked box, a placeholder proof, an unnamed test, a UI change with no picture, an undeclared one-way door  | `check:proof`      |
 
 Deleting a test file is allowed when the source file it covered is deleted in the same diff. Deleting only the test still fails, and still needs the `test-deleted` label.
 
