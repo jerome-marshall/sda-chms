@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import {
-  getDbConstraintViolation,
-  isDrizzleErrorLike,
-} from "../../src/db/schema/lib/db-errors";
+import { getDbConstraintViolation } from "../../src/db/schema/lib/db-errors";
 
 /** A better-sqlite3 SqliteError shape: code + constraint text in the message. */
 const sqliteCause = (overrides: object = {}) =>
@@ -102,24 +99,5 @@ describe("getDbConstraintViolation across module copies", () => {
         })
       )
     ).toBeNull();
-  });
-});
-
-describe(isDrizzleErrorLike, () => {
-  it("matches Drizzle names from any copy", () => {
-    const error = new Error("boom");
-    error.name = "DrizzleQueryError";
-    expect(isDrizzleErrorLike(error)).toBe(true);
-  });
-
-  it("matches the Failed query message prefix", () => {
-    expect(
-      isDrizzleErrorLike(new Error("Failed query: insert into people"))
-    ).toBe(true);
-  });
-
-  it("does not match ordinary errors", () => {
-    expect(isDrizzleErrorLike(new Error("Person not found"))).toBe(false);
-    expect(isDrizzleErrorLike("boom")).toBe(false);
   });
 });
