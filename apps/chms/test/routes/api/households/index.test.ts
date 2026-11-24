@@ -54,4 +54,40 @@ describe("GET /api/households (integration, SQLite)", () => {
     expect(households).toHaveLength(1);
     expect(households[0]?.name).toBe("John Smith Family");
   });
+
+  it("separates each Household's Head from its other members", async () => {
+    const first = await json<{ id: string; householdId: string }>(
+      await postPerson(validHead)
+    );
+    const kid = await json<{ id: string }>(
+      await postPerson({
+        ...validHead,
+        firstName: "kid",
+        dateOfBirth: "2015-01-01",
+        householdId: first.householdId,
+        householdRole: "child",
+      })
+    );
+    const second = await json<{ id: string; householdId: string }>(
+      await postPerson({ ...validHead, firstName: "ann", lastName: "lee" })
+    );
+
+    const households = await json<HouseholdResponse[]>(
+      await app.request("/api/households")
+    );
+    const shape = Object.fromEntries(
+      households.map((household) => [
+        household.id,
+        {
+          head: household.head?.id,
+          members: household.members.map((member) => member.id),
+        },
+      ])
+    );
+
+    expect(shape).toStrictEqual({
+      [first.householdId]: { head: first.id, members: [kid.id] },
+      [second.householdId]: { head: second.id, members: [] },
+    });
+  });
 });
