@@ -20,7 +20,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
-/** One breadcrumb: a label, plus a link target when it is not the current page. */
 export interface Crumb {
   label: string;
   path?: string;
@@ -31,7 +30,6 @@ const SetOverrideContext = createContext<
   ((items: Crumb[] | null) => void) | null
 >(null);
 
-/** Above the header in the layout so one page at a time can override the trail. */
 export function BreadcrumbProvider({ children }: { children: ReactNode }) {
   const [override, setOverride] = useState<Crumb[] | null>(null);
   return (
@@ -43,7 +41,6 @@ export function BreadcrumbProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** A page names its trail from loader data; the header shows it after mount. */
 export function useBreadcrumbs(items: Crumb[]) {
   const setOverride = useContext(SetOverrideContext);
   useEffect(() => {
@@ -58,7 +55,6 @@ const KNOWN_LABELS: Record<string, string> = {
   edit: "Edit",
 };
 
-/** Fallback trail from the URL path, used for the server render before a page overrides it. */
 const trailFromPath = (path: string): Crumb[] => {
   const segments = path.split("?")[0]?.split("/").filter(Boolean) ?? [];
   if (segments.length === 0) {

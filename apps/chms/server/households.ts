@@ -6,7 +6,6 @@ import { eq } from "void/db";
 
 import type { QueryDatabase, WriteDatabase } from "./db";
 
-/** The Household's stored fields set on create/update: the family name plus the shared contact details (ADR-0001). */
 type HouseholdWritableFields = Partial<
   Pick<
     HouseholdsInsertDb,
@@ -49,7 +48,6 @@ export const insertHouseholdStmt = (
   data: HouseholdsInsertDb
 ) => db.insert(householdsTable).values(data).returning();
 
-/** Lazy household update used inside a batch. */
 export const updateHouseholdStmt = (
   db: WriteDatabase,
   id: string,
@@ -75,7 +73,6 @@ export const getHouseholdHeadRow = (db: QueryDatabase, householdId: string) =>
       ),
   });
 
-/** Fetches all households with their member list (used to build the household selector on the add-person form). */
 const getAllHouseholdRows = (db: QueryDatabase) =>
   db.query.householdsTable.findMany({
     with: {
@@ -97,12 +94,6 @@ const getAllHouseholdRows = (db: QueryDatabase) =>
     },
   });
 
-/**
- * Returns all households with head/member separation and a display name. The
- * name is the household's stored `familyName` when set; households with none
- * yet (legacy rows awaiting backfill) fall back to a head-derived
- * "{head.firstName} {head.lastName} Family" label.
- */
 export const getAllHouseholds = async (db: QueryDatabase) => {
   const householdsData = await getAllHouseholdRows(db);
   return householdsData.map((household) => {

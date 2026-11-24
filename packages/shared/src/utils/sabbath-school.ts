@@ -7,12 +7,6 @@ import { calculateAge } from "./helpers";
 type SabbathSchoolClass =
   (typeof SABBATH_SCHOOL_CLASS)[keyof typeof SABBATH_SCHOOL_CLASS];
 
-/**
- * Maps a date of birth to its Sabbath School class, derived from the canonical
- * age bands in {@link SABBATH_SCHOOL_CLASS_OPTIONS} so callers never drift from
- * the single source of truth. Pass an explicit `referenceDate` for deterministic
- * results (e.g. seeding); defaults to now for live use.
- */
 export const getSabbathSchoolClass = (
   dateOfBirth: Date | string,
   referenceDate: Date = new Date()

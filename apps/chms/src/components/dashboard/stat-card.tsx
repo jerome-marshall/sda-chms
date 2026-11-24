@@ -14,7 +14,6 @@ interface StatCardProps {
   value: string | number;
 }
 
-/** Reusable stat card showing an icon, large value, label, and optional trend indicator. */
 export function StatCard({
   label,
   value,
@@ -61,14 +60,12 @@ export function StatCard({
           </div>
         </div>
 
-        {/* Subtle decorative aura behind the icon for visual depth */}
         <div className="pointer-events-none absolute top-0 right-0 h-32 w-32 translate-x-1/3 -translate-y-1/2 rounded-full bg-primary/5 blur-2xl" />
       </CardContent>
     </Card>
   );
 }
 
-/** Skeleton placeholder for StatCard while data is loading. */
 export function StatCardSkeleton({ className }: { className?: string }) {
   return (
     <Card

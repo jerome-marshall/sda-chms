@@ -145,9 +145,6 @@ describe("real baseline migration in SQLite", () => {
   it("a failing statement in batch rolls back the earlier statements", async () => {
     await resetDb();
 
-    // The second insert violates the person-identity unique index, so the
-    // batch must leave no trace of the first insert either — D1 runs a
-    // batch as one SQL transaction.
     const first = db
       .insert(peopleTable)
       .values({

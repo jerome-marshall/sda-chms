@@ -83,7 +83,6 @@ const batch = (
   }
 };
 
-/** The shared test database: Drizzle over in-memory SQLite with D1's batch shape. */
 export const db = Object.assign(base, { batch }) satisfies DatabaseSurface;
 
 /**
@@ -115,7 +114,6 @@ for (const entry of journal.entries) {
   }
 }
 
-/** Every Drizzle table in the schema, used to clear between tests. */
 const allTables = (Object.values(schema) as unknown[]).filter(
   (value): value is SQLiteTable => is(value, SQLiteTable)
 );
@@ -146,7 +144,6 @@ export const resetDb = (): Promise<void> => {
   return Promise.resolve();
 };
 
-/** No per-database clients in tests — use the shared `db` instance. */
 export const createDb = (): never => {
   throw new Error(
     "test/void-db: createDb() is unavailable in tests — use the shared db instance"

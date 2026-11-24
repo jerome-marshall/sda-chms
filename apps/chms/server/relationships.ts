@@ -25,18 +25,11 @@ const relatedPersonColumns = {
   membershipStatus: true,
 } as const;
 
-/** Fetches a single relationship row by id (read-first step for batch rewrites). */
 export const getRelationshipRowById = (db: QueryDatabase, id: string) =>
   db.query.relationshipsTable.findFirst({
     where: (table, { eq: eqOp }) => eqOp(table.id, id),
   });
 
-/**
- * Fetches every relationship touching a person — both the rows where they are the
- * subject (`person`) and the rows where they are the object (`relatedPerson`) —
- * each with the joined person on both sides so the link can be resolved from
- * this person's perspective.
- */
 export const getRelationshipsForPersonRows = (
   db: QueryDatabase,
   personId: string
@@ -56,7 +49,6 @@ export const insertRelationshipStmt = (
   data: RelationshipsInsertDb
 ) => db.insert(relationshipsTable).values(data).returning();
 
-/** Lazy spouse-state update used inside a batch. */
 export const updateRelationshipStateStmt = (
   db: WriteDatabase,
   id: string,
@@ -68,14 +60,12 @@ export const updateRelationshipStateStmt = (
     .where(eq(relationshipsTable.id, id))
     .returning();
 
-/** Lazy delete used inside a batch. */
 export const deleteRelationshipStmt = (db: WriteDatabase, id: string) =>
   db
     .delete(relationshipsTable)
     .where(eq(relationshipsTable.id, id))
     .returning();
 
-// Inferred from the query so it stays in sync with the columns selected.
 type RelationshipRow = Awaited<
   ReturnType<typeof getRelationshipsForPersonRows>
 >[number];

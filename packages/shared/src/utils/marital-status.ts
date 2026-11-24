@@ -21,7 +21,6 @@ const GOVERNING_SPOUSE_STATE_PRIORITY: Record<SpouseState, number> = {
   [SPOUSE_STATE.DIVORCED]: 3,
 };
 
-/** The fields needed to resolve one spouse link from a Person's perspective. */
 export interface SpouseLinkForMaritalStatus {
   createdAt: Date | string;
   partnerDeceased: boolean;
@@ -46,7 +45,6 @@ export const resolveSpouseState = (
   return storedState;
 };
 
-/** True when the partner's Membership Status is Deceased — the widowhood signal. */
 export const isPartnerDeceased = (
   membershipStatus: MembershipStatus
 ): boolean => membershipStatus === MEMBERSHIP_STATUS.DECEASED;
@@ -94,10 +92,6 @@ export const maritalStatusFromSpouseState = (
   state: SpouseState
 ): Exclude<MaritalStatus, "single"> => state;
 
-/**
- * A Person's effective Marital Status: the governing spouse link when one
- * exists, otherwise the stored (manually set) value.
- */
 export const effectiveMaritalStatus = (
   stored: MaritalStatus,
   links: SpouseLinkForMaritalStatus[]

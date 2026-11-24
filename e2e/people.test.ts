@@ -11,15 +11,9 @@ test("the People directory page loads and lists seeded people", async ({
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Add Person" })).toBeVisible();
 
-  // The data-grid toolbar only renders once the people query resolves (it is
-  // absent during the loading skeleton and the error state), so this proves the
-  // request to the API + DB succeeded rather than just that the static chrome
-  // mounted.
   await expect(page.getByRole("toolbar")).toBeVisible();
   await expect(page.getByText("Error loading people")).toHaveCount(0);
 
-  // And the seeded data must actually render: each person row links to its
-  // detail page (`/people/<id>`), distinct from the static "Add Person" link.
   const personRowLinks = page
     .locator('a[href^="/people/"]')
     .filter({ hasNotText: "Add Person" });
@@ -41,8 +35,6 @@ test("a direct load of a person page returns server-rendered HTML with the perso
     throw new Error("e2e/people: expected at least one seeded person");
   }
 
-  // Raw HTML without executing JavaScript: the name must already be in the
-  // document, which proves the loader server-rendered it.
   const directRes = await request.get(`/people/${first.id}`);
   expect(directRes.ok()).toBeTruthy();
   await expect(directRes.text()).resolves.toContain(first.fullName);

@@ -15,18 +15,15 @@ interface DashboardCardProps {
   className?: string;
   contentClassName?: string;
   description: string;
-  /** One or more icon elements rendered to the left of the title. */
   icon: ReactNode;
   title: string;
 }
 
 interface DashboardCardSkeletonProps {
   className?: string;
-  /** Number of placeholder rows to render in the content area. */
   rows?: number;
 }
 
-/** Loading placeholder that mirrors the DashboardCard layout — header + stacked content rows. */
 export function DashboardCardSkeleton({
   rows = 4,
   className,
@@ -66,7 +63,6 @@ export function DashboardCardSkeleton({
   );
 }
 
-/** Shared card shell used by all dashboard widgets — consistent header layout with title/description on the left and icon(s) on the right. */
 export function DashboardCard({
   title,
   description,

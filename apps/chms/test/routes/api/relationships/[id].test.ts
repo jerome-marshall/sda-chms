@@ -103,7 +103,6 @@ describe("PATCH and DELETE /api/relationships/:id (integration, SQLite)", () => 
     const patched = await patchState(created.id, "divorced");
     expect(patched.status).toBe(200);
 
-    // The link still exists on both sides, now divorced.
     const list = await json<RelationshipItem[]>(await listFor(a.id));
     expect(list).toHaveLength(1);
     expect(list[0]?.state).toBe("divorced");

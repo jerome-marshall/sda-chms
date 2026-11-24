@@ -25,7 +25,6 @@ describe("version parity with Void's bundled dependencies", () => {
     readFileSync(path.join(voidDir, "package.json"), "utf-8")
   ) as { dependencies: Record<string, string> };
 
-  /** Versions the workspace fixes by hand: `void` itself, plus the two catalog pins. */
   const pinned = {
     void: "1.1.12",
     "drizzle-orm": "0.45.4",
@@ -65,7 +64,6 @@ describe("version parity with Void's bundled dependencies", () => {
   );
 });
 
-/** Walks up from a resolved entry file to its package.json. */
 const packageVersion = (entryFile: string): string => {
   let dir = path.dirname(entryFile);
   for (let depth = 0; depth < 8; depth += 1) {
@@ -84,7 +82,6 @@ const packageVersion = (entryFile: string): string => {
   throw new Error(`test: cannot find package.json above ${entryFile}`);
 };
 
-/** Minimal caret/exact range check — the catalog pins exact, Void declares ^. */
 const satisfies = (version: string, range: string): boolean => {
   if (range === version) {
     return true;

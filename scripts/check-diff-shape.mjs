@@ -29,7 +29,6 @@ const parseHunk = (line) => {
     : null;
 };
 
-/** Splits a unified diff into the added and removed lines, with file and line. */
 const parse = (diff) => {
   const added = [];
   const removed = [];
@@ -69,10 +68,6 @@ const parse = (diff) => {
   return { added, removed, changed };
 };
 
-/**
- * The findings a script can decide on its own. Everything else on
- * docs/agents/self-review.md needs a person.
- */
 export const checkDiffShape = (diff) => {
   const findings = [];
   const { added, removed, changed } = parse(diff);

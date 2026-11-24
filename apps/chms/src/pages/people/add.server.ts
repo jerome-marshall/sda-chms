@@ -4,7 +4,6 @@ import type { InferProps } from "void";
 import { fetch, FetchError } from "void/client";
 import { defineHandler } from "void/handler";
 
-/** Household options for the role select on the add form. */
 export const loader = defineHandler(async () => {
   const households = await fetch("/api/households");
   return { households };

@@ -7,7 +7,6 @@ import { eq } from "void/db";
 
 import type { QueryDatabase, WriteDatabase } from "./db";
 
-/** The Household's own columns surfaced alongside each Person for the effective-value rule (ADR-0001). */
 const householdContactColumns = {
   familyName: true,
   addressLine1: true,
@@ -19,7 +18,6 @@ const householdContactColumns = {
   preferredVisitingTime: true,
 } as const;
 
-/** Fetches all people with their Household's shared contact fields for the effective-value rule. */
 export const getAllPeopleWithHouseholdRows = (db: QueryDatabase) =>
   db.query.peopleTable.findMany({
     with: {
@@ -27,13 +25,11 @@ export const getAllPeopleWithHouseholdRows = (db: QueryDatabase) =>
     },
   });
 
-/** Fetches a single person without household data. */
 export const getPersonRowById = (db: QueryDatabase, id: string) =>
   db.query.peopleTable.findFirst({
     where: (table) => eq(table.id, id),
   });
 
-/** Fetches a single person with their Household's shared contact fields for the effective-value rule. */
 export const getPersonWithHouseholdRowById = (db: QueryDatabase, id: string) =>
   db.query.peopleTable.findFirst({
     where: (table) => eq(table.id, id),
@@ -52,20 +48,17 @@ export const getPersonWithHouseholdRowById = (db: QueryDatabase, id: string) =>
 export const insertPersonStmt = (db: WriteDatabase, data: PeopleInsertDb) =>
   db.insert(peopleTable).values(data).returning();
 
-/** Lazy person update used inside a batch. */
 export const updatePersonStmt = (
   db: WriteDatabase,
   id: string,
   data: Partial<PeopleInsertDb>
 ) => db.update(peopleTable).set(data).where(eq(peopleTable.id, id)).returning();
 
-/** Inserts a person record (single write; batch paths use `insertPersonStmt`). */
 export const insertPerson = async (data: PeopleInsertDb, db: WriteDatabase) => {
   const person = await db.insert(peopleTable).values(data).returning();
   return person[0];
 };
 
-// Inferred from the query so it stays in sync with the selected columns.
 type PersonWithHouseholdRow = Awaited<
   ReturnType<typeof getAllPeopleWithHouseholdRows>
 >[number];
@@ -81,7 +74,6 @@ const stripIdentityColumns = <T extends PeopleSelectDb>(
   { identityLastName, identityDateOfBirth, ...publicRow }: T
 ): Omit<T, "identityLastName" | "identityDateOfBirth"> => publicRow;
 
-/** Shared field mapping used by both insert and update transformers. */
 export const personFormToDbFields = (
   data: PersonInsertForm
 ): Omit<PeopleInsertDb, "isActive"> => ({
@@ -118,18 +110,11 @@ export const personFormToDbFields = (
   importantDates: data.importantDates ?? [],
 });
 
-/** Maps the client-submitted form data to the DB insert shape, title-casing names before storage. */
 export const personApiToDb = (data: PersonInsertForm): PeopleInsertDb => ({
   ...personFormToDbFields(data),
   isActive: true,
 });
 
-/**
- * Transforms a person + their Household DB record into the API shape (ADR-0001).
- * Surfaces the Household's shared contact fields (`household*`) alongside the
- * person's own so every reader can resolve the effective value — the person's
- * own if set, otherwise the Household's. No head-of-household fallback remains.
- */
 export const personWithHouseholdDbToApi = (
   personData: PersonWithHouseholdRow
 ) => {
@@ -153,7 +138,6 @@ export const personWithHouseholdDbToApi = (
   };
 };
 
-/** The person columns that mirror the Household's shared contact fields, cleared so a Head inherits from the Household. */
 export const NULL_PERSON_CONTACT = {
   addressLine1: null,
   addressLine2: null,
@@ -164,7 +148,6 @@ export const NULL_PERSON_CONTACT = {
   preferredVisitingTime: null,
 } as const;
 
-/** The Person wire shape returned by every People read (ADR-0007). */
 export type PersonWithHouseholdApi = ReturnType<
   typeof personWithHouseholdDbToApi
 >;

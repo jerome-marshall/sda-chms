@@ -17,7 +17,6 @@ import type { ApiError } from "../../server/effect/errors";
 import { runApi } from "../../server/effect/runtime";
 import { mapErrorToBody } from "../../server/lib/errors";
 
-/** What the edge threw for a program that failed with `failure`. */
 const thrownFor = async (failure: ApiError): Promise<unknown> => {
   try {
     await runApi(Effect.fail(failure));

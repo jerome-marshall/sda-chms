@@ -19,8 +19,6 @@ describe("person detail loader (through void/client)", () => {
 
   beforeAll(() => {
     app = createTestApp();
-    // Route the loader's relative void/client calls into the test app, the
-    // way the worker dispatches them in-process during SSR.
     globalThis.fetch = ((input: string, init?: RequestInit) => {
       if (typeof input === "string" && input.startsWith("/")) {
         return app.request(input, init);
@@ -65,8 +63,6 @@ describe("person detail loader (through void/client)", () => {
     const loadedRes = await personDetailLoader({
       req: { param: () => ({ id }) },
     } as unknown as CloudContext);
-    // The framework converts loader output to a JSON response; the page
-    // dispatcher parses it back into props the same way here.
     const loaded = (await (loadedRes as Response).json()) as {
       person: unknown;
       relationships: unknown[];

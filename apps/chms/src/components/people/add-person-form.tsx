@@ -12,11 +12,6 @@ import { personFormErrorMessage } from "@/utils/people";
 
 import PersonFormFields from "./person-form-fields";
 
-/**
- * Wrapper that initialises the form for creating a new person. Keeps
- * react-hook-form for the field arrays and conditional household fields and
- * submits to the page action, which redirects to the new detail page.
- */
 const AddPersonForm = ({ households }: { households: Households }) => {
   const [isPending, setPending] = useState(false);
 

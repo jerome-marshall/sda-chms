@@ -37,7 +37,6 @@ const errorMessages = {
   city: "City is missing",
 };
 
-/** Zod schema for a single important date entry stored in the JSONB column. */
 export const importantDateSchema = z.object({
   id: z.string(),
   name: z.string().min(1, { message: "Name is required" }),
@@ -48,7 +47,6 @@ export const importantDateSchema = z.object({
 });
 export type ImportantDate = z.infer<typeof importantDateSchema>;
 
-/** Zod schema for a person form, shared by the add and edit paths and validated on both client and server. */
 export const personInsertFormSchema = z
   .object({
     firstName: z
@@ -98,7 +96,6 @@ export const personInsertFormSchema = z
     householdRole: z.enum(HOUSEHOLD_ROLE_VALUES, {
       error: errorMessages.householdRole,
     }),
-    // groupIds: z.string().array().optional(),
     sabbathSchoolClass: z
       .enum(SABBATH_SCHOOL_CLASS_VALUES, {
         error: errorMessages.sabbathSchoolClass,
@@ -108,15 +105,10 @@ export const personInsertFormSchema = z
     pastoralNotes: z.string().optional(),
     importantDates: z.array(importantDateSchema).optional(),
   })
-  .refine(
-    (data) =>
-      // Valid if: role is "head" (doesn't need existing household) OR householdId is provided
-      data.householdRole === "head" || !!data.householdId,
-    {
-      message: "Household is required for non-head of household",
-      path: ["householdId"],
-    }
-  )
+  .refine((data) => data.householdRole === "head" || !!data.householdId, {
+    message: "Household is required for non-head of household",
+    path: ["householdId"],
+  })
   .refine(
     // Membership Status = Deceased is the single source of truth for death;
     // a Memorial Day is a dependent attribute and may only be present then.

@@ -12,7 +12,6 @@ import { insertPersonStmt } from "./people";
 /** Rejects past this before parsing: the whole CSV sits in memory twice. */
 export const MAX_CSV_CHARS = 5_000_000;
 
-/** Rejects past this: one batch per household group must stay reasonable. */
 const MAX_ROWS = 50_000;
 
 /**

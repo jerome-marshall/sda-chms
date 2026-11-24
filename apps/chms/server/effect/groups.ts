@@ -6,17 +6,14 @@ import type { InfraError } from "./errors";
 
 type Group = Awaited<ReturnType<typeof readGroups>>[number];
 
-/** The Group read operation the API exposes. */
 export interface GroupsService {
   readonly getAll: () => Effect.Effect<Group[], InfraError>;
 }
 
-/** Group reads behind Effect. */
 export class Groups extends Context.Service<Groups, GroupsService>()(
   "Groups"
 ) {}
 
-/** Builds the Group service from the request-scoped database. */
 export const GroupsLive = Layer.effect(
   Groups,
   Effect.gen(function* GroupsLive() {
@@ -27,7 +24,6 @@ export const GroupsLive = Layer.effect(
   })
 );
 
-/** Lists every Group. */
 export const getAllGroups = Effect.gen(function* getAllGroupsProgram() {
   const groups = yield* Groups;
   return yield* groups.getAll();

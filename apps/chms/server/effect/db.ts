@@ -10,7 +10,6 @@ import { InfraError } from "./errors";
  */
 export class Db extends Context.Service<Db, Database>()("Db") {}
 
-/** Builds the `Db` service from Void's request-scoped binding. */
 export const DbLive: Layer.Layer<Db> = Layer.sync(Db, getDb);
 
 /**

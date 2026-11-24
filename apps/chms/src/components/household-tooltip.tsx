@@ -2,8 +2,6 @@ import { HomeIcon } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-/** Shows a house icon when the displayed value comes from the household head.
- * Renders nothing otherwise. */
 const HouseholdTooltip = ({
   isFromHousehold,
 }: {

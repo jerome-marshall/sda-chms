@@ -2,12 +2,6 @@ import { readFileSync } from "node:fs";
 
 import type { ImportSummary } from "./import-helpers";
 
-/**
- * Thin client for the development-only CSV import. Reads the member CSV and
- * POSTs it to the dev server's `/api/import` route (a `.dev` route backed by
- * the same local D1 the app runs on), then prints the summary. Run the dev
- * server first: `pnpm dev`, then `pnpm import-people -- <csv-path> [base-url]`.
- */
 const csvPath =
   process.argv[2] ?? "~/Downloads/SDA Appavu Nagar Church Members Info.csv";
 const resolvedPath = csvPath.replace(/^~/u, process.env.HOME ?? "");

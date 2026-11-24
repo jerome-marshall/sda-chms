@@ -7,11 +7,6 @@ import { z } from "zod";
 
 const paramsSchema = z.object({ id: z.string().min(1) });
 
-/**
- * Edit data: the person pre-fill, their relationships (which lock Marital
- * Status while a spouse link governs it), plus household options and every
- * other person for the relationship controls.
- */
 export const loader = defineHandler.withValidator({ params: paramsSchema })(
   async (_c, { params }) => {
     const [person, relationships, households, people] = await Promise.all([
@@ -38,7 +33,6 @@ export const action = defineHandler.withValidator({
     });
     return c.redirect(`/people/${updated.id}`);
   } catch (error) {
-    // Forward the API failure so the form sees the contract body directly.
     if (error instanceof FetchError) {
       return c.json(
         error.data ?? { message: error.message },

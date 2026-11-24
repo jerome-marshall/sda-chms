@@ -19,22 +19,18 @@ const skipDirs = new Set([
 ]);
 const extensions = [".ts", ".tsx"];
 
-/** Replaces block comments with spaces so line numbers survive. */
 export const stripBlockComments = (text) =>
   text.replaceAll(/\/\*[\s\S]*?\*\//gu, (match) =>
     match.replaceAll(/[^\n]/gu, " ")
   );
 
-/** Removes block and line comments, preserving line numbers. */
 export const stripComments = (text) =>
   stripBlockComments(text).replaceAll(/(?:^|\s)\/\/[^\n]*/gmu, (match) =>
     match.replaceAll(/[^\n]/gu, " ")
   );
 
-/** The 1-based line of a character index. */
 export const lineOf = (text, index) => text.slice(0, index).split("\n").length;
 
-/** Every module specifier in an import, a re-export, or a dynamic import. */
 export const specifiers = (text) => {
   const pattern =
     /(?<keyword>\bfrom|\bimport)\s*\(?\s*["'](?<spec>[^"']+)["']/gu;
@@ -56,7 +52,6 @@ const isBindingSpecifier = (spec) =>
   spec.startsWith("drizzle-orm/") ||
   /(?:^|\/)server\/(?!effect(?:\/|$))/u.test(spec);
 
-/** The index of an import of the `db` binding, a re-export, or a dynamic import. */
 export const dbImportIndex = (text) => {
   const pattern =
     /(?:import\s+(?<clause>\*\s+as\s+\w+|\{[\s\S]*?\}|db)\s*from|export\s+\{[^}]*\}\s*from|export\s+\*\s+(?:as\s+\w+\s+)?from|import\s*\(\s*)\s*["']void\/db["']/gu;
@@ -151,7 +146,6 @@ export const rules = [
   },
 ];
 
-/** Returns every violation for one rule in one file. */
 const ruleViolations = (file, clean, rule) => {
   if (!rule.appliesTo(file) || rule.allow(file)) {
     return [];
@@ -188,7 +182,6 @@ const ruleViolations = (file, clean, rule) => {
   return found;
 };
 
-/** Returns every violation in one file. Pure, so the rules can be tested. */
 export const scanText = (file, text) =>
   rules.flatMap((rule) => ruleViolations(file, stripComments(text), rule));
 

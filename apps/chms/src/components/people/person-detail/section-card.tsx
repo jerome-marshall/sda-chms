@@ -12,13 +12,11 @@ import {
 interface DetailRowProps {
   className?: string;
   icon?: React.ComponentType<{ className?: string }>;
-  /** When true, shows a tooltip indicating the value comes from the household head. */
   isFromHousehold?: boolean;
   label: string;
   value: React.ReactNode;
 }
 
-/** Displays a single label–value pair with an optional icon and household-fallback indicator. */
 export function DetailRow({
   icon: Icon,
   label,
@@ -55,7 +53,6 @@ interface SectionCardProps {
   title: string;
 }
 
-/** Card wrapper used to group related detail rows under a titled section. */
 export function SectionCard({
   action,
   title,

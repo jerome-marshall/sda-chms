@@ -11,7 +11,6 @@ interface StatusRowProps {
   label: string;
 }
 
-/** A single labeled row in the membership status breakdown list. */
 function StatusRow({ color, label, count }: StatusRowProps) {
   return (
     <div className="flex items-center justify-between">
@@ -35,7 +34,6 @@ const membershipIcon = (
   </div>
 );
 
-/** Stats grid showing baptized/unbaptized counts and a breakdown by membership status. */
 export function MembershipBreakdownCard({
   people: allPeople,
 }: {
@@ -52,7 +50,6 @@ export function MembershipBreakdownCard({
       icon={membershipIcon}
       title="Membership Breakdown"
     >
-      {/* Top Grid: Baptized vs Unbaptized */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col justify-between rounded-xl bg-blue-500/5 p-4 ring-1 ring-blue-500/20">
           <div className="mb-2 flex items-center gap-2 text-blue-600">
@@ -78,7 +75,6 @@ export function MembershipBreakdownCard({
         </div>
       </div>
 
-      {/* Bottom List: Status Breakdown */}
       <div className="space-y-4">
         <h4 className="border-b border-border/40 pb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
           By Status

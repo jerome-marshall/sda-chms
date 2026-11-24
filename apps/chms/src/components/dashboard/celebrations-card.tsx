@@ -19,9 +19,7 @@ const celebrationsIcon = (
   </>
 );
 
-/** Scrollable list of birthdays and anniversaries occurring this month. */
 export function CelebrationsCard({ people: allPeople }: { people: People }) {
-  // Deceased people are excluded from celebrations per domain rules
   const people = allPeople.filter((person) => !isDeceased(person));
 
   const currentMonth = new Date().getMonth();
@@ -47,7 +45,6 @@ export function CelebrationsCard({ people: allPeople }: { people: People }) {
         return {
           name: person.fullName,
           date: person.weddingDate,
-          // Years married = current year minus the wedding year
           years:
             new Date().getFullYear() -
             new Date(person.weddingDate).getFullYear(),
@@ -61,8 +58,6 @@ export function CelebrationsCard({ people: allPeople }: { people: People }) {
       (anniversary) => new Date(anniversary.date).getMonth() === currentMonth
     );
 
-  // Group anniversaries by household so couples appear as a single entry.
-  // Key is householdId when present, otherwise the person's full name (solo fallback).
   const anniversaryByHousehold = new Map<
     string,
     { entry: (typeof anniversariesThisMonth)[number]; firstName: string }[]
@@ -156,7 +151,6 @@ export function CelebrationsCard({ people: allPeople }: { people: People }) {
                 </div>
               </div>
 
-              {/* Decorative background icon for subtle depth on hover */}
               <div className="absolute -right-4 -bottom-4 opacity-5 transition-opacity group-hover:opacity-10">
                 {celebration.type === "birthday" ? (
                   <Cake className="h-20 w-20 text-amber-500" />

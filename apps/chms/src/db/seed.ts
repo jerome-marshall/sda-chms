@@ -35,8 +35,6 @@ import {
 } from "./schema/people";
 import type { HouseholdsInsertDb, PeopleInsertDb } from "./schema/people";
 
-// SOUTH INDIAN NAME DATA (Hosur, Tamil Nadu congregation)
-
 const SOUTH_INDIAN_MALE_FIRST_NAMES = [
   "Arjun",
   "Karthik",
@@ -340,8 +338,6 @@ const VISITING_TIMES = [
   "Anytime",
 ];
 
-// MINISTRY STRUCTURE SEED DATA (from CONTEXT.md domain language)
-
 const SEED_GROUPS = [
   { name: "Choir", description: "Church choir for Sabbath worship services." },
   {
@@ -423,8 +419,6 @@ const SEED_POSITIONS: { name: string; department: string | null }[] = [
   { name: "Hospitality Coordinator", department: "Hospitality" },
 ];
 
-// HELPER FUNCTIONS
-
 // Reference date: January 6, 2026. Built from numeric parts (local time) rather
 // than an ISO string (which parses as UTC) so age math lines up with the local
 // date accessors used downstream regardless of the runner's timezone.
@@ -462,7 +456,6 @@ function formatDate(date: Date): string {
   return dateStr;
 }
 
-/** Date of birth for someone of exactly `age` years on the reference date. */
 function dobForAge(age: number): Date {
   return faker.date.birthdate({
     min: age,
@@ -517,7 +510,6 @@ function generatePhone(): string {
 }
 
 function generateEmail(firstName: string, lastName: string): string | null {
-  // 70% chance of having an email
   if (faker.number.float() > 0.7) {
     return null;
   }
@@ -531,7 +523,6 @@ function generateEmail(firstName: string, lastName: string): string | null {
 }
 
 function generatePhotoUrl(): string | null {
-  // 30% chance of having a photo
   if (faker.number.float() > 0.3) {
     return null;
   }
@@ -542,7 +533,6 @@ function generateWeddingDate(
   dateOfBirth: Date,
   latest: Date = REFERENCE_DATE
 ): string | null {
-  // Wedding between age 20 and 30, never after `latest` (e.g. eldest child's birth).
   const minWeddingDate = new Date(dateOfBirth);
   minWeddingDate.setFullYear(minWeddingDate.getFullYear() + 20);
 
@@ -569,7 +559,6 @@ function generateBaptismDate(
   dateOfBirth: Date,
   latest: Date = REFERENCE_DATE
 ): string | null {
-  // 85% chance of having a baptism date
   if (faker.number.float() > 0.85) {
     return null;
   }
@@ -592,9 +581,8 @@ function generateDateJoinedChurch(
     return null;
   }
 
-  // Usually join date is same as baptism or slightly after (for transfers)
   const baptism = new Date(baptismDate);
-  const shouldTransfer = faker.number.float() < 0.2; // 20% are transfers
+  const shouldTransfer = faker.number.float() < 0.2;
 
   if (shouldTransfer) {
     return formatDate(faker.date.between({ from: baptism, to: latest }));
@@ -610,7 +598,6 @@ function adultMembershipStatus(age: number): MembershipStatus {
     { weight: 5, value: MEMBERSHIP_STATUS.INACTIVE },
     { weight: 4, value: MEMBERSHIP_STATUS.MOVED },
   ];
-  // Only the elderly pass away in seed data.
   if (age >= 65) {
     entries.push({ weight: 3, value: MEMBERSHIP_STATUS.DECEASED });
   }
@@ -625,8 +612,6 @@ function childMembershipStatus(): MembershipStatus {
   ]);
 }
 
-// FAMILY PLANNING (in-memory, then inserted)
-
 type PersonDraft = Omit<PeopleInsertDb, "householdId"> & {
   householdId?: string;
 };
@@ -634,7 +619,6 @@ type PersonDraft = Omit<PeopleInsertDb, "householdId"> & {
 type FamilyRole = "head" | "spouse" | "child";
 
 interface FamilyMember {
-  /** Kept alongside (not inside) the draft so inserts stay pure insert shapes. */
   dob: Date;
   draft: PersonDraft;
   role: FamilyRole;
@@ -750,7 +734,6 @@ function planHousehold(lastName: string): HouseholdsInsertDb {
   };
 }
 
-/** Occupation for a child draft: adults work, school-age children study. */
 function childOccupation(age: number): string | null {
   if (age >= 18) {
     return pick(SOUTH_INDIAN_OCCUPATIONS);
@@ -761,7 +744,6 @@ function childOccupation(age: number): string | null {
   return null;
 }
 
-/** Marital status for a single-adult household head (no spouse link stored). */
 function singleMaritalStatus(
   soloElder: boolean,
   membership: MembershipStatus
@@ -785,7 +767,6 @@ function singleMaritalStatus(
   ]);
 }
 
-/** Ages (eldest first) for 0-3 children, each ≥18 years younger than both parents. */
 function rollChildAges(headAge: number, spouseAge: number): number[] {
   const maxChildAge = Math.min(24, Math.min(headAge, spouseAge) - 18);
   if (maxChildAge < 0) {
@@ -799,7 +780,7 @@ function rollChildAges(headAge: number, spouseAge: number): number[] {
   ]);
   return Array.from({ length: childCount }, () =>
     faker.number.int({ min: 0, max: maxChildAge })
-  ).toSorted((a, b) => b - a); // eldest first
+  ).toSorted((a, b) => b - a);
 }
 
 interface CoupleMembership {
@@ -855,7 +836,6 @@ function weddingAnniversary(weddingDate: string | null): ImportantDate[] {
   ];
 }
 
-/** A married (or widowed) couple household with 0-3 children. */
 function planCoupleFamily(): FamilyPlan {
   const lastName = pick(SOUTH_INDIAN_LAST_NAMES);
   const headGender = faker.number.float() < 0.7 ? "male" : "female";
@@ -914,7 +894,6 @@ function planCoupleFamily(): FamilyPlan {
     weddingDate,
     memorialDay: memorialFor(membership.spouse),
     importantDates: anniversary,
-    // Some spouses keep their own mobile number as an override.
     phone: faker.number.float() < 0.25 ? generatePhone() : null,
   });
   spouse.householdRole = HOUSEHOLD_ROLE.SPOUSE;
@@ -956,7 +935,6 @@ function planCoupleFamily(): FamilyPlan {
   return { household: planHousehold(lastName), members };
 }
 
-/** A single adult (or solo elder) heading their own household. */
 function planSingleFamily(): FamilyPlan {
   const lastName = pick(SOUTH_INDIAN_LAST_NAMES);
   const soloElder = faker.number.float() < 0.15;
@@ -989,7 +967,6 @@ function planSingleFamily(): FamilyPlan {
   };
 }
 
-/** A newcomer household: young visitor couple or individual, lightly filled in. */
 function planVisitorFamily(): FamilyPlan {
   const lastName = pick(SOUTH_INDIAN_LAST_NAMES);
   const couple = faker.number.float() < 0.4;
@@ -1021,8 +998,6 @@ function planVisitorFamily(): FamilyPlan {
 
   return { household: planHousehold(lastName), members };
 }
-
-// SEED
 
 type SeedDb = Extract<SeedContext<typeof schema>, { dialect: "sqlite" }>["db"];
 
@@ -1060,7 +1035,6 @@ function newAccumulator(): SeedAccumulator {
   };
 }
 
-/** Static ministry data (idempotent: names are unique). */
 async function seedStaticTables(db: SeedDb): Promise<StaticSeedData> {
   await db.insert(groupsTable).values(SEED_GROUPS).onConflictDoNothing();
   await db
@@ -1111,7 +1085,6 @@ function planFamilies(target: number): FamilyPlan[] {
   return plans;
 }
 
-/** Inserts one family's people; returns the surviving ids for link building. */
 async function insertFamilyPeople(
   db: SeedDb,
   plan: FamilyPlan,
@@ -1328,7 +1301,6 @@ function collectFamilyMemberships(
   statics: StaticSeedData,
   acc: SeedAccumulator
 ): void {
-  // Teens and adults only.
   for (let i = 0; i < plan.members.length; i += 1) {
     const member = plan.members[i];
     const personId = result.memberIds[i];
@@ -1362,12 +1334,6 @@ async function insertAccumulated(
   }
 }
 
-/**
- * Seeds ~SEED_COUNT (default 100) Faker people across family households. Run
- * it through `pnpm db:seed`: Void resets the local D1 database and applies
- * the migrations before this callback runs, and `void db seed` cannot target
- * remote D1. The host guard only applies if the app seeds Postgres again.
- */
 export default defineSeed<typeof schema>(async ({ db, dialect }) => {
   if (dialect === "sqlite") {
     // Local D1 / better-sqlite3 databases are files or :memory: by
@@ -1385,8 +1351,6 @@ export default defineSeed<typeof schema>(async ({ db, dialect }) => {
   const plans = planFamilies(target);
   const acc = newAccumulator();
 
-  // Insert households + people per family (to link ids), accumulating the
-  // relationship / membership / history rows for batched inserts below.
   for (const plan of plans) {
     const [household] = await db
       .insert(householdsTable)
