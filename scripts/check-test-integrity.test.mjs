@@ -94,3 +94,30 @@ test("counts removals per file, not across the diff", () => {
   assert.equal(findings.length, 1);
   assert.match(findings[0], new RegExp(file, "u"));
 });
+
+test("allows a deleted test file when its source is deleted too", () => {
+  const diff = [
+    "--- a/apps/chms/server/effect/people.ts",
+    "+++ /dev/null",
+    "@@ -1,1 +0,0 @@",
+    "-export const listPeople = () => query;",
+    "--- a/apps/chms/test/people.test.ts",
+    "+++ /dev/null",
+    "@@ -1,2 +0,0 @@",
+    '-it("lists", () => {});',
+    '-it("filters", () => {});',
+  ].join("\n");
+  assert.deepEqual(checkDiff(diff), []);
+});
+
+test("rejects a deleted test file when its source remains", () => {
+  const diff = [
+    "--- a/apps/chms/test/people.test.ts",
+    "+++ /dev/null",
+    "@@ -1,1 +0,0 @@",
+    '-it("lists", () => {});',
+  ].join("\n");
+  const findings = checkDiff(diff);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0], /people\.test\.ts:1/u);
+});

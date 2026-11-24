@@ -18,7 +18,7 @@ Before you edit an area, read its convention file.
 | Church domain rules                          | `docs/conventions/domain-rules.md` |
 
 Building a feature: `docs/agents/feature-loop.md`.
-Reviewing a diff: `docs/agents/reviewer.md`.
+Reviewing a diff: `docs/agents/self-review.md`.
 Issue tracking and triage: `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`.
 
 ## Verify before you hand back
@@ -40,9 +40,13 @@ A green local run should mean a green PR. If a command fails, fix the cause in t
 - `process.env` appears in domain code.
 - a test is skipped or focused, or test cases are removed without the `test-deleted` label.
 - the schema and the committed migrations disagree.
+- a TypeScript suppression was added, a weaker test matcher replaced an exact one, or a new server export has no test in the diff.
+- a pull request has an unticked box, the placeholder proof, an unnamed test, a UI change with no picture, or an undeclared one-way door.
 
 Each rule names the file and line, so fix the cause rather than the report.
 
 ## Reviewing a change
 
-Every PR gets a second read against `docs/agents/reviewer.md`. The reviewer searches the diff for the listed patterns and asks for their removal. Review the diff, not the PR summary. CI runs the same list through `scripts/review-diff.mjs` on every PR, and a finding fails the job.
+`docs/agents/self-review.md` is the checklist, and it has two halves. The checked half is `pnpm verify`: a script fails the build, so you fix the cause instead of arguing with it. The decided half cannot be scripted, so you answer it in the pull request body, and `check:proof` refuses an empty or unanswered body.
+
+There is no review service and no model in the gate. A second read is a fresh agent you start yourself, from the diff and the checklist, when the change is big enough to earn one. It does not block a merge, and it cannot approve one.
