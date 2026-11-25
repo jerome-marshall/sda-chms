@@ -290,5 +290,59 @@ describe("GET /api/relationships/person/:personId (integration, SQLite)", () => 
         (await json<PersonResponse>(await getPerson(b.id))).maritalStatus
       ).toBe("single");
     });
+
+    const statusOf = async (id: string) =>
+      (await json<PersonResponse>(await getPerson(id))).maritalStatus;
+
+    const link = async (body: Record<string, unknown>) =>
+      await json<{ id: string }>(
+        await postRelationship({ type: "spouse", ...body })
+      );
+
+    it("keeps an ongoing marriage over a separation from someone else", async () => {
+      const { a, b } = await seedTwoPeople();
+      const c = await createPerson(app, { firstName: "cara" });
+      await link({ personId: a.id, relatedPersonId: c.id, state: "married" });
+      await link({ personId: a.id, relatedPersonId: b.id, state: "separated" });
+
+      expect([
+        await statusOf(a.id),
+        await statusOf(b.id),
+        await statusOf(c.id),
+      ]).toStrictEqual(["married", "separated", "married"]);
+    });
+
+    it("lets a living spouse govern over a marriage to a deceased partner", async () => {
+      const a = await createPerson(app, { firstName: "ann" });
+      const living = await createPerson(app, { firstName: "cara" });
+      const dead = await createPerson(app, {
+        firstName: "sam",
+        membershipStatus: "deceased",
+      });
+      await link({ personId: a.id, relatedPersonId: living.id });
+      await link({ personId: a.id, relatedPersonId: dead.id });
+
+      expect(await statusOf(a.id)).toBe("married");
+    });
+
+    it("falls back to the remaining spouse link when the current one is removed", async () => {
+      const { a, b } = await seedTwoPeople();
+      const c = await createPerson(app, { firstName: "cara" });
+      const past = await link({ personId: a.id, relatedPersonId: b.id });
+      await app.request(`/api/relationships/${past.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state: "divorced" }),
+      });
+      const current = await link({ personId: a.id, relatedPersonId: c.id });
+      expect(await statusOf(a.id)).toBe("married");
+
+      const removed = await app.request(`/api/relationships/${current.id}`, {
+        method: "DELETE",
+      });
+
+      expect(removed.status).toBe(200);
+      expect(await statusOf(a.id)).toBe("divorced");
+    });
   });
 });

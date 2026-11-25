@@ -78,6 +78,34 @@ describe("POST /api/import (integration, SQLite)", () => {
     expect(households[0]?.name).toBe("Testers");
   });
 
+  it("imports one Head when a Family lists two", async () => {
+    const res = await app.request("/api/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        csv: [
+          "Name,Gender,DOB,Family,Relation",
+          "First Head,male,01/02/1990,Dupes,head",
+          "Second Head,male,02/03/1991,Dupes,head",
+        ].join("\n"),
+      }),
+    });
+    expect(res.status).toBe(200);
+    await expect(json<ImportSummary>(res)).resolves.toMatchObject({
+      succeeded: 1,
+      failed: 1,
+    });
+
+    const people = await json<{ firstName: string; householdRole: string }[]>(
+      await app.request("/api/people")
+    );
+    expect(
+      people
+        .filter((person) => person.householdRole === "head")
+        .map((person) => person.firstName)
+    ).toStrictEqual(["First"]);
+  });
+
   it("rejects an empty payload with 400", async () => {
     const res = await app.request("/api/import", {
       method: "POST",
