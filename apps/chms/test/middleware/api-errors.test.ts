@@ -92,36 +92,34 @@ describe("mapErrorToBody (unit)", () => {
     expect(body).toMatchObject({
       code: "DB_ERROR",
       constraint: "people.email",
-      details: undefined,
     });
+    expect(body).not.toHaveProperty("details");
     const serialized = JSON.stringify(body);
     expect(serialized).not.toContain("insert into");
     expect(serialized).not.toContain("a@b.c");
   });
 
-  it("maps unknown errors to 500 HTTP_ERROR", () => {
-    const { status, body } = mapErrorToBody(new Error("boom"));
-    expect(status).toBe(500);
-    expect(body).toMatchObject({ code: "HTTP_ERROR", message: "boom" });
-  });
+  const sqlFailure = Object.assign(
+    new Error("Failed query: insert into people (email) values (?)"),
+    { name: "DrizzleQueryError", params: ["a@b.c"] }
+  );
+  const d1Failure = new Error(
+    "D1_ERROR: no such column: secret_column: SQLITE_ERROR"
+  );
 
-  it("never puts SQL text in a 500 body", () => {
-    const error = new Error(
-      "Failed query: insert into people (email) values ('a@b.c')"
-    );
-    const { status, body } = mapErrorToBody(error);
-    expect(status).toBe(500);
-    expect(body.code).toBe("HTTP_ERROR");
-    expect(body.message).toBe("Internal Server Error");
-    expect(JSON.stringify(body)).not.toContain("a@b.c");
-  });
-
-  it("maps non-errors to 500 with an Unknown error message", () => {
-    const { status, body } = mapErrorToBody("boom");
-    expect(status).toBe(500);
-    expect(body).toMatchObject({
-      code: "HTTP_ERROR",
-      message: "Unknown error",
+  it.each([
+    ["a thrown Error", new Error("boom")],
+    ["a Drizzle failure with SQL and bound values", sqlFailure],
+    ["a D1 failure that names a column", d1Failure],
+    ["a TypeError from a bug", new TypeError("x is undefined")],
+    ["a 500 HTTPException", new HTTPException(500, { message: "internals" })],
+    ["a 503 HTTPException", new HTTPException(503, { message: "internals" })],
+    ["a thrown string", "boom"],
+    ["a thrown object", { message: "boom", stack: "at secret.ts:1" }],
+  ])("answers %s with the fixed 500 body and nothing else", (_, error) => {
+    expect(mapErrorToBody(error)).toStrictEqual({
+      status: 500,
+      body: { code: "HTTP_ERROR", message: "Internal Server Error" },
     });
   });
 });

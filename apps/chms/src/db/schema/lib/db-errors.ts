@@ -43,18 +43,6 @@ const findSqliteError = (error: unknown): SqliteError | null => {
   return null;
 };
 
-/**
- * True for Drizzle failures from any copy of drizzle-orm in the graph.
- * Neither `instanceof` nor the wrapper's `name` survives the split module
- * graph (dev and production bundle drizzle separately, and the worker
- * runtime can rewrap the failure in a plain Error) — but the `Drizzle`
- * name prefix and drizzle's fixed `Failed query:` message prefix do.
- */
-export const isDrizzleErrorLike = (error: unknown): boolean =>
-  error instanceof Error &&
-  (error.name.startsWith("Drizzle") ||
-    error.message.startsWith("Failed query:"));
-
 /** Columns of the person-identity unique index (via the stored identity_* columns). */
 const isIdentityConflict = (message: string): boolean =>
   /unique_person_identity/iu.test(message) ||
