@@ -16,7 +16,7 @@ The command exits 0 when every value in `.env` is valid for the declared schema.
 
 ## Local database
 
-No service to start. See the README's [local database section](../README.md#local-database) for the migrate, seed, reset, and inspect commands.
+No service to start. See the README's [local database section](../../README.md#local-database) for the migrate, seed, reset, and inspect commands.
 
 ## CI
 
