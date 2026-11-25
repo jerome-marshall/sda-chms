@@ -36,6 +36,26 @@ jobs:
       - name: Verify
         run: pnpm verify
 
+  # TLC checks the Household Head model, and replays the #39 race to prove the
+  # model still catches it. See .agents/skills/verify-household-head.
+  model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check the models
+        run: node scripts/check-models.mjs
+
   # End-to-end tests against the built worker on local D1. This is the proof
   # that pages render and hydrate, so it runs on PRs as well as main.
   #

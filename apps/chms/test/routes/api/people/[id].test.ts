@@ -1,9 +1,12 @@
+import { householdsTable, peopleTable } from "@schema";
+import { eq } from "drizzle-orm";
 import type { Hono } from "hono";
 import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { insertPerson } from "../../../../server/people";
 import {
   json,
+  putPerson,
   postPerson as postPersonTo,
   type PersonResponse,
   validHead,
@@ -292,5 +295,46 @@ describe("GET /api/people/:id (integration, SQLite)", () => {
     );
     expect(after.householdCity).toBe("Bangalore");
     expect(after.householdPhone).toBe("9333333333");
+  });
+
+  it("two concurrent promotions in a Household with no Head leave one Head", async () => {
+    const [household] = await db
+      .insert(householdsTable)
+      .values({ familyName: "Lee" })
+      .returning();
+    if (!household) {
+      throw new Error("test: household insert returned nothing");
+    }
+    const members = await db
+      .insert(peopleTable)
+      .values(
+        ["amy", "bob"].map((firstName) => ({
+          firstName,
+          householdId: household.id,
+          householdRole: "child" as const,
+          maritalStatus: "single" as const,
+          membershipStatus: "member" as const,
+        }))
+      )
+      .returning();
+
+    const responses = await Promise.all(
+      members.map((member) =>
+        putPerson(app, member.id, {
+          ...validHead,
+          firstName: member.firstName,
+          householdId: household.id,
+        })
+      )
+    );
+
+    expect(responses.map((res) => res.status).toSorted()).toStrictEqual([
+      200, 409,
+    ]);
+    const heads = await db
+      .select({ id: peopleTable.id })
+      .from(peopleTable)
+      .where(eq(peopleTable.householdRole, "head"));
+    expect(heads).toHaveLength(1);
   });
 });

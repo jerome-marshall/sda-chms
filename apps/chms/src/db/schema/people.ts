@@ -56,11 +56,14 @@ const booleanCol = (name: string) =>
  * type, so each enum column also gets a `CHECK (col IN (...))` the database
  * enforces. DDL cannot take bound parameters, hence the inlined literals.
  */
-const enumCheck = (column: string, values: readonly string[]) =>
+const enumCheck = (column: {
+  name: string;
+  enumValues: readonly [string, ...string[]];
+}) =>
   check(
-    `${column}_check`,
+    `${column.name}_check`,
     sql.raw(
-      `"${column}" IN (${values.map((value) => `'${value}'`).join(", ")})`
+      `"${column.name}" IN (${column.enumValues.map((value) => `'${value}'`).join(", ")})`
     )
   );
 
@@ -166,11 +169,11 @@ export const peopleTable = sqliteTable(
     uniqueIndex("unique_household_head")
       .on(table.householdId)
       .where(sql`${table.householdRole} = 'head'`),
-    enumCheck("gender", GENDER_VALUES),
-    enumCheck("marital_status", MARITAL_STATUS_VALUES),
-    enumCheck("membership_status", MEMBERSHIP_STATUS_VALUES),
-    enumCheck("sabbath_school_class", SABBATH_SCHOOL_CLASS_VALUES),
-    enumCheck("household_role", HOUSEHOLD_ROLE_VALUES),
+    enumCheck(table.gender),
+    enumCheck(table.maritalStatus),
+    enumCheck(table.membershipStatus),
+    enumCheck(table.sabbathSchoolClass),
+    enumCheck(table.householdRole),
   ]
 );
 
@@ -320,8 +323,8 @@ export const relationshipsTable = sqliteTable(
       table.relatedPersonId,
       table.type
     ),
-    enumCheck("type", RELATIONSHIP_TYPE_VALUES),
-    enumCheck("state", SPOUSE_STATE_VALUES),
+    enumCheck(table.type),
+    enumCheck(table.state),
   ]
 );
 
