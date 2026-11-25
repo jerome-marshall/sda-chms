@@ -23,7 +23,7 @@ A full domain slice touches these paths. Departments is the next planned one.
 | Client type         | `apps/chms/src/types/api.ts`          | `RouteOutput` from the generated `RouteMap`. Run `void prepare` first |
 | Page                | `apps/chms/src/pages/`                | `<name>.tsx` plus `<name>.server.ts` with `loader` and `action`       |
 | UI                  | `apps/chms/src/components/`           | Feature components default export. Primitives named export            |
-| Tests               | `apps/chms/test/`                     | Route contract in `test/routes/`, service rules in `test/effect/`     |
+| Tests               | `apps/chms/test/`                     | Route contract and every service rule in `test/routes/`               |
 | E2E                 | `e2e/`                                | One spec per user flow that a page change can break                   |
 
 A route validates, calls one program from `apps/chms/server/effect/<domain>.ts`, and returns `runApi(...)`. Read `docs/conventions/server.md` before adding or changing a server rule.
@@ -44,7 +44,7 @@ A route validates, calls one program from `apps/chms/server/effect/<domain>.ts`,
 - One test per rule, plus the failure path for that rule. A renamed helper should not break a test. A changed wire shape should.
 - Keep unit tests deterministic. Pass a `referenceDate` instead of reading the wall clock.
 - A page change needs an e2e spec. API tests do not prove hydration or that the loader rendered.
-- A rule that lives in a service needs a test under `test/effect/` that provides a layer over `DbLive`.
+- A rule that lives in a service is tested through its route under `test/routes/`: the status, the body, and the state read back after a refusal.
 
 ## Commands
 

@@ -72,7 +72,7 @@ A multi-write operation reads first, computes every write in memory, then issues
 ## Tests
 
 - `apps/chms/test/routes/**` is the wire contract. Keep it.
-- Service tests use `@effect/vitest` under `apps/chms/test/effect/`. Provide `DbLive` over the in-memory SQLite harness so the service exercises the same seam as production.
+- Test a service rule through the route that exposes it, over the in-memory SQLite harness. A test that calls a service method directly breaks on every refactor of the service and catches nothing the route test misses. `apps/chms/test/effect/errors.test.ts` covers only the `runApi` failure mapping.
 - A rule needs a test that fails when the rule breaks. Name the failure path too.
 
 ## Avoid
