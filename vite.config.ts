@@ -174,6 +174,7 @@ export default defineConfig({
         "vp run -r check-types",
         "vp check",
         "pnpm run check:boundaries",
+        "pnpm run check:paths",
         "vp run check:tests",
         "vp run check:diff",
         "pnpm run test:scripts",
