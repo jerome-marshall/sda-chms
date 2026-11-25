@@ -24,10 +24,8 @@ export const AppLive = Layer.mergeAll(
   ImportLive
 ).pipe(Layer.provide(MaritalStatusLive), Layer.provide(DbLive));
 
-/** The services a route's Effect program may require. */
 export type AppServices = Layer.Success<typeof AppLive>;
 
-/** Rethrows a typed failure in the shape the existing error middleware maps. */
 const raise = (failure: ApiError): Effect.Effect<never> =>
   Effect.sync(() => {
     if (failure._tag === "InfraError") {
@@ -46,14 +44,6 @@ const raise = (failure: ApiError): Effect.Effect<never> =>
     throw toHttpException(failure);
   });
 
-/**
- * The only place a route runs an Effect program. Each failure group is mapped
- * once, here: a domain rule becomes the `HTTPException` the middleware already
- * maps to `ApiErrorBody`, an infrastructure fault is rethrown as its original
- * cause so the existing constraint, Zod, and unknown-error mapping still
- * applies byte for byte, and a broken invariant becomes a generic 500 whose
- * developer text stays in the log.
- */
 export const runApi = <A>(
   effect: Effect.Effect<A, ApiError, AppServices>
 ): Promise<A> =>

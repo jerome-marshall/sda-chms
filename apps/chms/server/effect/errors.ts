@@ -3,12 +3,10 @@ import { Data } from "effect";
 import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
-/** A Person id that is not in the directory. */
 export class PersonNotFound extends Data.TaggedError("PersonNotFound")<{
   readonly id: string;
 }> {}
 
-/** A Relationship id that is not in the directory. */
 export class RelationshipNotFound extends Data.TaggedError(
   "RelationshipNotFound"
 )<{ readonly id: string }> {}
@@ -23,17 +21,14 @@ export class HouseholdAlreadyHasHead extends Data.TaggedError(
   "HouseholdAlreadyHasHead"
 ) {}
 
-/** A write would leave a Household with no Head. */
 export class HouseholdNeedsHead extends Data.TaggedError(
   "HouseholdNeedsHead"
 ) {}
 
-/** A lifecycle state was supplied for a Relationship type that cannot carry one. */
 export class SpouseStateOnNonSpouse extends Data.TaggedError(
   "SpouseStateOnNonSpouse"
 ) {}
 
-/** A CSV larger than the import limit. */
 export class ImportLimitExceeded extends Data.TaggedError(
   "ImportLimitExceeded"
 )<{
@@ -42,9 +37,9 @@ export class ImportLimitExceeded extends Data.TaggedError(
 }> {}
 
 /**
- * A database or transport fault. The original rejection is kept as the cause
- * so the edge can rethrow it into the existing constraint and unknown-error
- * mapping instead of inventing a second one.
+ * The original rejection is kept as the cause so the edge can rethrow it into
+ * the existing constraint and unknown-error mapping instead of inventing a
+ * second one.
  */
 export class InfraError extends Data.TaggedError("InfraError")<{
   readonly cause: unknown;
@@ -58,7 +53,6 @@ export class InvariantError extends Data.TaggedError("InvariantError")<{
   readonly cause: unknown;
 }> {}
 
-/** An internal invariant failed after a write; maps to a generic 500. */
 export const internalFailure = (message: string): InvariantError =>
   new InvariantError({ cause: new Error(message) });
 
@@ -84,7 +78,6 @@ export type DomainError =
   | SpouseStateOnNonSpouse
   | ImportLimitExceeded;
 
-/** Every failure `runApi` maps at the route edge. */
 export type ApiError = DomainError | InfraError | InvariantError;
 
 interface StatusAndMessage {
@@ -131,19 +124,14 @@ const describe = (error: DomainError): StatusAndMessage => {
   }
 };
 
-/**
- * Turns a typed domain failure into the `HTTPException` the existing error
- * middleware already maps to `ApiErrorBody`. Keeping the translation here
- * means exactly one place builds the body and none of the wire shape changes.
- */
 export const toHttpException = (error: DomainError): HTTPException => {
   const { status, message } = describe(error);
   return new HTTPException(status, { message });
 };
 
 /**
- * The body for a broken invariant: a generic 500. The message on the tagged
- * error stays in the log, so a caller learns nothing about the internals.
+ * The message on the tagged error stays in the log, so a caller learns
+ * nothing about the internals.
  */
 export const toInvariantHttpException = (): HTTPException =>
   new HTTPException(500, { message: "Internal Server Error" });

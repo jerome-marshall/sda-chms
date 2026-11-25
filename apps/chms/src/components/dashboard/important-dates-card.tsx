@@ -33,16 +33,10 @@ function getDaysLabel(daysUntil: number): string {
   return `In ${daysUntil} days`;
 }
 
-/** Whole-day difference between two dates; negative means `to` is in the past relative to `from`. */
 function daysBetween(from: Date, to: Date): number {
   return Math.floor((to.getTime() - from.getTime()) / 86_400_000);
 }
 
-/**
- * Returns the number of days from `today` until the next occurrence of
- * a month+day pair (for yearly events) or until the exact date (one-time).
- * Returns null when the event falls outside "this week" (0–6 days away).
- */
 function getDaysUntilThisWeek(
   dateStr: string,
   recurrence: "none" | "yearly",
@@ -61,10 +55,6 @@ function getDaysUntilThisWeek(
   return diff >= 0 && diff <= 6 ? diff : null;
 }
 
-/**
- * Days until the next annual occurrence of `eventDate`'s month+day.
- * If the occurrence has already passed this calendar year, rolls over to next year.
- */
 function getYearlyDaysUntil(eventDate: Date, today: Date): number {
   const thisYear = today.getFullYear();
   const occurrenceThisYear = new Date(
@@ -84,7 +74,6 @@ function getYearlyDaysUntil(eventDate: Date, today: Date): number {
   return daysBetween(today, occurrenceNextYear);
 }
 
-/** Builds the list of important date entries for a single person this week. */
 function getEntriesForPerson(
   person: {
     id: string;
@@ -128,7 +117,6 @@ function getEntriesForPerson(
   return results;
 }
 
-/** Scrollable list of member-specific important dates occurring this week. */
 export function ImportantDatesCard({ people: allPeople }: { people: People }) {
   const people = allPeople.filter((person) => !isDeceased(person));
 

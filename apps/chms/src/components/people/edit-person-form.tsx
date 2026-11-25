@@ -20,11 +20,6 @@ interface EditPersonFormProps {
   people: People;
 }
 
-/**
- * Wrapper that pre-fills the form with existing person data. Keeps
- * react-hook-form for the same reasons as the add form and submits to the
- * page action, which redirects back to the detail page.
- */
 const EditPersonForm = ({
   person,
   relationships,
@@ -41,9 +36,6 @@ const EditPersonForm = ({
     defaultValues: personToForm(person),
   });
 
-  // Keep the submitted Marital Status in sync when a spouse link is added or
-  // its state changes on this page — the field is locked and would otherwise
-  // still post the stale value.
   useEffect(() => {
     const spouseState = (relationships ?? []).find(
       (relationship) =>

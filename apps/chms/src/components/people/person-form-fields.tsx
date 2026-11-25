@@ -38,15 +38,12 @@ interface PersonFormFieldsProps {
   relationships?: Relationships;
   people?: People;
   isSubmitting?: boolean;
-  /** When a spouse Relationship governs Marital Status, the field is read-only. */
   maritalStatusLocked?: boolean;
   onSubmit: (data: PersonInsertForm) => void;
-  /** Present on edit (not add) so relationships can be managed in edit mode. */
   person?: Person;
   submitLabel: string;
 }
 
-/** Shared form sections for creating or editing a person. */
 const PersonFormFields = ({
   form,
   onSubmit,
@@ -169,8 +166,6 @@ const PersonFormFields = ({
               label="Membership status"
               name="membershipStatus"
               onChange={(value) => {
-                // A Memorial Day is only valid for a deceased Person; clear it
-                // whenever the status moves away from Deceased.
                 if (value !== "deceased") {
                   form.setValue("memorialDay", undefined);
                   form.clearErrors("memorialDay");

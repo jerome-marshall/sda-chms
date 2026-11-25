@@ -28,7 +28,6 @@ import { MaritalStatus } from "./marital-status";
 type Relationship = RelationshipsSelectDb;
 type SpouseState = (typeof SPOUSE_STATE_VALUES)[number];
 
-/** The Relationship operations the API exposes. */
 export interface RelationshipsService {
   readonly listForPerson: (
     personId: string
@@ -48,7 +47,6 @@ export interface RelationshipsService {
   ) => Effect.Effect<{ id: string }, RelationshipNotFound | InfraError>;
 }
 
-/** Relationship links and their spouse lifecycle behind Effect. */
 export class Relationships extends Context.Service<
   Relationships,
   RelationshipsService
@@ -63,7 +61,6 @@ const createdRow = (
     : Effect.fail(internalFailure("Failed to create relationship"));
 };
 
-/** Builds the Relationship service from the request-scoped database and spouse rules. */
 export const RelationshipsLive = Layer.effect(
   Relationships,
   Effect.gen(function* RelationshipsLive() {
@@ -228,28 +225,24 @@ export const RelationshipsLive = Layer.effect(
   })
 );
 
-/** Lists a Person's Relationships from their perspective. */
 export const getPersonRelationships = (personId: string) =>
   Effect.gen(function* listRelationshipsProgram() {
     const relationships = yield* Relationships;
     return yield* relationships.listForPerson(personId);
   });
 
-/** Creates a Relationship, keeping spouse Marital Status in step. */
 export const addRelationship = (data: RelationshipCreate) =>
   Effect.gen(function* addRelationshipProgram() {
     const relationships = yield* Relationships;
     return yield* relationships.add(data);
   });
 
-/** Changes a spouse link's lifecycle state. */
 export const updateRelationshipState = (id: string, state: SpouseState) =>
   Effect.gen(function* updateRelationshipProgram() {
     const relationships = yield* Relationships;
     return yield* relationships.updateState(id, state);
   });
 
-/** Removes a Relationship and re-evaluates the affected Marital Status. */
 export const removeRelationship = (id: string) =>
   Effect.gen(function* removeRelationshipProgram() {
     const relationships = yield* Relationships;

@@ -5,10 +5,6 @@ import { z } from "zod";
 
 const paramsSchema = z.object({ id: z.string().min(1) });
 
-/**
- * Detail data: the person, their relationships, and every other person so
- * the relationships section can offer link candidates and spouse pre-fills.
- */
 export const loader = defineHandler.withValidator({ params: paramsSchema })(
   async (_c, { params }) => {
     const [person, relationships, people] = await Promise.all([

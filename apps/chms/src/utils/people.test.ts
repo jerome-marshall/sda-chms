@@ -5,7 +5,6 @@ import type { Person } from "@/types/api";
 
 import { getInfoOrFromHousehold, isDeceased } from "./people";
 
-/** The fields these utilities actually read — cast to Person for the call sites. */
 interface PersonLike {
   householdPhone?: string | null;
   isHeadOfHousehold?: boolean;
@@ -21,8 +20,6 @@ describe(isDeceased, () => {
   });
 
   it("is false for a living member even if a memorial day is set", () => {
-    // Locks in the status-only rule from the merge resolution: the stale
-    // `|| memorialDay !== null` form must stay discarded.
     expect(
       isDeceased(
         asPerson({ membershipStatus: "member", memorialDay: "2020-01-01" })
@@ -42,8 +39,6 @@ describe(getInfoOrFromHousehold, () => {
   });
 
   it("falls back to the Household even for a head of household (ADR-0001)", () => {
-    // The old head special-case is gone — a head inherits the household's
-    // shared value like any other member when they have none of their own.
     const { data, isfromHousehold } = getInfoOrFromHousehold(
       asPerson({
         isHeadOfHousehold: true,
@@ -57,8 +52,6 @@ describe(getInfoOrFromHousehold, () => {
   });
 
   it("treats an empty-string own value as absent and falls back", () => {
-    // Documents the `||` behavior in the impl: any falsy own value (""/0), not
-    // just null, is treated as "no value" and resolves to the household's.
     const { data, isfromHousehold } = getInfoOrFromHousehold(
       asPerson({
         isHeadOfHousehold: false,

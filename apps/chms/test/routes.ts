@@ -110,13 +110,6 @@ const sortMiddlewareFiles = (filePaths: string[]): string[] =>
     .filter((filePath) => !Number.isNaN(middlewareOrderOf(filePath)))
     .toSorted((a, b) => middlewareOrderOf(a) - middlewareOrderOf(b));
 
-/**
- * Builds a test app from the real route files. Void types handlers against
- * an extended context (`CloudContext` carries `rewrite`/`originalUrl` /
- * `isRewritten`), which a bare `new Hono()` does not provide — the helper
- * avoids the mismatch by invoking handlers through `Function`, which changes
- * nothing at runtime.
- */
 export const createTestApp = (): Hono => {
   const app = new Hono();
 

@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 
 import { Separator } from "./ui/separator";
 
-// Church Management System navigation data
 interface NavItem {
   icon: LucideIcon;
   items?: {

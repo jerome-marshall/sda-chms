@@ -50,9 +50,6 @@ describe("POST /api/people (integration, SQLite)", () => {
   // user must see a clear "may already exist" 409, not a raw DB error.
 
   it("duplicate identity with a null last name and date of birth returns 409", async () => {
-    // No lastName key: stored null and coalesced to '' by identity_last_name,
-    // so the second POST with the same first name and date of birth is a
-    // duplicate even though last_name is null.
     const body = {
       ...validHead,
       firstName: "null identity",

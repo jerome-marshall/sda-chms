@@ -34,8 +34,6 @@ export function OverviewSection({
   relationships,
   people,
 }: OverviewSectionProps) {
-  // Resolve contact fields with head-of-household fallback so the UI can
-  // show the head's info (with a tooltip) when the member has none.
   const { address, isAddressFromHousehold } = getAddress(person);
   const { data: phone, isfromHousehold: isPhoneFromHousehold } =
     getInfoOrFromHousehold(person, "phone");

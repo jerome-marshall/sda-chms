@@ -121,11 +121,6 @@ export const RELATIONSHIP_TYPE_OPTIONS = [
   { value: RELATIONSHIP_TYPE.OTHER, label: "Other" },
 ];
 
-/**
- * The reciprocal of each relationship type — the type the link shows from the
- * other person's perspective (ADR-0003 reciprocity rule). If A is B's `parent`,
- * then from A's view B is their `child`. Symmetric types map to themselves.
- */
 export const RELATIONSHIP_TYPE_RECIPROCAL: Record<
   (typeof RELATIONSHIP_TYPE_VALUES)[number],
   (typeof RELATIONSHIP_TYPE_VALUES)[number]
@@ -143,7 +138,6 @@ export const RELATIONSHIP_TYPE_RECIPROCAL: Record<
   [RELATIONSHIP_TYPE.OTHER]: RELATIONSHIP_TYPE.OTHER,
 };
 
-/** Returns the type a relationship shows from the related person's perspective. */
 export const getReciprocalRelationshipType = (
   type: (typeof RELATIONSHIP_TYPE_VALUES)[number]
 ): (typeof RELATIONSHIP_TYPE_VALUES)[number] =>
@@ -203,7 +197,6 @@ export const DIETARY_PREFERENCES_OPTIONS = [
   { value: DIETARY_PREFERENCES.NONE, label: "None" },
 ];
 
-/** Whether an important date repeats every year or is a single occurrence. */
 export const IMPORTANT_DATE_RECURRENCE = {
   NONE: "none",
   YEARLY: "yearly",
@@ -217,7 +210,6 @@ export const IMPORTANT_DATE_RECURRENCE_OPTIONS = [
   { value: IMPORTANT_DATE_RECURRENCE.YEARLY, label: "Yearly" },
 ];
 
-/** Broad life-area categories for organising important dates. */
 export const IMPORTANT_DATE_CATEGORY = {
   PERSONAL: "personal",
   CHURCH: "church",
@@ -261,7 +253,6 @@ export const SABBATH_SCHOOL_CLASS_VALUES = [
   SABBATH_SCHOOL_CLASS.YOUNG_ADULT,
   SABBATH_SCHOOL_CLASS.ADULT,
 ] as const;
-/** Options include `minAge`/`maxAge` for auto-assigning a person's Sabbath School class by age. */
 export const SABBATH_SCHOOL_CLASS_OPTIONS = [
   {
     value: SABBATH_SCHOOL_CLASS.BEGINNER,

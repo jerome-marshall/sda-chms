@@ -60,7 +60,6 @@ function MembershipStatusCell({ row }: CellContext<Person, unknown>) {
   return <div>{option?.label ?? status}</div>;
 }
 
-/** Main people list view rendered as a read-only data grid. */
 export const PeopleList = ({
   people,
   isLoading = false,

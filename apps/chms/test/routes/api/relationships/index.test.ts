@@ -31,7 +31,6 @@ describe("POST /api/relationships (integration, SQLite)", () => {
   it("links two people and lists the link on the subject with the chosen type", async () => {
     const { a, b } = await seedTwoPeople();
 
-    // "ann is ben's parent"
     const created = await postRelationship({
       personId: b.id,
       relatedPersonId: a.id,
@@ -81,7 +80,6 @@ describe("POST /api/relationships (integration, SQLite)", () => {
     const list = await json<RelationshipItem[]>(await listFor(a.id));
     expect(list[0]?.type).toBe("spouse");
     expect(list[0]?.state).toBe("separated");
-    // Reciprocal view shows the same state.
     const other = await json<RelationshipItem[]>(await listFor(b.id));
     expect(other[0]?.state).toBe("separated");
   });

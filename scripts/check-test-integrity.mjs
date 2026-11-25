@@ -24,9 +24,6 @@ const stem = (name) =>
     ""
   );
 
-/**
- * Turns a unified diff into findings. Pure, so the gate itself can be tested.
- */
 export const checkDiff = (diff, { allowDeletion = false } = {}) => {
   const findings = [];
   const perFile = new Map();

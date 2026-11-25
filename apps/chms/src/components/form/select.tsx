@@ -21,7 +21,6 @@ interface FormSelectProps<T extends FieldValues> {
   placeholder?: string;
 }
 
-/** Controlled select field integrated with react-hook-form. */
 const FormSelect = <T extends FieldValues>({
   form,
   name,

@@ -26,7 +26,6 @@ const ageGroupIcon = (
   </div>
 );
 
-/** Bar chart of member counts broken down by age group. */
 export function AgeGroupChart({ people: allPeople }: { people: People }) {
   const people = allPeople.filter((person) => !isDeceased(person));
 

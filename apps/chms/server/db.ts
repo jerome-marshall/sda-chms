@@ -2,10 +2,6 @@ import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { db } from "void/db";
 
 /**
- * The application's Drizzle database type. `void/db` provides it
- * (request-scoped D1 session in production, the SQLite stand-in under
- * Vitest); this module names it once for every signature.
- *
  * D1 has no interactive transactions — Drizzle's `db.transaction()` issues
  * raw BEGIN/COMMIT, which remote D1 rejects. Multi-write domain operations
  * issue one `getDb().batch([...])` instead: reads first, every write
@@ -25,12 +21,6 @@ export type SharedDatabase = BaseSQLiteDatabase<
   Database["_"]["fullSchema"]
 >;
 
-/**
- * The database surfaces helpers accept. Each is structural, so the SQLite
- * stand-in has to implement it rather than assert its way in, and a helper
- * that starts using a method the stand-in lacks fails the type check at its
- * call site.
- */
 export type QueryDatabase = Pick<SharedDatabase, "query">;
 export type WriteDatabase = Pick<
   SharedDatabase,
@@ -59,15 +49,12 @@ export interface BatchDatabase {
   ) => Promise<readonly unknown[]>;
 }
 
-/** A batch writer builds statements and sends them as one D1 batch. */
 export type BatchWriteDatabase = WriteDatabase & BatchDatabase;
 
-/** Every surface the server touches, in one name for the stand-in's proof. */
 export type DatabaseSurface = QueryDatabase & BatchWriteDatabase;
 
 /**
- * Returns the active database. In production this is Void's request-scoped
- * D1 instance; in tests it is the SQLite stand-in the `void/db` alias
- * provides.
+ * In production this is Void's request-scoped D1 instance; in tests it is the
+ * SQLite stand-in the `void/db` alias provides.
  */
 export const getDb = (): Database => db;

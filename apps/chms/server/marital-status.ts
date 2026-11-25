@@ -15,19 +15,13 @@ import type { QueryDatabase } from "./db";
 export type MembershipStatus = (typeof MEMBERSHIP_STATUS_VALUES)[number];
 export type MaritalStatus = (typeof MARITAL_STATUS_VALUES)[number];
 
-/** A membership value the pending writes change, applied in memory before the batch. */
 export type MembershipOverrides = Map<string, MembershipStatus>;
 
-/** One person's stored Marital Status rewrite derived from the post-write link set. */
 export interface MaritalStatusPlan {
   personId: string;
   maritalStatus: MaritalStatus;
 }
 
-/**
- * Fetches every spouse link that touches any of the given people, with both
- * sides' membership status so widowhood (and Marital Status) can be resolved.
- */
 const getSpouseLinksForPeople = async (
   db: QueryDatabase,
   personIds: string[]
@@ -55,13 +49,11 @@ export type SpouseLinkRow = Awaited<
   ReturnType<typeof getSpouseLinksForPeople>
 >[number];
 
-/** The spouse-link graph a write operation plans its Marital Status updates from. */
 export interface SpouseLinkGraph {
   rows: SpouseLinkRow[];
   affected: string[];
 }
 
-/** Maps stored spouse rows into the per-person shape the governing-link rule uses. */
 const toSpouseLinksForPerson = (
   rows: SpouseLinkRow[],
   personId: string,
@@ -84,11 +76,6 @@ const toSpouseLinksForPerson = (
       };
     });
 
-/**
- * Pure: the Marital Status implied by a person's governing spouse link within
- * an already-read graph, or null when no spouse link exists. Lets callers
- * reuse one readSpouseLinkGraph result instead of querying twice.
- */
 export const governingMaritalStatusInGraph = (
   rows: SpouseLinkRow[],
   personId: string

@@ -1,12 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-/**
- * The only supported way to seed: delegates to Void, which resets the local
- * D1 database, runs migrations, and runs `src/db/seed.ts`. No connection
- * string and no host guard — `void db seed` only touches local D1, so there
- * is no remote to protect against. Run via `pnpm db:seed`.
- */
 const appDir = fileURLToPath(new URL("..", import.meta.url));
 
 execFileSync(

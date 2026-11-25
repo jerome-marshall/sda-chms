@@ -26,7 +26,6 @@ export default defineConfig({
   },
   fmt: {
     ...oxfmtPreset,
-    // Biome's useSortedClasses equivalent: sort Tailwind classes on format.
     sortTailwindcss: {
       stylesheet: "./apps/chms/src/index.css",
       functions: ["cn", "clsx"],
@@ -41,8 +40,6 @@ export default defineConfig({
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: {
       "vite-plus/prefer-vite-plus-imports": "error",
-      // Biome parity: these were warnings under ultracite/biome, kept as
-      // warnings where Oxlint has an equivalent rule.
       "no-unused-vars": [
         "error",
         { args: "after-used", argsIgnorePattern: "^_" },
@@ -51,8 +48,6 @@ export default defineConfig({
       "import/no-namespace": "warn",
       "oxc/no-barrel-file": "warn",
       "react/no-danger": "warn",
-      // Main-parity errors: these were errors under ultracite/biome on
-      // main (react correctness plus the hook rules), so they stay errors.
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "error",
       "react/jsx-key": "error",
@@ -62,9 +57,6 @@ export default defineConfig({
       "react/jsx-no-duplicate-props": "error",
       "react/no-render-return-value": "error",
       "react/void-dom-elements-no-children": "error",
-      // Main-parity a11y errors: the jsx-a11y equivalents of main's
-      // error-level Biome a11y rules (checked against main's biome.json
-      // downgrades, which stay). Oxlint has no rule for noSvgWithoutTitle.
       "jsx-a11y/alt-text": "error",
       "jsx-a11y/aria-activedescendant-has-tabindex": "error",
       "jsx-a11y/aria-props": "error",
@@ -91,14 +83,12 @@ export default defineConfig({
       "jsx-a11y/role-supports-aria-props": "error",
       "jsx-a11y/scope": "error",
       "jsx-a11y/tabindex-no-positive": "error",
-      // Main had useFocusableInteractive at warn, so this stays warn.
       "jsx-a11y/interactive-supports-focus": "warn",
-      // Main had useKeyWithClickEvents off, so this stays off.
       "jsx-a11y/click-events-have-key-events": "off",
       // House-style conflicts: the repo predates these Ultracite Oxlint
       // rules and follows the opposite convention throughout. Fixing them
-      // would rewrite every file, so they stay off (see trail for the
-      // per-rule reason). Correctness rules from the presets stay on.
+      // would rewrite every file, so they stay off. Correctness rules from
+      // the presets stay on.
       "func-style": "off",
       "sort-keys": "off",
       "typescript/strict-boolean-expressions": "off",
@@ -121,8 +111,6 @@ export default defineConfig({
       // main-parity unicorn/no-useless-undefined then flags; the main rule
       // wins and consistent-return stays off.
       "typescript/consistent-return": "off",
-      // Main had a cognitive-complexity cap of 20; Oxlint only offers
-      // cyclomatic complexity, set to the same value.
       complexity: ["error", 20],
       // The repo validates at boundaries with Zod and narrows with `as`
       // casts afterwards. Removing every assertion would restructure
@@ -134,21 +122,16 @@ export default defineConfig({
       "typescript/no-unsafe-argument": "off",
       "typescript/no-unsafe-return": "off",
     },
-    // Biome's file ignore list, where Oxlint has an equivalent: generated
-    // route tree and web static assets stay out of lint. Bracket files are
-    // Void dynamic route segments ([id], [personId]) — kebab-case renames
-    // would break file-based routing.
+    // Bracket files are Void dynamic route segments ([id], [personId]), and a
+    // kebab-case rename would break file-based routing.
     ignorePatterns: ["**/routeTree.gen.ts", "apps/chms/public/**", "**/*\\[*"],
     options: { typeAware: true, typeCheck: true },
   },
-  // Commit time only formats and lints the staged files. Types and the
-  // boundary rules run once, in the pre-push hook and in CI (`pnpm verify`).
   staged: {
     "*": "vp check --fix",
   },
   run: {
     tasks: {
-      // Same drift gate CI runs: regenerate migrations, then fail on schema drift.
       "db:drift": {
         command: [
           "pnpm run db:generate",

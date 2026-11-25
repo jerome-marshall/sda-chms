@@ -7,10 +7,6 @@ import type { ImportantDate } from "@sda-chms/shared/schema/people";
 
 import type { PeopleInsertDb } from "../src/db/schema/people";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export interface CsvRow {
   Address: unknown;
   "Baptism Date": unknown;
@@ -46,10 +42,6 @@ export interface ImportSummary {
   total: number;
 }
 
-// ---------------------------------------------------------------------------
-// Safely coerce udsv values (numbers, nulls) to string before trimming
-// ---------------------------------------------------------------------------
-
 function str(val: unknown): string | null {
   if (val === null || val === undefined || val === "") {
     return null;
@@ -64,10 +56,6 @@ function str(val: unknown): string | null {
   return null;
 }
 
-// ---------------------------------------------------------------------------
-// Top-level regex constants
-// ---------------------------------------------------------------------------
-
 const YEAR_ONLY_RE = /^\d{4}$/u;
 const MONTH_YEAR_RE = /^(?<month>\d{1,2})\/(?<year>\d{4})$/u;
 const FULL_DATE_RE = /^(?<day>\d{1,2})\/(?<month>\d{1,2})\/(?<year>\d{4})$/u;
@@ -75,36 +63,28 @@ const WHITESPACE_RE = /\s+/u;
 const NEWLINE_RE = /\n/u;
 const WHITESPACE_GLOBAL_RE = /\s+/gu;
 
-// ---------------------------------------------------------------------------
-// Date Sanitization (planning doc section 5)
-// ---------------------------------------------------------------------------
-
 export function normalizeDate(raw: string | undefined | null): string | null {
   if (!raw || raw.trim() === "" || raw.trim() === "?") {
     return null;
   }
   const trimmed = raw.trim();
 
-  // yyyy only
   if (YEAR_ONLY_RE.test(trimmed)) {
     return `${trimmed}-01-01`;
   }
 
-  // m/yyyy or mm/yyyy
   const monthYearMatch = MONTH_YEAR_RE.exec(trimmed);
   if (monthYearMatch?.[1] && monthYearMatch[2]) {
     const month = monthYearMatch[1].padStart(2, "0");
     return `${monthYearMatch[2]}-${month}-01`;
   }
 
-  // d/m/yyyy or dd/mm/yyyy (with occasional m/d/yyyy legacy outlier)
   const slashMatch = FULL_DATE_RE.exec(trimmed);
   if (slashMatch?.[1] && slashMatch[2] && slashMatch[3]) {
     const year = slashMatch[3];
     let day = Number.parseInt(slashMatch[1], 10);
     let month = Number.parseInt(slashMatch[2], 10);
 
-    // day > 12 is unambiguously d/m/y; if month > 12 it's a legacy m/d/y outlier
     if (month > 12 && day <= 12) {
       [day, month] = [month, day];
     }
@@ -114,10 +94,6 @@ export function normalizeDate(raw: string | undefined | null): string | null {
 
   return null;
 }
-
-// ---------------------------------------------------------------------------
-// Name Splitting
-// ---------------------------------------------------------------------------
 
 export function splitName(fullName: string): {
   firstName: string;
@@ -131,14 +107,6 @@ export function splitName(fullName: string): {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Important Dates Parsing (planning doc section 6)
-// ---------------------------------------------------------------------------
-
-/**
- * Parses a multi-line CSV cell of important dates (one per line, "date - occasion" format)
- * into typed ImportantDate objects. Imported dates default to yearly recurrence.
- */
 export function parseImportantDates(
   raw: string | undefined | null,
   csvRowNum: number
@@ -171,10 +139,6 @@ export function parseImportantDates(
   }
   return results;
 }
-
-// ---------------------------------------------------------------------------
-// Enum Mappers (planning doc section 8)
-// ---------------------------------------------------------------------------
 
 function mapEnum(
   raw: string | undefined | null,
@@ -215,10 +179,6 @@ export function mapHouseholdRole(relation: string): string {
   return role;
 }
 
-// ---------------------------------------------------------------------------
-// Row Filter (planning doc section 7)
-// ---------------------------------------------------------------------------
-
 export function isValidRow(
   row: CsvRow,
   csvRowNum: number
@@ -229,10 +189,6 @@ export function isValidRow(
   }
   return { row, csvRowNum };
 }
-
-// ---------------------------------------------------------------------------
-// Row Transform — CSV row to PeopleInsertDb
-// ---------------------------------------------------------------------------
 
 export function transformRow(
   row: CsvRow,

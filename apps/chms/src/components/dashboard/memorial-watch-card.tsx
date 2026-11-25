@@ -13,9 +13,7 @@ const memorialIcon = (
   </div>
 );
 
-/** List of deceased people whose memorial day falls within the current week. */
 export function MemorialWatchCard({ people: allPeople }: { people: People }) {
-  // Only deceased people can have a meaningful memorial day
   const people = allPeople.filter((person) => isDeceased(person));
 
   const memorialDaysThisWeek = people.filter(
@@ -26,7 +24,6 @@ export function MemorialWatchCard({ people: allPeople }: { people: People }) {
 
       const today = new Date();
 
-      // Week boundaries: Sunday 00:00 → Saturday 23:59
       const startOfWeek = new Date(today);
       startOfWeek.setDate(today.getDate() - today.getDay());
       startOfWeek.setHours(0, 0, 0, 0);
@@ -35,7 +32,6 @@ export function MemorialWatchCard({ people: allPeople }: { people: People }) {
       endOfWeek.setDate(startOfWeek.getDate() + 6);
       endOfWeek.setHours(23, 59, 59, 999);
 
-      // Project the memorial date into the current year to check the anniversary
       const memorial = new Date(person.memorialDay);
       const memorialThisYear = new Date(
         today.getFullYear(),
@@ -57,7 +53,6 @@ export function MemorialWatchCard({ people: allPeople }: { people: People }) {
         {memorialDaysThisWeek.length > 0 ? (
           <div className="divide-y divide-border/30">
             {memorialDaysThisWeek.map((person) => {
-              // Years elapsed since the memorial, shown as a human-readable label
               const yearsSince =
                 new Date().getFullYear() -
                 new Date(person.memorialDay).getFullYear();
@@ -94,7 +89,6 @@ export function MemorialWatchCard({ people: allPeople }: { people: People }) {
                     </div>
                   </div>
 
-                  {/* Decorative background flower for subtle depth on hover */}
                   <div className="absolute -right-4 -bottom-4 opacity-5 transition-opacity group-hover:opacity-10">
                     <Flower2 className="h-20 w-20 text-indigo-500" />
                   </div>

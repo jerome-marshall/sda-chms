@@ -32,7 +32,6 @@ import {
 import type { InfraError, InvariantError } from "./errors";
 import { MaritalStatus } from "./marital-status";
 
-/** The People operations the API exposes. */
 export interface PeopleService {
   readonly getAll: () => Effect.Effect<PersonWithHouseholdApi[], InfraError>;
   readonly getById: (
@@ -58,12 +57,10 @@ export interface PeopleService {
   >;
 }
 
-/** People reads and writes behind Effect; each call uses the request's `Db`. */
 export class People extends Context.Service<People, PeopleService>()(
   "People"
 ) {}
 
-/** Builds the People service from the request-scoped database and spouse rules. */
 export const PeopleLive = Layer.effect(
   People,
   Effect.gen(function* PeopleLive() {
@@ -258,20 +255,17 @@ export const PeopleLive = Layer.effect(
   })
 );
 
-/** Lists every Person with their Household's shared contact fields. */
 export const getAllPeople = Effect.gen(function* getAllPeopleProgram() {
   const people = yield* People;
   return yield* people.getAll();
 });
 
-/** Reads one Person, failing when the id is unknown. */
 export const getPersonById = (id: string) =>
   Effect.gen(function* getPersonByIdProgram() {
     const people = yield* People;
     return yield* people.getById(id);
   });
 
-/** Creates a Person, creating their Household when they are a head. */
 export const addPerson = (data: PersonInsertForm) =>
   Effect.gen(function* addPersonProgram() {
     const people = yield* People;

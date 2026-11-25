@@ -29,7 +29,6 @@ import { formatLabel, getInitials } from "./utils";
 type RelationshipType = (typeof RELATIONSHIP_TYPE_VALUES)[number];
 type SpouseState = (typeof SPOUSE_STATE_VALUES)[number];
 
-/** Spouse lifecycle control — a select in edit mode, a label on the detail page. */
 function SpouseStateControl({
   editable,
   onChange,
@@ -73,10 +72,6 @@ function SpouseStateControl({
   );
 }
 
-/**
- * The Household Role whose holder is the likely spouse of a given role: a Head's
- * Spouse and vice versa. Any other role (or none) has no spouse pre-fill.
- */
 const COMPLEMENTARY_SPOUSE_ROLE: Record<
   string,
   (typeof HOUSEHOLD_ROLE)[keyof typeof HOUSEHOLD_ROLE] | undefined
@@ -86,16 +81,13 @@ const COMPLEMENTARY_SPOUSE_ROLE: Record<
 };
 
 interface RelationshipsSectionProps {
-  /** When true, the user can add, change, and remove links. Detail view is read-only. */
   editable?: boolean;
-  /** Render the list without its own card, for nesting inside Marital & Family. */
   embedded?: boolean;
   person: Person;
   relationships: Relationships;
   people: People;
 }
 
-/** Reads the contract message out of an API failure for the error toast. */
 const failureMessage = (error: unknown): string => {
   if (error instanceof FetchError) {
     const body = error.data as { message?: string } | undefined;
@@ -104,7 +96,6 @@ const failureMessage = (error: unknown): string => {
   return error instanceof Error ? error.message : "Request failed";
 };
 
-/** Lists a Person's relationships; editing is reserved for edit mode (ADR-0003). */
 export function RelationshipsSection({
   editable = false,
   embedded = false,
@@ -133,7 +124,6 @@ export function RelationshipsSection({
           personId: person.id,
           relatedPersonId,
           type,
-          // Only spouse links carry a lifecycle state (ADR-0003).
           ...(type === RELATIONSHIP_TYPE.SPOUSE ? { state } : {}),
         },
       });
@@ -179,14 +169,8 @@ export function RelationshipsSection({
     }
   };
 
-  // Anyone but this person is a valid link target.
   const candidates = (people ?? []).filter((p) => p.id !== person.id);
 
-  // Household Head + Spouse roles suggest a spouse link but never imply one
-  // (ADR-0003): offer to pre-fill it, but it is only stored once the user adds
-  // it, and remains editable afterwards. The complementary role — a Head's
-  // Spouse, or a Spouse's Head — in the same household is the pre-fill target,
-  // unless a spouse link to them already exists.
   const complementaryRole = person.householdRole
     ? COMPLEMENTARY_SPOUSE_ROLE[person.householdRole]
     : undefined;
