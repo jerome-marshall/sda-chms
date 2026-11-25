@@ -13,7 +13,7 @@
 - [ ] The test that fails if this breaks is named below
 - [ ] A UI change includes a screenshot, recording, or Playwright trace
 
-Test that fails if this breaks: `apps/chms/test/example.test.ts`
+Test that fails if this breaks: `<path to the test>`
 
 ```
 # paste the relevant command output here

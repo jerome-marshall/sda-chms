@@ -40,6 +40,7 @@ A green local run should mean a green PR. If a command fails, fix the cause in t
 - `process.env` appears in domain code.
 - a test is skipped or focused, or test cases are removed without the `test-deleted` label.
 - the schema and the committed migrations disagree.
+- a doc, the gate config, or a workflow names a repo path that does not exist.
 - a TypeScript suppression was added, a weaker test matcher replaced an exact one, or a new server export has no test in the diff.
 
 Each rule names the file and line, so fix the cause rather than the report.
